@@ -56,7 +56,7 @@ const SETUP_HERO = {
      pivots to completing the PayPal Wallet setup, using the wallet badge icon. */
   paypalWallet: {
     title: 'Set up PayPal Wallet',
-    desc: 'A customer placed an order and paid using PayPal Wallet. To receive the payment, connect PayPal Wallet to your store and complete the setup.',
+    desc: 'You received an order paid with PayPal Wallet. Connect PayPal Wallet to receive the payment.',
     cta: 'Set up PayPal Wallet',
     art: '/logos/paypal/paypal-wallet-badge.svg',
     alt: 'PayPal Wallet',

@@ -11,7 +11,7 @@ import { chevronUp } from '@wordpress/icons';
 import { SwitcherDivider, SwitcherLabel, SwitcherRadio, SwitcherToggle } from './switcherUi';
 import { TRACK_IDS, TRACK_LABEL, type Track } from './tracks';
 import {
-  MERCHANT_SCREENS, SCREEN_LABEL, type MerchantScreen, type MerchantState, type PayPalStatus,
+  MERCHANT_SCREENS, SCREEN_LABEL, type MerchantScreen, type MerchantState,
 } from './merchant/flow';
 import {
   SHOPPER_SCREENS, SHOPPER_SCREEN_LABEL, type ShopperScreen, type ShopperState,
@@ -69,8 +69,26 @@ export default function TrackSwitcher( {
   }, [ open ] );
 
   const goScreen = ( screen: MerchantScreen ) => setMerchant( ( s ) => ( { ...s, screen } ) );
-  const setPaypal = ( paypal: PayPalStatus ) => setMerchant( ( s ) => ( { ...s, paypal } ) );
   const goShopper = ( screen: ShopperScreen ) => setShopper( ( s ) => ( { ...s, screen } ) );
+
+  /* "Order placed": arm (or clear) a shopper order. When an order exists and
+     PayPal isn't set up yet, the payment is pending — which is what drives the
+     "Set up PayPal Wallet" story across the admin. */
+  const toggleOrder = () => setMerchant( ( s ) => (
+    s.orderReceived
+      ? { ...s, orderReceived: false, pendingPayment: false }
+      : { ...s, orderReceived: true, productsDone: true, pendingPayment: s.paypal !== 'active' }
+  ) );
+
+  /* "PayPal Wallet – Setup completed": mirrors paypal === 'active'. Turning it on
+     completes setup and resolves any pending payment; turning it off rolls back
+     to needs-action and re-arms the pending payment when an order exists (so the
+     "Set up PayPal Wallet" prompts reappear everywhere). */
+  const toggleSetup = () => setMerchant( ( s ) => (
+    s.paypal === 'active'
+      ? { ...s, paypal: 'needs_action', pendingPayment: s.orderReceived }
+      : { ...s, paypal: 'active', pendingPayment: false }
+  ) );
 
   return (
     <div className={ `store-switcher${ revealed ? ' is-revealed' : '' }` }>
@@ -113,26 +131,15 @@ export default function TrackSwitcher( {
               </select>
 
               <SwitcherDivider />
-              <SwitcherLabel>PayPal status</SwitcherLabel>
-              { ( [ 'needs_action', 'active' ] as PayPalStatus[] ).map( ( st ) => (
-                <SwitcherRadio
-                  key={ st }
-                  label={ st === 'active' ? 'Active (connected)' : 'Needs action' }
-                  checked={ merchant.paypal === st }
-                  onClick={ () => setPaypal( st ) }
-                />
-              ) ) }
-
-              <SwitcherDivider />
               <SwitcherToggle
-                label="Products added"
-                checked={ merchant.productsDone }
-                onClick={ () => setMerchant( ( s ) => ( { ...s, productsDone: ! s.productsDone } ) ) }
+                label="Order placed"
+                checked={ merchant.orderReceived }
+                onClick={ toggleOrder }
               />
               <SwitcherToggle
-                label="Payment pending banner"
-                checked={ merchant.pendingPayment }
-                onClick={ () => setMerchant( ( s ) => ( { ...s, pendingPayment: ! s.pendingPayment } ) ) }
+                label="PayPal Wallet – Setup completed"
+                checked={ merchant.paypal === 'active' }
+                onClick={ toggleSetup }
               />
             </>
           ) }

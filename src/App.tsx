@@ -63,9 +63,10 @@ export default function App() {
   } ) );
   const [ merchantNudgeDismissed, setMerchantNudgeDismissed ] = useState( false );
   const [ orderNudgeDismissed, setOrderNudgeDismissed ] = useState( false );
-  /* Once a shopper order has been placed, the "go to Shopper view" nudge has done
-     its job — don't show it again when the merchant returns to wp-admin. */
-  const [ orderPlaced, setOrderPlaced ] = useState( false );
+  /* Whether a shopper order has been placed lives on the merchant state
+     (`orderReceived`) — set by a real checkout (onPurchase) or the prototype
+     switcher — and doubles as the signal that the "go to Shopper view" nudge has
+     done its job. */
 
   /** Current navigation slice → URL param map. */
   const navParams = () => ( {
@@ -138,7 +139,7 @@ export default function App() {
   /* Cross-track nudges appear after their condition holds — the merchant nudge
      after 1s, the order-received nudge after 2s. */
   const showMerchantNudge = useDelayed(
-    track === 'merchant' && merchant.productsDone && ! orderPlaced
+    track === 'merchant' && merchant.productsDone && ! merchant.orderReceived
       && merchant.paypal !== 'active' && ! merchantNudgeDismissed,
     1000
   );
@@ -159,7 +160,6 @@ export default function App() {
                  track at the Home tasklist, so switching to Merchant view from the
                  order-received page lands on wp-admin with the banner showing. */
               setMerchant( ( s ) => ( { ...s, pendingPayment: true, productsDone: true, orderReceived: true, screen: 'home' } ) );
-              setOrderPlaced( true );
             } }
           /> }
 
@@ -197,7 +197,6 @@ export default function App() {
           setTrack( DEFAULT_TRACK );
           setMerchant( INITIAL_STATE );
           setShopper( INITIAL_SHOPPER_STATE );
-          setOrderPlaced( false );
           setMerchantNudgeDismissed( false );
           setOrderNudgeDismissed( false );
         } }

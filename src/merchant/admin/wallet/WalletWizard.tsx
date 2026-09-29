@@ -38,8 +38,8 @@ export default function WalletWizard( {
       <div className="ww-body">
         { pendingOrder && (
           <Notice>
-            A customer placed an order and paid using PayPal Wallet. To receive
-            the payment, connect PayPal Wallet to your store and complete the setup.
+            You received an order paid with PayPal Wallet. Connect PayPal Wallet
+            to receive the payment.
           </Notice>
         ) }
         <div className="ww-hero">

@@ -267,6 +267,15 @@
 .epm-btn--gold { background: #ffc439; }
 .epm-btn--venmo { background: #3d8af7; }
 .epm-btn__label { font-size: 15px; font-weight: 500; color: #003087; }
+/* Loading spinner shown for a moment after a button is clicked, before the modal
+   opens. Keeps the buttons' size and colour steady while any one is loading. */
+.epm-btn:disabled { cursor: default; opacity: 1; filter: none; }
+.epm-btn__spinner {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid rgba( 0, 48, 135, 0.25 ); border-top-color: #003087;
+  animation: sp-spin 0.7s linear infinite;
+}
+.epm-btn__spinner--venmo { border-color: rgba( 255, 255, 255, 0.45 ); border-top-color: #fff; }
 
 /* =========================================================================
    Checkout
