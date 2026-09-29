@@ -17,9 +17,12 @@ const FEATURES = [
 export default function WalletWizard( {
   onBack,
   onConnect,
+  loading = false,
 }: {
   onBack: () => void;
   onConnect: () => void;
+  /** After the connect popup closes, the CTA spins for a moment before redirect. */
+  loading?: boolean;
 } ) {
   return (
     <div className="ww">
@@ -47,7 +50,10 @@ export default function WalletWizard( {
             PayPal account or creating a new one. You will be able to choose the
             payment options that are right for your store.
           </p>
-          <button type="button" className="ww-cta" onClick={ onConnect }>Set up PayPal Wallet</button>
+          <button type="button" className="ww-cta" onClick={ onConnect } disabled={ loading }>
+            <span className={ `ww-cta__label${ loading ? ' is-hidden' : '' }` }>Set up PayPal Wallet</span>
+            { loading && <span className="ww-cta__spinner" aria-label="Connecting" /> }
+          </button>
         </div>
 
         <hr className="ww-divider" />

@@ -19,6 +19,8 @@ export const ONBOARDING_SCREENS = [
   'features-loader',
   'jetpack-connect',
   'account-loader',
+  'skip-location',
+  'skip-loader',
 ] as const;
 
 /** wp-admin screens (rendered inside the admin shell). */
@@ -133,6 +135,8 @@ export const SCREEN_LABEL: Record< MerchantScreen, string > = {
   'features-loader': 'Onboarding · Loader',
   'jetpack-connect': 'Onboarding · Connect account',
   'account-loader': 'Onboarding · Connecting',
+  'skip-location': 'Onboarding · Business location (skip)',
+  'skip-loader': 'Onboarding · Turning on the lights',
   home: 'Admin · Home / tasklist',
   payments: 'Admin · Payments settings',
   'wallet-welcome': 'PayPal · Setup wizard',

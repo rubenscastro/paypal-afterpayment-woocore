@@ -65,7 +65,7 @@ function Sidebar( {
         <NavItem icon={ <MediaIcon /> } label="Media" />
         <NavItem icon={ <PagesIcon /> } label="Pages" />
         <NavItem icon={ <CommentsIcon /> } label="Comments" />
-        <NavItem icon={ <WooCommerceIcon /> } label="WooCommerce" badge={ 4 } active>
+        <NavItem icon={ <WooCommerceIcon /> } label="WooCommerce" active>
           { WOO_SUBITEMS.map( ( item ) => {
             const target = SUB_TARGET[ item ];
             const cls = `wp-sub-item${ item === activeSub ? ' is-active-sub' : '' }`;

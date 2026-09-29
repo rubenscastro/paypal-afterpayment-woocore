@@ -28,7 +28,6 @@ export default function PayPalModal( {
     <div className="ppm-backdrop" onClick={ onClose }>
       <div className="ppm" role="dialog" aria-modal="true" aria-label="PayPal payment flow" onClick={ ( e ) => e.stopPropagation() }>
         <div className="ppm-bar">
-          <span className="ppm-bar__title">PayPal payment flow</span>
           <button type="button" className="ppm-close" aria-label="Close" onClick={ onClose }>×</button>
         </div>
         <div className="ppm-body">
@@ -39,7 +38,6 @@ export default function PayPalModal( {
               completed payment.
             </p>
             <button type="button" className="ppm-complete" onClick={ onComplete }>Complete purchase</button>
-            <button type="button" className="ppm-cancel" onClick={ onClose }>Cancel and return</button>
           </div>
         </div>
       </div>

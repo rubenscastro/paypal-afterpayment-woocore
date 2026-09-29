@@ -55,7 +55,11 @@ export default function ShopPage( {
       <h1 className="sh-page-title">Shop</h1>
       <div className="sp-toolbar">
         <span className="sp-count">Showing 1–16 of 17 results</span>
-        <button type="button" className="sp-sort">Default sorting <span aria-hidden>⌄</span></button>
+        <button type="button" className="sp-sort">Default sorting
+          <svg className="sp-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
       </div>
       <div className="sp-grid">
         { PRODUCTS.map( ( p ) => (

@@ -23,11 +23,27 @@ function CheckoutHeader( { cartCount }: { cartCount: number } ) {
   );
 }
 
-function Field( { label, value, optional }: { label: string; value?: string; optional?: boolean } ) {
+/** Floating-label field: the label rests inside the input like a placeholder and
+ *  floats up to the top when the field is focused or filled, so every field keeps
+ *  a visible label. */
+function Field( { label, value, optional, search }: { label: string; value?: string; optional?: boolean; search?: boolean } ) {
+  const [ val, setVal ] = useState( value ?? '' );
+  const [ focused, setFocused ] = useState( false );
+  const floated = focused || val.length > 0;
+  const text = `${ label }${ optional ? ' (optional)' : '' }`;
   return (
-    <label className="co-field">
-      { value ? <span className="co-field__label">{ label }</span> : null }
-      <input className="co-field__input" defaultValue={ value } placeholder={ value ? undefined : `${ label }${ optional ? ' (optional)' : '' }` } />
+    <label className={ `co-field co-field--float${ search ? ' co-field--search' : '' }${ floated ? ' is-float' : '' }` }>
+      <span className="co-field__label">{ text }</span>
+      <input
+        className="co-field__input"
+        value={ val }
+        onChange={ ( e ) => setVal( e.target.value ) }
+        onFocus={ () => setFocused( true ) }
+        onBlur={ () => setFocused( false ) }
+      />
+      { search && (
+        <svg className="co-field__icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.6" /><path d="m20 20-3.2-3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
+      ) }
     </label>
   );
 }
@@ -100,10 +116,7 @@ export default function CheckoutPage( { onPay, cartCount }: { onPay: () => void;
               <Field label="First name" />
               <Field label="Last name" />
             </div>
-            <label className="co-field co-field--search">
-              <input className="co-field__input" placeholder="Address" />
-              <svg className="co-field__icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.6"/><path d="m20 20-3.2-3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
-            </label>
+            <Field label="Address" search />
             <a className="co-add-line">+ Add apartment, suite number, etc.</a>
             <div className="co-row-2">
               <Field label="City" />

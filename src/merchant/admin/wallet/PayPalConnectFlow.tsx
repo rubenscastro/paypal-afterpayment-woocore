@@ -16,6 +16,7 @@ type Step =
   | 'login'
   | 'login-loading'
   | 'account'
+  | 'account-loading'
   | 'done';
 
 /** Chrome (tab title + address) per step, matching the Figma screenshots. */
@@ -25,6 +26,7 @@ const CHROME: Record< Step, { title: string; url: string; blank?: boolean } > = 
   login: { title: 'Log in to your PayPal account', url: 'paypal.com/signin?returnUri=https%3A%2F%2F…' },
   'login-loading': { title: 'Log in to your PayPal account', url: 'paypal.com/signin?returnUri=https%3A%2F%2F…' },
   account: { title: 'Set up your business account - PayPal', url: 'paypal.com/unifiedonboarding/sellerIntentDecisionExisting' },
+  'account-loading': { title: 'Set up your business account - PayPal', url: 'paypal.com/unifiedonboarding/sellerIntentDecisionExisting' },
   done: { title: 'Set up your business account - PayPal', url: 'paypal.com/unifiedonboarding/casualSellerDone' },
 };
 
@@ -123,6 +125,8 @@ export default function PayPalConnectFlow( {
       timer.current = setTimeout( () => setStep( 'connect' ), 1900 );
     } else if ( step === 'login-loading' ) {
       timer.current = setTimeout( () => setStep( 'account' ), 1900 );
+    } else if ( step === 'account-loading' ) {
+      timer.current = setTimeout( () => setStep( 'done' ), 1900 );
     }
     return () => clearTimeout( timer.current );
   }, [ step, open ] );
@@ -171,7 +175,7 @@ export default function PayPalConnectFlow( {
                 <h1 className="ppc-connect__title">Connect a PayPal account to start accepting payments on WooCommerce</h1>
                 <p className="ppc-connect__lede">It’s free to connect, whether you have an existing PayPal account, or want to create a new account.</p>
                 <label className="ppc-field">
-                  <input className="ppc-input" type="email" placeholder="Email" />
+                  <input className="ppc-input" type="email" placeholder="Email" defaultValue="test@store.com" />
                 </label>
                 <label className="ppc-field ppc-select">
                   <span className="ppc-select__label">Country or region</span>
@@ -190,17 +194,19 @@ export default function PayPalConnectFlow( {
             <div className={ `ppc-page ppc-login${ step === 'login-loading' ? ' is-loading' : '' }` }>
               <div className="ppc-login__logo"><PPWordmarkBlack size={ 30 } /></div>
               <p className="ppc-login__id">
-                orubenscastro@gmail.com <a href="#" onClick={ ( e ) => e.preventDefault() }>Change</a>
+                test@store.com <a href="#" onClick={ ( e ) => e.preventDefault() }>Change</a>
               </p>
               <label className="ppc-field">
-                <input className="ppc-input ppc-input--tall" type="password" placeholder="Password" defaultValue={ step === 'login-loading' ? 'password' : '' } />
+                <input className="ppc-input ppc-input--tall" type="password" placeholder="Password" defaultValue="Woo!PayPal2024" />
               </label>
               <a className="ppc-link ppc-link--left" href="#" onClick={ ( e ) => e.preventDefault() }>Forgot password?</a>
               <button type="button" className="ppc-btn ppc-btn--pillblue" onClick={ () => go( 'login-loading' ) }>Log In</button>
               <a className="ppc-link ppc-link--center" href="#" onClick={ ( e ) => e.preventDefault() }>Try another way</a>
               <div className="ppc-lang">
                 <span className="ppc-flag" aria-hidden>🇺🇸</span>
-                <span className="ppc-lang__chevron" aria-hidden>⌄</span>
+                <svg className="ppc-lang__chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M6 9l6 6 6-6" stroke="#6c7378" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
                 <span className="ppc-lang__list"><strong>English</strong> | Français | Español | 中文</span>
               </div>
               <div className="ppc-footer ppc-login__footer">
@@ -210,8 +216,8 @@ export default function PayPalConnectFlow( {
             </div>
           ) }
 
-          { step === 'account' && (
-            <div className="ppc-page ppc-account">
+          { ( step === 'account' || step === 'account-loading' ) && (
+            <div className={ `ppc-page ppc-account${ step === 'account-loading' ? ' is-loading' : '' }` }>
               <div className="ppc-account__logo"><PPMonogram size={ 44 } /></div>
               <h1 className="ppc-account__title">You logged into a personal account. How do you want to continue?</h1>
               <button
@@ -227,8 +233,9 @@ export default function PayPalConnectFlow( {
               </button>
               <button
                 type="button"
-                className={ `ppc-choice${ account === 'personal' ? ' is-selected' : '' }` }
-                onClick={ () => setAccount( 'personal' ) }
+                className="ppc-choice is-disabled"
+                disabled
+                aria-disabled="true"
               >
                 <span className="ppc-choice__icon"><AcornIcon /></span>
                 <span className="ppc-choice__text">
@@ -236,7 +243,8 @@ export default function PayPalConnectFlow( {
                   <span>Take payments with your personal account. No new features.</span>
                 </span>
               </button>
-              <button type="button" className="ppc-btn ppc-btn--pillblack" onClick={ () => go( 'done' ) }>Next</button>
+              <button type="button" className="ppc-btn ppc-btn--pillblack" onClick={ () => go( 'account-loading' ) }>Next</button>
+              { step === 'account-loading' && <span className="ppc-spinner ppc-spinner--overlay" aria-label="Loading" /> }
             </div>
           ) }
 

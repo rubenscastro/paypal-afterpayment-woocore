@@ -2,11 +2,8 @@
 import type { ShopperScreen } from './flow';
 
 const NAV: { label: string; screen?: ShopperScreen }[] = [
-  { label: 'Cart', screen: 'cart' },
-  { label: 'Checkout', screen: 'checkout' },
-  { label: 'My account' },
-  { label: 'Sample Page' },
   { label: 'Shop', screen: 'shop' },
+  { label: 'Checkout', screen: 'checkout' },
 ];
 
 function CartIcon() {

@@ -9,11 +9,13 @@ import { useEffect, useRef } from 'react';
 export default function FunLoader( {
   title,
   image = '/logos/woo/loader-developing.svg',
+  fact = 'Did you know that Woo was founded by two South Africans and a Norwegian? Here are three alternative ways to say "store" in those countries – Winkel, ivenkile, and butikk.',
   delay = 2400,
   onDone,
 }: {
   title: string;
   image?: string;
+  fact?: string;
   delay?: number;
   onDone: () => void;
 } ) {
@@ -36,9 +38,7 @@ export default function FunLoader( {
           <span className="ob-loader__fill" style={ { animationDuration: `${ delay }ms` } } />
         </div>
         <p className="ob-loader__fact">
-          <strong>#FunWooFact: </strong>Did you know that Woo was founded by two
-          South Africans and a Norwegian? Here are three alternative ways to say
-          "store" in those countries – Winkel, ivenkile, and butikk.
+          <strong>#FunWooFact: </strong>{ fact }
         </p>
       </div>
     </div>

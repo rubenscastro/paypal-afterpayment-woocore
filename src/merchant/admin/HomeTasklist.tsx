@@ -65,14 +65,48 @@ export default function HomeTasklist( {
   const productsComplete = state.productsDone || paymentsComplete;
   const completedSteps = paymentsComplete ? 2 : productsComplete ? 1 : 0;
   const activeIndex = completedSteps;
+
+  /* Once a shopper has paid but PayPal isn't connected yet, the tasklist pivots
+     to getting paid: the "Set up payments" step reads "Set up PayPal Wallet" and
+     opens the wallet setup wizard directly (rather than the Payments settings
+     list), and the connect task jumps to the top of "Things to do next". */
+  const orderPending = state.pendingPayment && state.paypal !== 'active';
+  const stepLabel = ( i: number ): string =>
+    i === 1 && orderPending ? 'Set up PayPal Wallet' : SETUP_STEPS[ i ];
+  /* The payments step: wallet wizard when it's urging "Set up PayPal Wallet",
+     otherwise the Payments settings screen. */
+  const paymentsAction = orderPending ? onConnectPaypal : onGoPayments;
+
   const hero = productsComplete ? SETUP_HERO.payments : SETUP_HERO.products;
-  const onHeroCta = productsComplete ? onGoPayments : onCompleteProducts;
-  /* Step rows are clickable: "Add your products" completes it, "Set up payments"
-     opens the Payments settings screen. */
+  const onHeroCta = productsComplete ? paymentsAction : onCompleteProducts;
+  /* Step rows are clickable: "Add your products" completes it, the payments step
+     opens the wallet wizard or Payments settings as above. */
   const stepAction = ( i: number ): ( () => void ) | undefined =>
-    i === 0 ? onCompleteProducts : i === 1 ? onGoPayments : undefined;
+    i === 0 ? onCompleteProducts : i === 1 ? paymentsAction : undefined;
   /* Figma frame shows 3/6 complete; each finished setup step advances it. */
   const completeCount = 3 + completedSteps;
+
+  type Todo = { title: string; meta?: string; onClick?: () => void };
+  const connectTodo: Todo = orderPending
+    ? {
+        title: 'Complete setting up PayPal Wallet to get paid',
+        meta: 'A customer placed an order and paid using PayPal Wallet. To receive the payment, connect PayPal Wallet to your store and complete the setup.',
+        onClick: onConnectPaypal,
+      }
+    : {
+        title: 'Connect PayPal to complete setup',
+        meta: 'PayPal Wallet is almost ready. To get started, connect your account with the Activate PayPal Wallet button.',
+        onClick: onConnectPaypal,
+      };
+  const baseTodos: Todo[] = [
+    { title: 'Grow your business', meta: '2 minutes' },
+    { title: 'Enhance your store with extensions' },
+    { title: 'Get the free WooCommerce mobile app' },
+    { title: 'Enable required fraud protection for PayPal Payments', meta: 'Help protect your store and maintain compliance.' },
+  ];
+  const todos: Todo[] = orderPending
+    ? [ connectTodo, ...baseTodos ]
+    : [ baseTodos[ 0 ], baseTodos[ 1 ], baseTodos[ 2 ], connectTodo, baseTodos[ 3 ] ];
 
   if ( ! ready ) return <HomeSkeleton />;
 
@@ -133,7 +167,7 @@ export default function HomeTasklist( {
                     <span className="hm-step__num">
                       { complete ? <Icon icon={ check } size={ 20 } /> : i + 1 }
                     </span>
-                    <span className="hm-step__label">{ label }</span>
+                    <span className="hm-step__label">{ stepLabel( i ) }</span>
                   </>
                 );
                 return (
@@ -150,18 +184,12 @@ export default function HomeTasklist( {
           {/* Things to do next */}
           <section className="hm-card">
             <div className="hm-card__head">
-              <h2 className="hm-card__title">Things to do next<span className="hm-count">5</span></h2>
+              <h2 className="hm-card__title">Things to do next<span className="hm-count">{ todos.length }</span></h2>
               <IconButton icon={ moreVertical } label="More" variant="minimal" tone="neutral" />
             </div>
             <ul className="hm-todos">
-              { [
-                { title: 'Grow your business', meta: '2 minutes' },
-                { title: 'Enhance your store with extensions' },
-                { title: 'Get the free WooCommerce mobile app' },
-                { title: 'Connect PayPal to complete setup', meta: 'PayPal Wallet is almost ready. To get started, connect your account with the Activate PayPal Wallet button.', onClick: onConnectPaypal },
-                { title: 'Enable required fraud protection for PayPal Payments', meta: 'Help protect your store and maintain compliance.' },
-              ].map( ( t ) => (
-                <li key={ t.title } className="hm-todo">
+              { todos.map( ( t ) => (
+                <li key={ t.title } className={ `hm-todo${ t.onClick ? ' hm-todo--action' : '' }` }>
                   <span className="hm-todo__check" />
                   <div className="hm-todo__text">
                     <a className="hm-todo__title" onClick={ t.onClick }>{ t.title }</a>

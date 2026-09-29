@@ -78,7 +78,7 @@ export default function PaymentsSettings( {
         {/* PayPal Wallet — the star of the flow */}
         <div className="ps-row ps-row--stack">
           <div className="ps-row__lead">
-            <img className="ps-row__logo" src="/logos/paypal.svg" alt="" width={ 40 } height={ 40 } />
+            <img className="ps-row__logo" src="/logos/paypal/paypal-wallet-badge.svg" alt="" width={ 40 } height={ 40 } />
             <div className="ps-row__main">
               <div className="ps-row__title-line">
                 <span className="ps-row__title">PayPal Wallet</span>

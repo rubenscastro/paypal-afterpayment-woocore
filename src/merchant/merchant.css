@@ -137,6 +137,13 @@
    width rule on specificity, not just source order). */
 .ob-cta.ob-cta--block.components-button.is-primary { width: 100%; }
 .ob-cta--block.components-button { margin-top: 24px; margin-bottom: 0; }
+
+/* "Skip guided setup" → business location screen: centred select + full-width CTA. */
+.ob-location .ob-lede { margin-bottom: 28px; }
+.ob-location__field { width: 100%; max-width: 456px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.ob-location__field .components-base-control,
+.ob-location__field .components-base-control__field { width: 100%; margin: 0; }
+.ob-location__field .ob-cta.components-button.is-primary { width: 100%; margin: 0; }
 /* Tertiary "Skip guided setup" under the CTA — text link in the theme colour. */
 .ob-skip-btn.components-button.is-tertiary {
   color: var(--wp-admin-theme-color, #3858e9);
@@ -359,10 +366,12 @@
 .ps-tab.is-active { color: #3858e9; border-bottom-color: #3858e9; font-weight: 500; }
 .ps-tab.is-active:hover { color: #3858e9; }
 
-.ps-body { padding: 0 32px; }
+/* No horizontal padding here so the row divider lines reach the container edges;
+   the rows carry the 32px inset on their content instead. */
+.ps-body { padding: 0; }
 .ps-providers-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 24px 0 16px;
+  padding: 24px 32px 16px;
   border-bottom: 1px solid #e0e0e0;
 }
 .ps-section-title { font-size: 14px; font-weight: 600; margin: 0; }
@@ -377,7 +386,7 @@
 
 .ps-row {
   display: flex; align-items: flex-start; gap: 16px;
-  padding: 24px 0;
+  padding: 24px 32px;
   border-bottom: 1px solid #e0e0e0;
   width: 100%;
   text-align: left;
@@ -471,7 +480,7 @@
 .ps-row--stack .wc-notice { margin-top: var(--wpds-dimension-gap-xs, 4px); }
 
 /* Other payment options */
-.ps-other { padding: 16px 0 40px; }
+.ps-other { padding: 16px 32px 40px; }
 .ps-other__head {
   display: flex; align-items: center; gap: 12px; width: 100%;
   border: 1px solid #e0e0e0; border-radius: 8px; background: #fff;
@@ -672,6 +681,12 @@
 }
 .ww-cta:hover { background: #383838; }
 .ww-cta:active { background: #000; }
+.ww-cta { position: relative; }
+.ww-cta:disabled { opacity: 0.9; cursor: default; }
+/* Keep the button's resting width while loading: the label stays in the layout
+   (just hidden) and the spinner is centred over it. */
+.ww-cta__label.is-hidden { visibility: hidden; }
+.ww-cta__spinner { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border: 2px solid rgba( 255, 255, 255, 0.35 ); border-top-color: #fff; border-radius: 50%; animation: ppc-spin 0.8s linear infinite; }
 .ww-cta:focus-visible { outline: 2px solid #3858e9; outline-offset: 2px; }
 .ww-divider { border: none; border-top: 1px solid #e0e0e0; margin: 40px 0; }
 
@@ -754,7 +769,7 @@
 .wm-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .wm-method { border: 1px solid #e0e0e0; border-radius: 6px; padding: 20px; display: flex; flex-direction: column; }
 .wm-method__head { display: flex; align-items: center; gap: 10px; }
-.wm-method__logo { width: 28px; height: 28px; object-fit: contain; }
+.wm-method__logo { height: 24px; width: auto; object-fit: contain; }
 .wm-method__title { font-size: 14px; font-weight: 600; }
 .wm-method__desc { font-size: 13px; color: #50575e; margin: 12px 0 20px; flex: 1; line-height: 1.5; }
 .wm-method__foot { display: flex; align-items: center; justify-content: space-between; }
@@ -779,9 +794,13 @@
 .wm-style__panel { width: 420px; flex: none; padding: 28px; border-right: 1px solid #e0e0e0; }
 .wm-style__panel .components-base-control { margin-bottom: 0; }
 .wm-mt { margin-top: 20px; }
+/* Toggle/checkbox groups: more breathing room between rows. */
+.wm-toggles { display: flex; flex-direction: column; gap: 16px; }
+.wm-checks { display: flex; flex-direction: column; gap: 14px; }
 .wm-radios { display: flex; gap: 32px; }
-.wm-radios label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
-.wm-radios input { accent-color: #3858e9; }
+/* Radio + label sit close together (tighter than the default control gap). */
+.wm-radios label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; }
+.wm-radios input { accent-color: #3858e9; margin: 0; }
 
 .wm-style__preview { flex: 1; background: #faf9f7; display: flex; flex-direction: column; }
 .wm-style.is-dark .wm-style__preview { background: #1e1e1e; }
@@ -914,22 +933,27 @@
 .ppc-login__id a { color: #0070e0; text-decoration: none; font-weight: 600; }
 .ppc-login .ppc-field { text-align: left; }
 .ppc-lang { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 40px 0 0; }
-.ppc-flag { font-size: 16px; }
-.ppc-lang__chevron { color: #6c7378; font-size: 16px; }
+.ppc-flag { font-size: 16px; line-height: 1; }
+.ppc-lang__chevron { display: block; }
 .ppc-lang__list { font-size: 14px; color: #2c2e2f; }
 .ppc-lang__list strong { font-weight: 700; }
 .ppc-login__footer { margin-top: 30px; gap: 0 12px; }
 .ppc-login__footer span + span::before { content: ''; }
 .ppc-login.is-loading > *:not( .ppc-spinner--overlay ) { opacity: 0.4; }
-.ppc-spinner--overlay { position: absolute; top: 46%; left: 50%; width: 54px; height: 54px; transform: translate( -50%, -50% ); border-width: 4px; border-top-color: #003087; }
+/* Centre via negative margins, not transform — the spin animation owns
+   `transform`, so using it for centring made the spinner drift instead of spin. */
+.ppc-spinner--overlay { position: absolute; top: 50%; left: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-width: 4px; border-top-color: #003087; }
 
 /* Account type (sellerIntentDecisionExisting) */
-.ppc-account { padding: 24px 28px 28px; }
+.ppc-account { padding: 24px 28px 28px; position: relative; }
+.ppc-account.is-loading > *:not( .ppc-spinner--overlay ) { opacity: 0.4; }
 .ppc-account__logo { display: flex; justify-content: center; margin-bottom: 24px; }
 .ppc-account__title { font-size: 24px; line-height: 30px; font-weight: 800; color: #0a0a0a; margin: 0 0 22px; letter-spacing: -0.3px; }
 .ppc-choice { display: flex; gap: 14px; width: 100%; text-align: left; padding: 20px; margin-bottom: 16px; border: 1px solid #d5d7da; border-radius: 12px; background: #fff; cursor: pointer; font-family: inherit; }
 .ppc-choice:hover { border-color: #9da3a6; }
 .ppc-choice.is-selected { border-color: #0a0a0a; box-shadow: inset 0 0 0 1px #0a0a0a; }
+.ppc-choice.is-disabled { opacity: 0.5; cursor: not-allowed; }
+.ppc-choice.is-disabled:hover { border-color: #d5d7da; }
 .ppc-choice__icon { flex: none; padding-top: 2px; }
 .ppc-choice__text { display: flex; flex-direction: column; gap: 6px; }
 .ppc-choice__text strong { font-size: 19px; line-height: 24px; font-weight: 800; color: #0a0a0a; letter-spacing: -0.2px; }

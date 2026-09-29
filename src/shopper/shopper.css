@@ -144,6 +144,11 @@
 }
 .sp-addcart:hover { background: #383838; }
 .sp-addcart:active { background: #000; }
+.sp-chevron { display: block; flex: none; }
+/* On the product page the Add to cart button sits in a flex row beside the
+   quantity stepper — drop the standalone margin and match the 40px height so the
+   two align. */
+.pd-buy .sp-addcart { margin-top: 0; height: 40px; padding: 0 22px; display: inline-flex; align-items: center; }
 
 /* =========================================================================
    Product detail
@@ -281,6 +286,14 @@
 .co-field:has(.co-field__label) .co-field__input { padding-top: 20px; }
 .co-field__input::placeholder { color: #6d6d6d; }
 .co-field__input:focus { outline: none; border-color: #3858e9; box-shadow: 0 0 0 1px #3858e9; }
+/* Floating label: rests centred like a placeholder, floats to the top-left when
+   the field is focused or filled. */
+.co-field--float .co-field__label {
+  top: 50%; transform: translateY(-50%); font-size: 15px; color: #6d6d6d;
+  pointer-events: none;
+  transition: top 0.14s ease, transform 0.14s ease, font-size 0.14s ease, color 0.14s ease;
+}
+.co-field--float.is-float .co-field__label { top: 7px; transform: none; font-size: 11px; color: var(--sh-muted); }
 .co-field--search .co-field__icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--sh-muted); }
 .co-select .co-field__input { appearance: none; background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg width='12' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236d6d6d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center; }
 .co-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -362,10 +375,9 @@
 }
 @keyframes ppm-pop { from { transform: translateY(8px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
 .ppm-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px; border-bottom: 1px solid var(--sh-line); background: #f6f6f6;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 10px 12px; border-bottom: 1px solid var(--sh-line); background: #f6f6f6;
 }
-.ppm-bar__title { font-size: 14px; font-weight: 600; color: var(--sh-ink); }
 .ppm-close { border: none; background: none; font-size: 22px; line-height: 1; color: var(--sh-muted); cursor: pointer; }
 .ppm-close:hover { color: var(--sh-ink); }
 .ppm-body { padding: 24px; }
@@ -377,17 +389,14 @@
 }
 .ppm-placeholder__tag { font-size: 12px; color: #9a9a9a; letter-spacing: 0.04em; text-transform: uppercase; }
 .ppm-text { font-size: 14px; color: var(--sh-muted); margin: 12px 0 24px; max-width: 320px; line-height: 1.5; }
+/* Secondary style — the payment step is a placeholder, so the CTA is understated. */
 .ppm-complete {
-  width: 100%; background: var(--sh-ink); color: #fff; border: none; border-radius: 2px;
-  padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
-  transition: background 0.12s ease;
+  width: 100%; background: #fff; color: var(--sh-ink); border: 1px solid #c4c4c4; border-radius: 2px;
+  padding: 12px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: background 0.12s ease, border-color 0.12s ease;
 }
-.ppm-complete:hover { background: #383838; }
-.ppm-complete:active { background: #000; }
-.ppm-cancel {
-  margin-top: 12px; border: none; background: none; color: var(--sh-muted); font-size: 14px; cursor: pointer; font-family: inherit;
-}
-.ppm-cancel:hover { color: var(--sh-ink); text-decoration: underline; }
+.ppm-complete:hover { background: #f2f2f2; border-color: #a0a0a0; }
+.ppm-complete:active { background: #eaeaea; }
 
 /* =========================================================================
    Order received

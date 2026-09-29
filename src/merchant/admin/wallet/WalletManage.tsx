@@ -136,9 +136,9 @@ function MethodsTab( { state, update }: { state: MerchantState; update: ( p: Par
     update( { methods: { ...state.methods, [ key ]: v } } );
 
   const cards = [
-    { key: 'paypal' as const, logo: '/logos/paypal.svg', title: 'Pay with PayPal (Required)', desc: 'Our all-in-one checkout solution lets you offer PayPal, Venmo, Pay Later options, and more to help maximize conversion.', on: true, disabled: true },
-    { key: 'venmo' as const, logo: '/logos/paypal/venmo.svg', title: 'Venmo', desc: 'Offer Venmo at checkout to millions of active users.', on: state.methods.venmo, disabled: false },
-    { key: 'payLater' as const, logo: '/logos/paypal/paylater.svg', title: 'Pay Later', desc: 'Get paid in full at checkout while giving your customers the flexibility to pay in installments over time, with no late fees for them or additional cost to you.', on: state.methods.payLater, disabled: false },
+    { key: 'paypal' as const, logo: '/logos/paypal/paypal-black.svg', title: 'Pay with PayPal (Required)', desc: 'Our all-in-one checkout solution lets you offer PayPal, Venmo, Pay Later options, and more to help maximize conversion.', on: true, disabled: true },
+    { key: 'venmo' as const, logo: '/logos/paypal/venmo-small.svg', title: 'Venmo', desc: 'Offer Venmo at checkout to millions of active users.', on: state.methods.venmo, disabled: false },
+    { key: 'payLater' as const, logo: '/logos/paypal/paypal-icon.svg', title: 'Pay Later', desc: 'Get paid in full at checkout while giving your customers the flexibility to pay in installments over time, with no late fees for them or additional cost to you.', on: state.methods.payLater, disabled: false },
   ];
 
   return (
@@ -201,13 +201,17 @@ function SettingsTab( { state, update }: { state: MerchantState; update: ( p: Pa
           <hr className="wm-hr" />
           <p className="wm-field-label">Order intent</p>
           <p className="wm-field-help">Choose between immediate capture or authorization-only, with manual capture in the Order section.</p>
-          <ToggleControl __nextHasNoMarginBottom label="Authorize only" checked={ s.authorizeOnly } onChange={ ( v ) => setS( { authorizeOnly: v } ) } />
-          <ToggleControl __nextHasNoMarginBottom label="Capture virtual-only orders" checked={ s.captureVirtual } onChange={ ( v ) => setS( { captureVirtual: v } ) } />
+          <div className="wm-toggles">
+            <ToggleControl __nextHasNoMarginBottom label="Authorize only" checked={ s.authorizeOnly } onChange={ ( v ) => setS( { authorizeOnly: v } ) } />
+            <ToggleControl __nextHasNoMarginBottom label="Capture virtual-only orders" checked={ s.captureVirtual } onChange={ ( v ) => setS( { captureVirtual: v } ) } />
+          </div>
           <hr className="wm-hr" />
           <p className="wm-field-label">Save payment methods</p>
           <p className="wm-field-help">Securely store customers' payment methods for future payments and subscriptions, simplifying checkout and enabling recurring transactions.</p>
-          <ToggleControl __nextHasNoMarginBottom label="Save PayPal and Venmo" checked={ s.saveMethods } onChange={ ( v ) => setS( { saveMethods: v } ) } help="Securely store your customers' PayPal accounts for a seamless checkout experience. This will disable all Pay Later features and Alternative Payment Methods on your site." />
-          <ToggleControl __nextHasNoMarginBottom label="Pay Now experience" checked={ s.payNow } onChange={ ( v ) => setS( { payNow: v } ) } help="Let PayPal customers skip the Order Review page by selecting shipping options directly within PayPal." />
+          <div className="wm-toggles">
+            <ToggleControl __nextHasNoMarginBottom label="Save PayPal and Venmo" checked={ s.saveMethods } onChange={ ( v ) => setS( { saveMethods: v } ) } help="Securely store your customers' PayPal accounts for a seamless checkout experience. This will disable all Pay Later features and Alternative Payment Methods on your site." />
+            <ToggleControl __nextHasNoMarginBottom label="Pay Now experience" checked={ s.payNow } onChange={ ( v ) => setS( { payNow: v } ) } help="Let PayPal customers skip the Order Review page by selecting shipping options directly within PayPal." />
+          </div>
         </div>
       </Section>
 
@@ -255,8 +259,10 @@ function StylingTab( { state, update }: { state: MerchantState; update: ( p: Par
         />
 
         <p className="wm-field-label wm-mt">Payment Methods</p>
-        <CheckboxControl __nextHasNoMarginBottom label="Venmo" checked={ st.venmo } onChange={ ( v ) => setSt( { venmo: v } ) } />
-        <CheckboxControl __nextHasNoMarginBottom label="Pay Later" checked={ st.payLater } onChange={ ( v ) => setSt( { payLater: v } ) } />
+        <div className="wm-checks">
+          <CheckboxControl __nextHasNoMarginBottom label="Venmo" checked={ st.venmo } onChange={ ( v ) => setSt( { venmo: v } ) } />
+          <CheckboxControl __nextHasNoMarginBottom label="Pay Later" checked={ st.payLater } onChange={ ( v ) => setSt( { payLater: v } ) } />
+        </div>
 
         <p className="wm-field-label wm-mt">Button Layout</p>
         <div className="wm-radios">

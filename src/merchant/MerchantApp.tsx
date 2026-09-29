@@ -16,6 +16,7 @@ import BusinessInfoStep from './onboarding/BusinessInfoStep';
 import ExtensionsStep from './onboarding/ExtensionsStep';
 import FunLoader from './onboarding/FunLoader';
 import JetpackConnectStep from './onboarding/JetpackConnectStep';
+import BusinessLocationStep from './onboarding/BusinessLocationStep';
 import HomeTasklist from './admin/HomeTasklist';
 import PaymentsSettings from './admin/PaymentsSettings';
 import WalletWizard from './admin/wallet/WalletWizard';
@@ -34,23 +35,29 @@ export default function MerchantApp( {
 
   /* The PayPal integration popup (mac-browser overlay). Opened from the wallet
      wizard's "Set up PayPal Wallet"; completing it ("Return to WooCommerce")
-     marks PayPal connected and lands directly on the Wallet management screen,
-     which shows its own loading skeleton — no "Connecting your account" loader. */
+     marks PayPal connected, then the wizard's CTA spins for 2s before redirecting
+     to the Wallet management screen — no "Connecting your account" loader. */
   const [ connectOpen, setConnectOpen ] = useState( false );
+  const [ ctaLoading, setCtaLoading ] = useState( false );
   const connectFlow = (
     <PayPalConnectFlow
       open={ connectOpen }
       onClose={ () => setConnectOpen( false ) }
       onComplete={ () => {
         setConnectOpen( false );
-        update( { paypal: 'active', pendingPayment: false, walletTab: 'overview', screen: 'wallet-manage' } );
+        setCtaLoading( true );
+        update( { paypal: 'active', pendingPayment: false } );
+        setTimeout( () => {
+          setCtaLoading( false );
+          update( { walletTab: 'overview', screen: 'wallet-manage' } );
+        }, 2000 );
       } }
     />
   );
 
   switch ( state.screen ) {
     case 'welcome':
-      return <WelcomeStep onNext={ () => go( 'profile' ) } onSkip={ () => go( 'home' ) } />;
+      return <WelcomeStep onNext={ () => go( 'profile' ) } onSkip={ () => go( 'skip-location' ) } />;
     case 'profile':
       return <ProfileStep onNext={ () => go( 'business' ) } onSkip={ () => go( 'business' ) } />;
     case 'business':
@@ -73,6 +80,19 @@ export default function MerchantApp( {
         <FunLoader
           title="Connecting your account"
           image="/logos/woo/loader-developing.svg"
+          delay={ 4000 }
+          onDone={ () => go( 'home' ) }
+        />
+      );
+
+    case 'skip-location':
+      return <BusinessLocationStep onNext={ () => go( 'skip-loader' ) } />;
+    case 'skip-loader':
+      return (
+        <FunLoader
+          title="Turning on the lights"
+          image="/logos/woo/loader-lightbulb.svg"
+          fact="Explore powerful extensions and themes at WooCommerce.com to enhance your store."
           delay={ 4000 }
           onDone={ () => go( 'home' ) }
         />
@@ -104,7 +124,7 @@ export default function MerchantApp( {
     case 'wallet-welcome':
       return (
         <WpAdminShell activeSub="Settings" onSelectSub={ go }>
-          <WalletWizard onBack={ () => go( 'payments' ) } onConnect={ () => setConnectOpen( true ) } />
+          <WalletWizard onBack={ () => go( 'payments' ) } onConnect={ () => setConnectOpen( true ) } loading={ ctaLoading } />
           { connectFlow }
         </WpAdminShell>
       );

@@ -50,7 +50,11 @@ export default function CartPage( {
 
         <aside className="ct-totals">
           <h2 className="ct-totals__title">CART TOTALS</h2>
-          <button type="button" className="ct-coupons">Add coupons <span aria-hidden>⌄</span></button>
+          <button type="button" className="ct-coupons">Add coupons
+            <svg className="sp-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
           <div className="ct-estimate">
             <span>Estimated total</span>
             <strong>${ total.toFixed( 2 ) }</strong>
