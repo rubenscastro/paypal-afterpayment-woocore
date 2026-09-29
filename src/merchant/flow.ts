@@ -64,6 +64,10 @@ export interface MerchantState {
    *  to get paid") and advances the checklist to the "Set up payments" step. */
   productsDone: boolean;
 
+  /** A shopper order has been placed (persists past PayPal connection) — drives
+   *  the Home "Stats overview" (Orders → 1, Total sales up). */
+  orderReceived: boolean;
+
   /** Which management tab the PayPal Wallet screen shows. */
   walletTab: WalletTab;
 
@@ -104,6 +108,7 @@ export const INITIAL_STATE: MerchantState = {
      → onPurchase in App). */
   pendingPayment: false,
   productsDone: false,
+  orderReceived: false,
   walletTab: 'overview',
   methods: { venmo: true, payLater: true },
   settings: {

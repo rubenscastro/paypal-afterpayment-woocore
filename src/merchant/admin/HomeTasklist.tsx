@@ -4,9 +4,10 @@
  * "Connect PayPal to complete setup" task and — when a payment is pending — the
  * amber action-required banner pinned to the top (the second Figma tasklist frame).
  */
+import { useState } from 'react';
 import { Button, IconButton } from '@wordpress/ui';
 import { Icon } from '@wordpress/components';
-import { moreVertical, blockTable, help, check } from '@wordpress/icons';
+import { moreVertical, store, listView, comment, help, check } from '@wordpress/icons';
 import Notice from './Notice';
 import { HomeSkeleton } from './AdminSkeleton';
 import { useReady } from '../../useReady';
@@ -37,7 +38,39 @@ const SETUP_HERO = {
     art: '/logos/woo/payment-illustration.svg',
     alt: 'Payment illustration',
   },
+  customize: {
+    title: 'Start customizing your store',
+    desc: 'Quickly create a beautiful looking store using our built-in store designer, or select a pre-built theme and customize it to fit your brand.',
+    cta: 'Start customizing',
+    art: '/logos/woo/customize-store-illustration.svg',
+    alt: 'Customize your store illustration',
+  },
 } as const;
+
+/* Inbox notes (static prototype content). Each has its own action buttons plus a
+   Dismiss; the whole row highlights on hover but isn't itself clickable. */
+const INBOX = [
+  {
+    time: '11 minutes ago',
+    title: 'PayPal Working Capital',
+    body: 'Business loans from $1k to $230k for first-time borrowers. Looking to fuel your business growth? With a PayPal Working Capital loan, approved loans are funded in minutes and repaid as a share of your sales. Minimum payment required every 90 days. The lender for PayPal Working Capital is WebBank.',
+    actions: [ 'Learn More' ],
+  },
+  {
+    time: '11 minutes ago',
+    title: 'Fraud protection is now required — enable today',
+    body: 'Card networks like Visa, Mastercard and American Express now require fraud prevention controls, and non-compliance may result in fines and processing restrictions. Please enable reCAPTCHA in your PayPal Payments settings to help protect your store and maintain compliance.',
+    actions: [ 'Enable reCAPTCHA →', 'Learn more' ],
+  },
+  {
+    time: '5 hours ago',
+    title: "Setup a Refund and Returns Policy page to boost your store's credibility.",
+    body: 'We have created a sample draft Refund and Returns Policy page for you. Please have a look and update it to fit your store.',
+    actions: [ 'Edit page' ],
+  },
+];
+
+const STATS_TABS = [ 'Today', 'Week to date', 'Month to date' ];
 
 export default function HomeTasklist( {
   state,
@@ -54,6 +87,11 @@ export default function HomeTasklist( {
 } ) {
   /* Skeleton every time the Home screen is entered (remounts on navigation). */
   const ready = useReady( 'admin-home', 700 );
+
+  /* Stats overview: reflects the shopper sale once an order has been placed. */
+  const [ statsTab, setStatsTab ] = useState( STATS_TABS[ 0 ] );
+  const salesValue = state.orderReceived ? '$15.00' : '$0.00';
+  const ordersValue = state.orderReceived ? '1' : '0';
 
   const showBanner = state.paypal !== 'active' && state.pendingPayment;
 
@@ -77,14 +115,22 @@ export default function HomeTasklist( {
      otherwise the Payments settings screen. */
   const paymentsAction = orderPending ? onConnectPaypal : onGoPayments;
 
-  const hero = productsComplete ? SETUP_HERO.payments : SETUP_HERO.products;
-  const onHeroCta = productsComplete ? paymentsAction : onCompleteProducts;
+  /* Hero follows the active step: products → payments → customize (once PayPal
+     is connected, the payments step is done so the hero advances to the next
+     task, "Start customizing your store"). */
+  const hero = paymentsComplete
+    ? SETUP_HERO.customize
+    : productsComplete ? SETUP_HERO.payments : SETUP_HERO.products;
+  const onHeroCta = paymentsComplete
+    ? () => {}
+    : productsComplete ? paymentsAction : onCompleteProducts;
   /* Step rows are clickable: "Add your products" completes it, the payments step
      opens the wallet wizard or Payments settings as above. */
   const stepAction = ( i: number ): ( () => void ) | undefined =>
     i === 0 ? onCompleteProducts : i === 1 ? paymentsAction : undefined;
-  /* Figma frame shows 3/6 complete; each finished setup step advances it. */
-  const completeCount = 3 + completedSteps;
+  /* Actual completion of the checklist items (starts at 0 of 5). */
+  const completeCount = completedSteps;
+  const stepCount = SETUP_STEPS.length;
 
   type Todo = { title: string; meta?: string; onClick?: () => void };
   const connectTodo: Todo = orderPending
@@ -104,9 +150,14 @@ export default function HomeTasklist( {
     { title: 'Get the free WooCommerce mobile app' },
     { title: 'Enable required fraud protection for PayPal Payments', meta: 'Help protect your store and maintain compliance.' },
   ];
-  const todos: Todo[] = orderPending
-    ? [ connectTodo, ...baseTodos ]
-    : [ baseTodos[ 0 ], baseTodos[ 1 ], baseTodos[ 2 ], connectTodo, baseTodos[ 3 ] ];
+  /* Once PayPal is connected the "Connect PayPal to complete setup" task is done,
+     so it drops off entirely; before that it sits at the top when an order is
+     pending, otherwise in its normal position. */
+  const todos: Todo[] = paymentsComplete
+    ? baseTodos
+    : orderPending
+      ? [ connectTodo, ...baseTodos ]
+      : [ baseTodos[ 0 ], baseTodos[ 1 ], baseTodos[ 2 ], connectTodo, baseTodos[ 3 ] ];
 
   if ( ! ready ) return <HomeSkeleton />;
 
@@ -115,8 +166,9 @@ export default function HomeTasklist( {
       <header className="hm-subbar">
         <span className="hm-subbar__title">Home</span>
         <div className="hm-subbar__right">
-          <a className="hm-subbar__link">Preview store</a>
-          <IconButton className="hm-subbar__icon" icon={ blockTable } label="Layout" variant="minimal" tone="neutral" />
+          <IconButton className="hm-subbar__icon" icon={ store } label="View store" variant="minimal" tone="neutral" />
+          <IconButton className="hm-subbar__icon" icon={ listView } label="Display options" variant="minimal" tone="neutral" />
+          <IconButton className="hm-subbar__icon" icon={ comment } label="Reviews" variant="minimal" tone="neutral" />
           <IconButton className="hm-subbar__icon" icon={ help } label="Help" variant="minimal" tone="neutral" />
         </div>
       </header>
@@ -137,12 +189,12 @@ export default function HomeTasklist( {
         ) }
 
         <div className="hm-col">
-          <div className="hm-heading">
-            <h1 className="hm-title">Let's get you set up <span aria-hidden>🚀</span></h1>
+          <h1 className="hm-title">Let's get you set up <span aria-hidden>🚀</span></h1>
+          <div className="hm-subrow">
+            <p className="hm-sub">Follow these steps to start selling quickly. { completeCount } out of { stepCount } complete.</p>
             <IconButton icon={ moreVertical } label="More" variant="minimal" tone="neutral" />
           </div>
-          <p className="hm-sub">Follow these steps to start selling quickly. { completeCount } out of 6 complete.</p>
-          <div className="hm-progress" aria-hidden><span style={ { width: `${ ( completeCount / 6 ) * 100 }%` } } /></div>
+          <div className="hm-progress" aria-hidden><span style={ { width: `${ ( completeCount / stepCount ) * 100 }%` } } /></div>
 
           {/* Setup card */}
           <section className="hm-card">
@@ -204,24 +256,59 @@ export default function HomeTasklist( {
           {/* Inbox */}
           <section className="hm-card">
             <div className="hm-card__head">
-              <h2 className="hm-card__title">Inbox<span className="hm-count">2</span></h2>
+              <h2 className="hm-card__title">Inbox<span className="hm-count">{ INBOX.length }</span></h2>
               <IconButton icon={ moreVertical } label="More" variant="minimal" tone="neutral" />
             </div>
-            { [ 0, 1, 2 ].map( ( i ) => (
-              <div key={ i } className="hm-inbox">
-                <div className="hm-inbox__content">
-                  <div className="hm-inbox__header">
-                    <span className="hm-inbox__time">1 minute ago</span>
-                    <strong className="hm-inbox__title">Learn more about something</strong>
-                  </div>
-                  <p className="hm-inbox__body">A beautiful little sunset. Only think about one thing at a time. Don't get greedy. With something so strong, a little bit can go a long way.</p>
-                </div>
+            { INBOX.map( ( note ) => (
+              <div key={ note.title } className="hm-inbox">
+                <span className="hm-inbox__time">{ note.time }</span>
+                <strong className="hm-inbox__title">{ note.title }</strong>
+                <p className="hm-inbox__body">{ note.body }</p>
                 <div className="hm-inbox__actions">
-                  <Button variant="outline" tone="brand" size="compact">Learn more</Button>
+                  { note.actions.map( ( a ) => (
+                    <Button key={ a } variant="outline" tone="brand" size="compact">{ a }</Button>
+                  ) ) }
                   <Button variant="minimal" tone="neutral" size="compact">Dismiss</Button>
                 </div>
               </div>
             ) ) }
+          </section>
+
+          {/* Stats overview */}
+          <section className="hm-card">
+            <div className="hm-card__head">
+              <h2 className="hm-card__title">Stats overview</h2>
+              <IconButton icon={ moreVertical } label="More" variant="minimal" tone="neutral" />
+            </div>
+            <nav className="hm-stats__tabs">
+              { STATS_TABS.map( ( t ) => (
+                <button
+                  key={ t }
+                  type="button"
+                  className={ `hm-stats__tab${ statsTab === t ? ' is-active' : '' }` }
+                  onClick={ () => setStatsTab( t ) }
+                >
+                  { t }
+                </button>
+              ) ) }
+            </nav>
+            <div className="hm-stats__grid">
+              <div className="hm-stat">
+                <span className="hm-stat__label">Total sales</span>
+                <div className="hm-stat__row">
+                  <span className="hm-stat__value">{ salesValue }</span>
+                  <span className="hm-stat__delta">0%</span>
+                </div>
+              </div>
+              <div className="hm-stat">
+                <span className="hm-stat__label">Orders</span>
+                <div className="hm-stat__row">
+                  <span className="hm-stat__value">{ ordersValue }</span>
+                  <span className="hm-stat__delta">0%</span>
+                </div>
+              </div>
+            </div>
+            <a className="hm-stats__link" href="#" onClick={ ( e ) => e.preventDefault() }>View detailed stats</a>
           </section>
         </div>
       </div>

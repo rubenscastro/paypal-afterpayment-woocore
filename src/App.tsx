@@ -130,7 +130,7 @@ export default function App() {
               /* A shopper purchase both arms the notice and points the merchant
                  track at the Home tasklist, so switching to Merchant view from the
                  order-received page lands on wp-admin with the banner showing. */
-              setMerchant( ( s ) => ( { ...s, pendingPayment: true, productsDone: true, screen: 'home' } ) );
+              setMerchant( ( s ) => ( { ...s, pendingPayment: true, productsDone: true, orderReceived: true, screen: 'home' } ) );
               setOrderPlaced( true );
             } }
           /> }

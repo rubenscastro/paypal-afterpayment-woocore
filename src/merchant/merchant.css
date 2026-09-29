@@ -352,6 +352,10 @@
   display: flex;
   gap: 28px;
   border-bottom: 1px solid #e0e0e0;
+  /* Full-bleed underline: extend past the header's 32px padding, re-inset the
+     tabs' content so they still line up with everything else. */
+  margin: 0 -32px;
+  padding: 0 32px;
 }
 .ps-tab {
   font-size: 13px;
@@ -496,6 +500,9 @@
    Home tasklist
    ========================================================================= */
 .hm { min-height: 100%; }
+/* The Home canvas is gray, so the shared white .wp-main padding-bottom shows as a
+   stray white bar under it — drop it for this screen. */
+.wp-main:has( .hm ) { padding-bottom: 0; }
 /* Screen header (Figma 11469:60669): white, 56px, pl-32 pr-8, 1px #ddd bottom,
    sticky under the admin bar. Title = Subtitle token (16/24 bold). */
 .hm-subbar {
@@ -516,7 +523,9 @@
 .hm-canvas { background: #f0f0f1; padding: 24px; min-height: calc(100% - 50px); }
 .hm-col { max-width: 680px; margin: 0 auto; }
 .hm-banner { max-width: 680px; margin: 0 auto 24px; }
-.hm-heading { display: flex; align-items: center; justify-content: space-between; }
+/* The kebab sits on the description row (right-aligned), not the title row. */
+.hm-subrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.hm-subrow .hm-sub { flex: 1; }
 /* Title Medium token: SF Pro Regular 24/32, weight 400. */
 .hm-title { font-size: 24px; line-height: 32px; font-weight: 400; color: #1e1e1e; margin: 0; }
 /* Body MD token: 13/20, Gray 60. */
@@ -525,7 +534,7 @@
 .hm-progress span { display: block; height: 100%; background: #3858e9; border-radius: 3px; }
 
 /* Tasklist card = Figma Frame 12326: 1px #ddd border, 3px radius. */
-.hm-card { background: #fff; border: 1px solid #dddddd; border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+.hm-card { background: #fff; border: 1px solid #dddddd; border-radius: 7px; margin-bottom: 20px; overflow: hidden; }
 /* Card header (Header / with kebab): px-24 py-16, 1px #ddd bottom. Title = Heading
    XL token (20/24, weight 500, Gray 70). */
 .hm-card__head {
@@ -580,14 +589,15 @@
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 14px; font-weight: 700; line-height: 18px; color: #3858e9; flex: none;
 }
-.hm-step__label { font-size: 15px; line-height: 20px; font-weight: 500; color: #3858e9; }
+.hm-step__label { font-size: 15px; line-height: 20px; font-weight: 600; color: #3858e9; }
 /* Completed step (WooCommerce: filled brand circle + white check, muted bold
    label). No left accent — completed rows read as done, not active. */
 .hm-step.is-complete .hm-step__num {
   background: #3858e9; border-color: #3858e9; color: #fff;
 }
 .hm-step.is-complete .hm-step__num svg { fill: #fff; }
-.hm-step.is-complete .hm-step__label { color: #50575e; font-weight: 600; }
+/* Completed steps keep the brand blue and get a strike-through. */
+.hm-step.is-complete .hm-step__label { color: #3858e9; text-decoration: line-through; }
 
 /* ---- wp-admin loading skeletons ------------------------------------------
    Ported from WooCommerce's placeholder treatment: #f0f0f0 blocks pulsing
@@ -634,21 +644,42 @@
   width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dddddd; background: #fff; flex: none;
 }
 .hm-todo__text { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-.hm-todo__title { color: #3858e9; font-size: 15px; line-height: 20px; font-weight: 500; cursor: pointer; }
+.hm-todo__title { color: #3858e9; font-size: 15px; line-height: 20px; font-weight: 600; cursor: pointer; }
 .hm-todo__meta { color: #757575; font-size: 12px; line-height: 16px; }
 .hm-todo__kebab { flex: none; }
 
-/* Inbox note: px-24 py-16, 24px between content and actions, 1px #ddd bottom. */
+/* Inbox note: stacked time · title · body · actions, 1px #ddd divider. The whole
+   row highlights on hover but isn't clickable (default cursor, no row handler). */
 .hm-inbox {
-  display: flex; flex-direction: column; gap: 24px;
-  padding: 16px 24px; box-shadow: inset 0 -1px 0 0 #dddddd;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 20px 24px; box-shadow: inset 0 -1px 0 0 #dddddd;
+  transition: background 0.12s ease;
 }
-.hm-inbox__content { display: flex; flex-direction: column; gap: 8px; }
-.hm-inbox__header { display: flex; flex-direction: column; gap: 4px; }
+.hm-inbox:last-child { box-shadow: none; }
+.hm-inbox:hover { background: #f6f7f7; }
 .hm-inbox__time { font-size: 13px; line-height: 20px; color: #757575; }
 .hm-inbox__title { font-size: 15px; line-height: 20px; font-weight: 600; color: #1e1e1e; }
 .hm-inbox__body { font-size: 13px; line-height: 20px; color: #757575; margin: 0; }
-.hm-inbox__actions { display: flex; align-items: flex-start; gap: 8px; }
+.hm-inbox__actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+/* Stats overview: period tabs, a two-column stat grid, and a detail link. */
+.hm-stats__tabs { display: flex; padding: 0 24px; box-shadow: inset 0 -1px 0 0 #dddddd; }
+.hm-stats__tab {
+  flex: 1; text-align: left; padding: 16px 0;
+  font-size: 14px; color: #1e1e1e; background: none; border: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  cursor: pointer; font-family: inherit;
+}
+.hm-stats__tab:not( .is-active ):hover { color: #3858e9; }
+.hm-stats__tab.is-active { border-bottom-color: #1e1e1e; }
+.hm-stats__grid { display: grid; grid-template-columns: 1fr 1fr; }
+.hm-stat { padding: 24px; }
+.hm-stat + .hm-stat { border-left: 1px solid #dddddd; }
+.hm-stat__label { font-size: 15px; color: #1e1e1e; }
+.hm-stat__row { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+.hm-stat__value { font-size: 28px; line-height: 1; font-weight: 400; color: #1e1e1e; }
+.hm-stat__delta { font-size: 13px; color: #50575e; background: #f0f0f0; border-radius: 2px; padding: 5px 9px; }
+.hm-stats__link { display: block; padding: 16px 24px; border-top: 1px solid #dddddd; color: #3858e9; text-decoration: underline; font-size: 14px; cursor: pointer; }
 
 /* =========================================================================
    Wallet wizard (welcome)
