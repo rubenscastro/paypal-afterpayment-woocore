@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import EpmButtons from './EpmButtons';
 import AddToCartButton from './AddToCartButton';
-import { productById, RELATED_PRODUCT, type ShopperScreen } from './flow';
+import { productById, RELATED_PRODUCT, type CartLine, type ShopperScreen } from './flow';
 
 export default function ProductPage( {
   productId,
@@ -14,7 +14,7 @@ export default function ProductPage( {
   productId: string;
   onNavigate: ( s: ShopperScreen ) => void;
   onOpenProduct: ( id: string ) => void;
-  onPay: ( method: string ) => void;
+  onPay: ( method: string, items?: CartLine[] ) => void;
   onAddToCart: ( name: string ) => void;
 } ) {
   const product = productById( productId );
@@ -46,7 +46,7 @@ export default function ProductPage( {
             </div>
             <AddToCartButton onAdd={ () => onAddToCart( product.id ) } />
           </div>
-          <EpmButtons onPay={ onPay } />
+          <EpmButtons onPay={ ( m ) => onPay( m, [ { id: product.id, qty } ] ) } />
           <dl className="pd-meta">
             <div><dt>SKU:</dt> <dd>{ product.sku }</dd></div>
             <div><dt>Category:</dt> <dd><a onClick={ () => onNavigate( 'shop' ) }>{ product.category }</a></dd></div>

@@ -213,6 +213,14 @@ body,
   flex-shrink: 0;
 }
 
+/* Blue count badge on the Home submenu item (pending tasklist items). */
+.wp-sidebar .wp-sub-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; margin-left: 8px; padding: 0 5px;
+  border-radius: 9px; background: #3858e9; color: #fff; font-size: 11px; flex-shrink: 0;
+  vertical-align: middle;
+}
+
 /* Active item — #3858e9 bg, white text, right arrow indicator */
 .wp-sidebar .wp-nav-item.is-active {
   background: #3858e9;
@@ -3822,7 +3830,7 @@ body.is-list-preview .cat-main-card .dataviews-view-list div[role='row'] .cat-ct
   left: 8px;
   bottom: 8px;
   width: 222px;
-  z-index: 1000;
+  z-index: 1600;
   /* Hidden until the cursor nears the bottom of the screen (JS adds .is-revealed
      when within the bottom 120px, or while the panel is open). */
   opacity: 0;

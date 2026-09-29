@@ -15,7 +15,7 @@ import CartPage from './CartPage';
 import CheckoutPage from './CheckoutPage';
 import OrderReceivedPage from './OrderReceivedPage';
 import PayPalModal from './PayPalModal';
-import { cartItemCount, type ShopperScreen, type ShopperState } from './flow';
+import { cartItemCount, type CartLine, type ShopperScreen, type ShopperState } from './flow';
 
 export default function ShopperApp( {
   state,
@@ -30,6 +30,9 @@ export default function ShopperApp( {
 } ) {
   const [ payOpen, setPayOpen ] = useState( false );
   const [ payMethod, setPayMethod ] = useState( 'PayPal' );
+  /* Items being purchased — the cart for cart/checkout, or the single product for
+     a product-page express button (which pays without adding to the cart). */
+  const [ orderItems, setOrderItems ] = useState< CartLine[] >( [] );
   const [ toast, setToast ] = useState< string | null >( null );
 
   /* Jump back to the top on every screen (or product) change, like a real
@@ -39,7 +42,11 @@ export default function ShopperApp( {
   const cartCount = cartItemCount( state.cart );
   const go = ( screen: ShopperScreen ) => setState( ( s ) => ( { ...s, screen } ) );
   const openProduct = ( product: string ) => setState( ( s ) => ( { ...s, product, screen: 'product' } ) );
-  const onPay = ( method: string ) => { setPayMethod( method ); setPayOpen( true ); };
+  const onPay = ( method: string, items?: CartLine[] ) => {
+    setPayMethod( method );
+    setOrderItems( items && items.length ? items : state.cart );
+    setPayOpen( true );
+  };
   const completePurchase = () => {
     setPayOpen( false );
     onPurchase();
@@ -92,7 +99,7 @@ export default function ShopperApp( {
           { state.screen === 'cart' && (
             <CartPage cart={ state.cart } onNavigate={ go } onPay={ onPay } onQty={ setLineQty } onRemove={ removeLine } />
           ) }
-          { state.screen === 'order-received' && <OrderReceivedPage cart={ state.cart } payMethod={ payMethod } onNavigate={ go } /> }
+          { state.screen === 'order-received' && <OrderReceivedPage cart={ orderItems } payMethod={ payMethod } onNavigate={ go } /> }
         </main>
       ) }
       <ShopFooter />

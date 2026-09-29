@@ -53,9 +53,11 @@ const SUB_TARGET: Partial< Record< WooSubItem, 'home' | 'payments' > > = {
 function Sidebar( {
   activeSub,
   onSelectSub,
+  homeBadge = 0,
 }: {
   activeSub: WooSubItem;
   onSelectSub?: ( screen: 'home' | 'payments' ) => void;
+  homeBadge?: number;
 } ) {
   return (
     <aside className="wp-sidebar" role="navigation" aria-label="Main navigation">
@@ -69,12 +71,15 @@ function Sidebar( {
           { WOO_SUBITEMS.map( ( item ) => {
             const target = SUB_TARGET[ item ];
             const cls = `wp-sub-item${ item === activeSub ? ' is-active-sub' : '' }`;
+            const badge = item === 'Home' && homeBadge > 0
+              ? <span className="wp-sub-badge">{ homeBadge }</span>
+              : null;
             return (
               <li key={ item }>
                 { target && onSelectSub ? (
-                  <button type="button" className={ cls } onClick={ () => onSelectSub( target ) }>{ item }</button>
+                  <button type="button" className={ cls } onClick={ () => onSelectSub( target ) }>{ item }{ badge }</button>
                 ) : (
-                  <a className={ cls }>{ item }</a>
+                  <a className={ cls }>{ item }{ badge }</a>
                 ) }
               </li>
             );
@@ -125,17 +130,20 @@ export default function WpAdminShell( {
   activeSub = 'Settings',
   siteName = 'WooTesting',
   onSelectSub,
+  homeBadge = 0,
   children,
 }: {
   activeSub?: WooSubItem;
   siteName?: string;
   onSelectSub?: ( screen: 'home' | 'payments' ) => void;
+  /** Blue count badge on the WooCommerce → Home submenu item. */
+  homeBadge?: number;
   children: ReactNode;
 } ) {
   return (
     <div className="wp-admin">
       <TopBar siteName={ siteName } />
-      <Sidebar activeSub={ activeSub } onSelectSub={ onSelectSub } />
+      <Sidebar activeSub={ activeSub } onSelectSub={ onSelectSub } homeBadge={ homeBadge } />
       <main className="wp-main">{ children }</main>
     </div>
   );

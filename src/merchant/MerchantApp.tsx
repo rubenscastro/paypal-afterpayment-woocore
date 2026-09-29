@@ -33,6 +33,11 @@ export default function MerchantApp( {
   const go = ( screen: MerchantState['screen'] ) => setState( ( s ) => ( { ...s, screen } ) );
   const update = ( patch: Partial< MerchantState > ) => setState( ( s ) => ( { ...s, ...patch } ) );
 
+  /* Pending setup tasks (of 5) — shown as the blue badge on the Home submenu.
+     Products done = 1 step, PayPal connected = 2 steps. */
+  const completedSetup = state.paypal === 'active' ? 2 : state.productsDone ? 1 : 0;
+  const pendingTasks = 5 - completedSetup;
+
   /* The PayPal integration popup (mac-browser overlay). Opened from the wallet
      wizard's "Set up PayPal Wallet"; completing it ("Return to WooCommerce")
      marks PayPal connected, then the wizard's CTA spins for 2s before redirecting
@@ -100,7 +105,7 @@ export default function MerchantApp( {
 
     case 'home':
       return (
-        <WpAdminShell activeSub="Home" onSelectSub={ go }>
+        <WpAdminShell activeSub="Home" onSelectSub={ go } homeBadge={ pendingTasks }>
           <HomeTasklist
             state={ state }
             onConnectPaypal={ () => go( 'wallet-welcome' ) }
@@ -112,7 +117,7 @@ export default function MerchantApp( {
 
     case 'payments':
       return (
-        <WpAdminShell activeSub="Settings" onSelectSub={ go }>
+        <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
           <PaymentsSettings
             state={ state }
             onCompleteSetup={ () => go( 'wallet-welcome' ) }
@@ -123,7 +128,7 @@ export default function MerchantApp( {
 
     case 'wallet-welcome':
       return (
-        <WpAdminShell activeSub="Settings" onSelectSub={ go }>
+        <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
           <WalletWizard onBack={ () => go( 'payments' ) } onConnect={ () => setConnectOpen( true ) } loading={ ctaLoading } />
           { connectFlow }
         </WpAdminShell>
@@ -131,7 +136,7 @@ export default function MerchantApp( {
 
     case 'wallet-connecting':
       return (
-        <WpAdminShell activeSub="Settings" onSelectSub={ go }>
+        <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
           <FunLoader
             title="Connecting your account"
             image="/logos/woo/loader-openingthedoors.svg"
@@ -143,7 +148,7 @@ export default function MerchantApp( {
 
     case 'wallet-manage':
       return (
-        <WpAdminShell activeSub="Settings" onSelectSub={ go }>
+        <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
           <WalletManage
             state={ state }
             onBack={ () => go( 'payments' ) }

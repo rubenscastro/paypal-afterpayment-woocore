@@ -119,10 +119,16 @@ export default function App() {
     prevProductsDone.current = merchant.productsDone;
   }, [ merchant.productsDone ] );
 
+  /* The "Go to store" nudge only stops for good once an order is placed or PayPal
+     is connected — a manual dismiss only lasts on the current wp-admin page, so
+     moving to another admin screen brings it back. */
+  useEffect( () => { setMerchantNudgeDismissed( false ); }, [ merchant.screen ] );
+
   /* Cross-track nudges appear after their condition holds — the merchant nudge
      after 1s, the order-received nudge after 2s. */
   const showMerchantNudge = useDelayed(
-    track === 'merchant' && merchant.productsDone && ! orderPlaced && ! merchantNudgeDismissed,
+    track === 'merchant' && merchant.productsDone && ! orderPlaced
+      && merchant.paypal !== 'active' && ! merchantNudgeDismissed,
     1000
   );
   const showOrderNudge = useDelayed(
