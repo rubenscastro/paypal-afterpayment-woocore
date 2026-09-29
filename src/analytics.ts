@@ -1,9 +1,15 @@
 /**
- * Amplitude analytics — a thin, fail-safe wrapper around `@amplitude/unified`.
+ * Amplitude analytics + Session Replay — a thin, fail-safe wrapper around
+ * `@amplitude/unified`.
  *
  * Everything is wrapped in try/catch and gated behind `initAnalytics()` so a
  * missing key, a blocked network, or an ad-blocker can never break the
  * prototype: a failed call is swallowed (and logged in dev), the UI carries on.
+ *
+ * `initAll` boots the Analytics browser SDK and the Session Replay plugin from
+ * one instance (the unified equivalent of Amplitude's two-script snippet):
+ * Session Replay records 100% of sessions (`sampleRate: 1`), autocapture is off
+ * (we track events explicitly), and remote config is fetched.
  *
  * The API key comes from `VITE_AMPLITUDE_API_KEY` (set it in a `.env` file, see
  * `.env.example`); with no key set, analytics stays disabled and events are
@@ -11,11 +17,12 @@
  */
 import { initAll, identify, track as amplitudeTrack, Identify } from '@amplitude/unified';
 
+/* Analytics + Session Replay via @amplitude/unified. */
 const API_KEY = import.meta.env.VITE_AMPLITUDE_API_KEY ?? '';
 
 let ready = false;
 
-/** Initialize Amplitude once, at app start. Safe to call more than once. */
+/** Initialize Amplitude (analytics + session replay) once, at app start. */
 export function initAnalytics(): void {
   if ( ready ) return;
   if ( ! API_KEY ) {
@@ -27,7 +34,13 @@ export function initAnalytics(): void {
     return;
   }
   try {
-    initAll( API_KEY );
+    /* initAll is async (it resolves once the SDKs are up); the exported
+       track/identify buffer events until then, so we don't await it — we just
+       flag ready and surface a late rejection instead of leaving it unhandled. */
+    void initAll( API_KEY, {
+      sessionReplay: { sampleRate: 1 },
+      analytics: { autocapture: false, fetchRemoteConfig: true },
+    } ).catch( ( err ) => console.warn( '[analytics] init failed', err ) );
     ready = true;
   } catch ( err ) {
     console.warn( '[analytics] init failed', err );
