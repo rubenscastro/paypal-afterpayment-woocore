@@ -39,6 +39,9 @@ export const INITIAL_SHOPPER_STATE: ShopperState = {
 export const cartItemCount = ( cart: CartLine[] ): number =>
   cart.reduce( ( n, line ) => n + line.qty, 0 );
 
+/** The tax rate applied at checkout (matches Checkout / Order received). */
+export const TAX_RATE = 0.06;
+
 export interface Product {
   id: string;
   name: string;
@@ -106,3 +109,12 @@ export const RELATED_PRODUCT: Product = {
 
 export const productById = ( id: string ): Product =>
   [ ...PRODUCTS, RELATED_PRODUCT ].find( ( p ) => p.id === id ) ?? PRODUCTS[ 0 ];
+
+/** Order total (subtotal at effective price + tax), matching Checkout / Order received. */
+export const orderTotal = ( items: CartLine[] ): number => {
+  const subtotal = items.reduce( ( sum, line ) => {
+    const p = productById( line.id );
+    return sum + ( p.salePrice ?? p.price ) * line.qty;
+  }, 0 );
+  return subtotal + subtotal * TAX_RATE;
+};

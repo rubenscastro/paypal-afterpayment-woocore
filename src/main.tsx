@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { initAnalytics } from './analytics';
 import '../node_modules/@wordpress/theme/prebuilt/css/design-tokens.css';
 import '@wordpress/components/build-style/style.css';
 /* Shared chrome (topbar, sidebar, switcher) first, then each track's own
@@ -9,6 +10,8 @@ import './styles.css';
 import './brand.css';
 import './merchant/merchant.css';
 import './shopper/shopper.css';
+
+initAnalytics();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

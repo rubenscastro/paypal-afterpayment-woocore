@@ -14,6 +14,7 @@ import TrackSwitcher from './TrackSwitcher';
 import Snackbar from './Snackbar';
 import { DEFAULT_TRACK, TRACK_IDS, TRACK_PARAM, type Track } from './tracks';
 import { readParam, readRaw, buildUrl, pushUrl, replaceUrl } from './urlState';
+import { track as trackEvent, identifyUser } from './analytics';
 import MerchantApp from './merchant/MerchantApp';
 import ShopperApp from './shopper/ShopperApp';
 import {
@@ -95,6 +96,16 @@ export default function App() {
   useEffect( () => {
     window.scrollTo( 0, 0 );
   }, [ track, merchant.screen, shopper.screen, shopper.product ] );
+
+  /* Analytics: tag the session's role, and log a Screen Viewed on every
+     navigation (fires on mount too, for the initial screen). */
+  useEffect( () => {
+    identifyUser( { account_type: track === 'merchant' ? 'merchant' : 'customer' } );
+  }, [ track ] );
+  useEffect( () => {
+    const screen = track === 'merchant' ? merchant.screen : shopper.screen;
+    trackEvent( 'Screen Viewed', { track, screen } );
+  }, [ track, merchant.screen, shopper.screen ] );
 
   /* Back/Forward → restore the navigation slice from the URL. The push effect
      above then sees the URL already matches and skips, so no entry is added. */

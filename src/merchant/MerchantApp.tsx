@@ -22,6 +22,7 @@ import PaymentsSettings from './admin/PaymentsSettings';
 import WalletWizard from './admin/wallet/WalletWizard';
 import WalletManage from './admin/wallet/WalletManage';
 import PayPalConnectFlow from './admin/wallet/PayPalConnectFlow';
+import { track } from '../analytics';
 
 export default function MerchantApp( {
   state,
@@ -51,6 +52,7 @@ export default function MerchantApp( {
       onComplete={ () => {
         setConnectOpen( false );
         setCtaLoading( true );
+        track( 'PayPal Wallet Connected', { integration: 'PayPal Wallet' } );
         update( { paypal: 'active', pendingPayment: false } );
         setTimeout( () => {
           setCtaLoading( false );

@@ -15,7 +15,8 @@ import CartPage from './CartPage';
 import CheckoutPage from './CheckoutPage';
 import OrderReceivedPage from './OrderReceivedPage';
 import PayPalModal from './PayPalModal';
-import { cartItemCount, type CartLine, type ShopperScreen, type ShopperState } from './flow';
+import { cartItemCount, orderTotal, productById, type CartLine, type ShopperScreen, type ShopperState } from './flow';
+import { track } from '../analytics';
 
 export default function ShopperApp( {
   state,
@@ -49,6 +50,14 @@ export default function ShopperApp( {
   };
   const completePurchase = () => {
     setPayOpen( false );
+    /* The event the whole prototype exists to demonstrate: a shopper paying with
+       a PayPal method. Amount matches the Order received total (subtotal + tax). */
+    track( 'Payment Completed', {
+      payment_provider: payMethod,
+      amount: Number( orderTotal( orderItems ).toFixed( 2 ) ),
+      currency: 'USD',
+      order_id: 'order_233',
+    } );
     onPurchase();
     go( 'order-received' );
   };
@@ -61,6 +70,12 @@ export default function ShopperApp( {
         ? s.cart.map( ( l ) => ( l.id === id ? { ...l, qty: l.qty + 1 } : l ) )
         : [ ...s.cart, { id, qty: 1 } ];
       return { ...s, cart };
+    } );
+    const p = productById( id );
+    track( 'Product Added to Cart', {
+      product_id: p.id,
+      product_name: p.name,
+      price: p.salePrice ?? p.price,
     } );
     setToast( id );
   };
