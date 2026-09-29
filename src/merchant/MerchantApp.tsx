@@ -28,11 +28,16 @@ export default function MerchantApp( {
   state,
   setState,
   onViewStore,
+  homeTipDismissed = false,
+  onDismissHomeTip,
 }: {
   state: MerchantState;
   setState: ( updater: ( s: MerchantState ) => MerchantState ) => void;
   /** Open the storefront (shopper track) — wired to the top bar's site name. */
   onViewStore?: () => void;
+  /** First-visit "click Add products" popover: whether it's been dismissed. */
+  homeTipDismissed?: boolean;
+  onDismissHomeTip?: () => void;
 } ) {
   const go = ( screen: MerchantState['screen'] ) => setState( ( s ) => ( { ...s, screen } ) );
   const update = ( patch: Partial< MerchantState > ) => setState( ( s ) => ( { ...s, ...patch } ) );
@@ -120,6 +125,8 @@ export default function MerchantApp( {
             onConnectPaypal={ () => go( 'wallet-welcome' ) }
             onGoPayments={ () => go( 'payments' ) }
             onCompleteProducts={ () => update( { productsDone: true } ) }
+            homeTipDismissed={ homeTipDismissed }
+            onDismissHomeTip={ onDismissHomeTip }
           />
         </WpAdminShell>
       );

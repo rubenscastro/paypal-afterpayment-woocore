@@ -840,18 +840,22 @@ body.is-table-dragging .cat-drag-handle {
   height: 110px;
   display: flex;
   align-items: center;
-  background: #1e1e1e;
+  /* Woo brand purple so the cross-track nudges stand out. */
+  background: #873EFF;
   color: #fff;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 -4px 24px rgba(76, 20, 140, 0.32);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   animation: snackbar-up 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
-/* Content is capped to a centred 600px container inside the full-width bar. */
+/* Content is capped to a centred container inside the full-width bar — wide
+   enough that the longer title stays on one line. */
 .snackbar__inner {
   display: flex; align-items: center; gap: 16px;
-  width: 100%; max-width: 600px; margin: 0 auto;
+  width: 100%; max-width: 820px; margin: 0 auto;
   padding: 0 24px; box-sizing: border-box;
 }
+/* Narrower container for shorter messages (e.g. the order-placed snackbar). */
+.snackbar--narrow .snackbar__inner { max-width: 640px; }
 @keyframes snackbar-up {
   from { opacity: 0; transform: translateY(100%); }
   to { opacity: 1; transform: translateY(0); }
@@ -859,7 +863,7 @@ body.is-table-dragging .cat-drag-handle {
 @media screen and (prefers-reduced-motion: reduce) { .snackbar { animation: none; } }
 .snackbar__icon { font-size: 24px; line-height: 1; }
 .snackbar__text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-.snackbar__title { font-size: 15px; font-weight: 600; }
+.snackbar__title { font-size: 15px; font-weight: 600; white-space: nowrap; }
 .snackbar__desc { font-size: 14px; color: rgba(255, 255, 255, 0.75); }
 .snackbar__cta {
   margin-left: 8px; white-space: nowrap; text-align: center; min-width: 210px;

@@ -4,7 +4,8 @@
  * "Connect PayPal to complete setup" task and — when a payment is pending — the
  * amber action-required banner pinned to the top (the second Figma tasklist frame).
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Badge, Button, IconButton } from '@wordpress/ui';
 import { Icon } from '@wordpress/components';
 import { moreVertical, store, commentAuthorAvatar, help, check } from '@wordpress/icons';
@@ -81,6 +82,8 @@ export default function HomeTasklist( {
   onConnectPaypal,
   onGoPayments,
   onCompleteProducts,
+  homeTipDismissed = false,
+  onDismissHomeTip,
 }: {
   state: MerchantState;
   onConnectPaypal: () => void;
@@ -88,6 +91,9 @@ export default function HomeTasklist( {
   onGoPayments: () => void;
   /** Mark "Add your products" done — advances the hero + checklist to payments. */
   onCompleteProducts: () => void;
+  /** First-visit "click Add products" coaching popover. */
+  homeTipDismissed?: boolean;
+  onDismissHomeTip?: () => void;
 } ) {
   /* Full-page skeleton every time the Home screen is entered (remounts on nav). */
   const ready = useReady( 'admin-home', 700 );
@@ -164,6 +170,53 @@ export default function HomeTasklist( {
   const stepCount = SETUP_STEPS.length;
   const completeCount = SETUP_STEPS.filter( ( _, i ) => stepComplete( i ) ).length;
 
+  /* First-visit coaching popover: only before any products are added, and only
+     until it's dismissed (products hero is the one showing "Add products"). */
+  const showTip = ! state.productsDone && ! homeTipDismissed;
+
+  /* Popover placement: prefer the LEFT of the button. Rendered in a portal with
+     fixed positioning so the card's `overflow: hidden` can't crop it (left sits
+     over the sidebar). The sidebar pins the button near the content's left edge,
+     so on the left the popover is sized to the available room (down to a readable
+     minimum); only when even that won't fit does it fall back to the right. */
+  const TIP_MAX = 248;
+  const TIP_MIN = 160;
+  const TIP_GAP = 14;
+  const ctaWrapRef = useRef< HTMLDivElement >( null );
+  const [ tipPos, setTipPos ] = useState< { side: 'left' | 'right'; top: number; left: number; width: number } | null >( null );
+  useLayoutEffect( () => {
+    /* Wait for the real card (not the skeleton) so the button exists to measure. */
+    if ( ! showTip || ! ready || cardLoading ) { setTipPos( null ); return; }
+    const measure = () => {
+      const r = ctaWrapRef.current?.getBoundingClientRect();
+      if ( ! r ) return;
+      const top = r.top + r.height / 2;
+      const leftAvail = r.left - TIP_GAP - 8;
+      if ( leftAvail >= TIP_MIN ) {
+        const width = Math.min( TIP_MAX, leftAvail );
+        setTipPos( { side: 'left', top, left: r.left - TIP_GAP - width, width } );
+      } else {
+        setTipPos( { side: 'right', top, left: r.right + TIP_GAP, width: TIP_MAX } );
+      }
+    };
+    measure();
+    window.addEventListener( 'resize', measure );
+    window.addEventListener( 'scroll', measure, true );
+    return () => {
+      window.removeEventListener( 'resize', measure );
+      window.removeEventListener( 'scroll', measure, true );
+    };
+  }, [ showTip, ready, cardLoading ] );
+
+  /* Any click anywhere dismisses the popover (the click still does its own job —
+     the tip just gets out of the way). */
+  useEffect( () => {
+    if ( ! showTip || ! ready ) return;
+    const dismiss = () => onDismissHomeTip?.();
+    document.addEventListener( 'mousedown', dismiss );
+    return () => document.removeEventListener( 'mousedown', dismiss );
+  }, [ showTip, ready, onDismissHomeTip ] );
+
   type Todo = { title: string; meta?: string; onClick?: () => void };
   /* "Things to do next" — the standard WooCommerce suggestions. */
   const todos: Todo[] = [
@@ -212,7 +265,29 @@ export default function HomeTasklist( {
                     <img className="hm-setup-hero__art hm-setup-hero__art--icon" src={ hero.art } alt="" aria-hidden />
                   ) }
                 </div>
-                <Button className="hm-primary" variant="solid" tone="brand" onClick={ onHeroCta }>{ hero.cta }</Button>
+                <div className="hm-cta-wrap" ref={ ctaWrapRef }>
+                  <Button
+                    className="hm-primary"
+                    variant="solid"
+                    tone="brand"
+                    onClick={ () => { if ( showTip ) onDismissHomeTip?.(); onHeroCta(); } }
+                  >{ hero.cta }</Button>
+                </div>
+                { showTip && tipPos && createPortal(
+                  <div
+                    className={ `hm-tip hm-tip--${ tipPos.side }` }
+                    role="status"
+                    style={ { top: tipPos.top, left: tipPos.left, width: tipPos.width } }
+                  >
+                    <span className="hm-tip__arrow" aria-hidden />
+                    <div className="hm-tip__body">
+                      <span className="hm-tip__title"><span aria-hidden>👉</span> Prototype control</span>
+                      <span className="hm-tip__text">Click the button to continue</span>
+                    </div>
+                    <button type="button" className="hm-tip__close" aria-label="Dismiss" onClick={ onDismissHomeTip }>×</button>
+                  </div>,
+                  document.body
+                ) }
               </div>
               { ! isIconHero && (
                 <img className="hm-setup-hero__art" src={ hero.art } alt="" aria-hidden />

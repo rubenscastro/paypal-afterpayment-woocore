@@ -579,6 +579,44 @@
 .hm-setup-hero__art--icon { width: 52px; height: 52px; align-self: center; }
 /* Real @wordpress/ui Button; only its placement in the flex column is ours. */
 .hm-primary { align-self: flex-start; }
+/* First-visit coaching popover, anchored under the "Add products" button. Woo
+   brand purple so it can't be missed. */
+.hm-cta-wrap { position: relative; align-self: flex-start; }
+/* Rendered in a portal at <body>, positioned with fixed top/left from JS so the
+   card's overflow can't crop it. */
+.hm-tip {
+  position: fixed; transform: translateY( -50% ); z-index: 2000;
+  display: flex; align-items: flex-start; gap: 10px;
+  max-width: 248px; padding: 14px 14px 14px 16px;
+  background: #873EFF; color: #fff; border-radius: 8px;
+  /* Drop shadow + a subtle, low-opacity purple glow that gently pulses. */
+  box-shadow: 0 6px 18px rgba( 76, 20, 140, 0.22 ), 0 0 10px 0 rgba( 135, 62, 255, 0.18 );
+  animation: hm-tip-in 0.22s ease, hm-tip-glow 2.6s ease-in-out infinite;
+}
+@keyframes hm-tip-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hm-tip-glow {
+  0%, 100% { box-shadow: 0 6px 18px rgba( 76, 20, 140, 0.2 ), 0 0 8px 0 rgba( 135, 62, 255, 0.12 ); }
+  50% { box-shadow: 0 6px 18px rgba( 76, 20, 140, 0.24 ), 0 0 14px 2px rgba( 135, 62, 255, 0.24 ); }
+}
+@media screen and ( prefers-reduced-motion: reduce ) { .hm-tip { animation: none; } }
+.hm-tip__arrow {
+  position: absolute; top: 50%; width: 11px; height: 11px;
+  background: #873EFF; transform: translateY( -50% ) rotate( 45deg ); border-radius: 2px;
+}
+.hm-tip--left .hm-tip__arrow { right: -5px; }
+.hm-tip--right .hm-tip__arrow { left: -5px; }
+/* Below-the-button variant (storefront): sits under its anchor with the arrow
+   centred on top. `left` on the arrow is set inline to point at the button. */
+.hm-tip--below { transform: none; }
+.hm-tip--below .hm-tip__arrow { top: -5px; margin-left: -5px; transform: rotate( 45deg ); }
+.hm-tip__body { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.hm-tip__title { font-size: 14px; font-weight: 600; }
+.hm-tip__text { font-size: 13px; line-height: 18px; color: rgba( 255, 255, 255, 0.9 ); }
+.hm-tip__close {
+  flex: none; background: none; border: none; cursor: pointer; padding: 0;
+  margin: -2px -2px 0 0; font-size: 18px; line-height: 1; color: rgba( 255, 255, 255, 0.8 );
+}
+.hm-tip__close:hover { color: #fff; }
 .hm-steps { list-style: none; margin: 0; padding: 0; }
 /* Step row (Incomplete/Resting): px-20 py-16, 20px gap, 1px #ddd bottom divider
    (inset shadow so the active row's left accent can replace it). Label = Heading

@@ -136,13 +136,18 @@ export default function PayPalConnectFlow( {
   const chrome = CHROME[ step ];
   const go = ( s: Step ) => setStep( s );
 
+  /* Closing the popup on the final "You're all set!" screen means the same thing
+     as clicking "Return to WooCommerce" — the account is connected, so hand back
+     to Woo (onComplete) rather than cancelling (onClose). */
+  const handleClose = () => ( step === 'done' ? onComplete() : onClose() );
+
   return (
-    <div className="ppc-overlay" onClick={ onClose }>
+    <div className="ppc-overlay" onClick={ handleClose }>
       <div className="ppc-window" role="dialog" aria-label="PayPal integration" onClick={ ( e ) => e.stopPropagation() }>
         {/* Title bar */}
         <div className="ppc-titlebar">
           <div className="ppc-lights">
-            <button type="button" className="ppc-light ppc-light--red" aria-label="Close" onClick={ onClose } />
+            <button type="button" className="ppc-light ppc-light--red" aria-label="Close" onClick={ handleClose } />
             <span className="ppc-light ppc-light--amber" />
             <span className="ppc-light ppc-light--green" />
           </div>

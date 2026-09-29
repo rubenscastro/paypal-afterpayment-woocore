@@ -11,6 +11,7 @@ export default function Snackbar( {
   cta,
   onGo,
   onDismiss,
+  narrow = false,
 }: {
   icon?: string;
   title: string;
@@ -18,9 +19,11 @@ export default function Snackbar( {
   cta: string;
   onGo: () => void;
   onDismiss: () => void;
+  /** Use a narrower content container (for shorter messages). */
+  narrow?: boolean;
 } ) {
   return (
-    <div className="snackbar" role="status">
+    <div className={ `snackbar${ narrow ? ' snackbar--narrow' : '' }` } role="status">
       <div className="snackbar__inner">
         { icon && <span className="snackbar__icon" aria-hidden>{ icon }</span> }
         <div className="snackbar__text">

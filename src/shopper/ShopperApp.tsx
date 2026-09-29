@@ -22,12 +22,17 @@ export default function ShopperApp( {
   state,
   setState,
   onPurchase,
+  storeTipDismissed = false,
+  onDismissStoreTip,
 }: {
   state: ShopperState;
   setState: ( updater: ( s: ShopperState ) => ShopperState ) => void;
   /** Called when the shopper completes checkout — arms the merchant's pending
    *  payment notice. */
   onPurchase: () => void;
+  /** First-visit "make a purchase" coaching popover on the shop grid. */
+  storeTipDismissed?: boolean;
+  onDismissStoreTip?: () => void;
 } ) {
   const [ payOpen, setPayOpen ] = useState( false );
   const [ payMethod, setPayMethod ] = useState( 'PayPal' );
@@ -107,7 +112,15 @@ export default function ShopperApp( {
         <CheckoutPage onPay={ onPay } cart={ state.cart } />
       ) : (
         <main className="sh-main">
-          { state.screen === 'shop' && <ShopPage onNavigate={ go } onOpenProduct={ openProduct } onAddToCart={ addToCart } /> }
+          { state.screen === 'shop' && (
+            <ShopPage
+              onNavigate={ go }
+              onOpenProduct={ openProduct }
+              onAddToCart={ addToCart }
+              tipDismissed={ storeTipDismissed }
+              onDismissTip={ onDismissStoreTip }
+            />
+          ) }
           { state.screen === 'product' && (
             <ProductPage productId={ state.product } onNavigate={ go } onOpenProduct={ openProduct } onPay={ onPay } onAddToCart={ addToCart } />
           ) }

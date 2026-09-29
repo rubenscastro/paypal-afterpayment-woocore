@@ -63,6 +63,12 @@ export default function App() {
   } ) );
   const [ merchantNudgeDismissed, setMerchantNudgeDismissed ] = useState( false );
   const [ orderNudgeDismissed, setOrderNudgeDismissed ] = useState( false );
+  /* First-visit coaching popover on the Home tasklist ("click Add products").
+     Shown until it's dismissed or products are added; comes back on reset. */
+  const [ homeTipDismissed, setHomeTipDismissed ] = useState( false );
+  /* Matching coaching popover on the storefront ("make a purchase to continue"),
+     shown under a random Add-to-cart button until dismissed or a purchase lands. */
+  const [ storeTipDismissed, setStoreTipDismissed ] = useState( false );
   /* Whether a shopper order has been placed lives on the merchant state
      (`orderReceived`) — set by a real checkout (onPurchase) or the prototype
      switcher — and doubles as the signal that the "go to Shopper view" nudge has
@@ -151,7 +157,13 @@ export default function App() {
   return (
     <>
       { track === 'merchant'
-        ? <MerchantApp state={ merchant } setState={ setMerchant } onViewStore={ () => setTrack( 'shopper' ) } />
+        ? <MerchantApp
+            state={ merchant }
+            setState={ setMerchant }
+            onViewStore={ () => setTrack( 'shopper' ) }
+            homeTipDismissed={ homeTipDismissed }
+            onDismissHomeTip={ () => setHomeTipDismissed( true ) }
+          />
         : <ShopperApp
             state={ shopper }
             setState={ setShopper }
@@ -160,13 +172,16 @@ export default function App() {
                  track at the Home tasklist, so switching to Merchant view from the
                  order-received page lands on wp-admin with the banner showing. */
               setMerchant( ( s ) => ( { ...s, pendingPayment: true, productsDone: true, orderReceived: true, screen: 'home' } ) );
+              setStoreTipDismissed( true );
             } }
+            storeTipDismissed={ storeTipDismissed }
+            onDismissStoreTip={ () => setStoreTipDismissed( true ) }
           /> }
 
       { showMerchantNudge && (
         <Snackbar
           icon="👉"
-          title="Store is live with products"
+          title="Prototype control: Store is live with products"
           desc="Customers can pay with PayPal Wallet"
           cta="Go to store"
           onGo={ () => setTrack( 'shopper' ) }
@@ -177,9 +192,10 @@ export default function App() {
       { showOrderNudge && (
         <Snackbar
           icon="👉"
-          title="An order has been placed."
+          title="Prototype control: an order has been placed"
           desc="The merchant has been notified."
           cta="Back to WooCommerce"
+          narrow
           onGo={ () => setTrack( 'merchant' ) }
           onDismiss={ () => setOrderNudgeDismissed( true ) }
         />
@@ -199,6 +215,8 @@ export default function App() {
           setShopper( INITIAL_SHOPPER_STATE );
           setMerchantNudgeDismissed( false );
           setOrderNudgeDismissed( false );
+          setHomeTipDismissed( false );
+          setStoreTipDismissed( false );
         } }
       />
     </>
