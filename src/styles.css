@@ -850,7 +850,7 @@ body.is-table-dragging .cat-drag-handle {
 }
 @media screen and (prefers-reduced-motion: reduce) { .snackbar { animation: none; } }
 .snackbar__icon { font-size: 22px; line-height: 1; }
-.snackbar__text { display: flex; flex-direction: column; gap: 2px; }
+.snackbar__text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .snackbar__title { font-size: 14px; font-weight: 600; }
 .snackbar__desc { font-size: 13px; color: rgba(255, 255, 255, 0.75); }
 .snackbar__cta {

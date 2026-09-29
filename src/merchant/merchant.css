@@ -505,20 +505,24 @@
 .wp-main:has( .hm ) { padding-bottom: 0; }
 /* Screen header (Figma 11469:60669): white, 56px, pl-32 pr-8, 1px #ddd bottom,
    sticky under the admin bar. Title = Subtitle token (16/24 bold). */
+/* WooCommerce homescreen header bar (copied from the woo repo): 60px tall, the
+   wp-admin grey background ($wp-admin-background #f0f0f1) — same as the content
+   canvas — with a #dcdcde bottom border, a 15px heading, and 18px meta icons. */
 .hm-subbar {
   display: flex; align-items: center; justify-content: space-between;
-  height: 56px; background: #fff; box-shadow: inset 0 -1px 0 0 #dddddd;
-  padding: 0 8px 0 32px; position: sticky; top: 32px; z-index: 5;
+  height: 60px; background: #f0f0f1; border-bottom: 1px solid #dcdcde;
+  padding: 0 16px 0 24px; position: sticky; top: 32px; z-index: 5;
 }
-.hm-subbar__title { font-size: 16px; line-height: 24px; font-weight: 700; color: #1e1e1e; }
-.hm-subbar__right { display: flex; align-items: center; }
-.hm-subbar__link {
-  display: inline-flex; align-items: center; height: 56px; padding: 0 8px;
-  color: #007cba; font-size: 13px; line-height: 18px; cursor: pointer;
+.hm-subbar__title { font-size: 15px; line-height: 24px; font-weight: 500; color: #1e1e1e; }
+.hm-subbar__right { display: flex; align-items: center; gap: 2px; }
+/* Meta icons: 18px glyph, transparent, full-height hit area. */
+.hm-subbar__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 60px; min-width: 36px; padding: 0 8px;
+  border: none; background: none; cursor: pointer; color: #1e1e1e;
 }
-.hm-subbar__link:hover { text-decoration: underline; }
-/* IconButton spacing in the header cluster (the button styles itself). */
-.hm-subbar__icon { margin-left: 8px; }
+.hm-subbar__icon svg { width: 18px; height: 18px; fill: currentColor; }
+.hm-subbar__icon:hover { color: #3858e9; }
 
 .hm-canvas { background: #f0f0f1; padding: 24px; min-height: calc(100% - 50px); }
 .hm-col { max-width: 680px; margin: 0 auto; }

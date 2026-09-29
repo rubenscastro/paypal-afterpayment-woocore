@@ -7,9 +7,16 @@
 import { useState } from 'react';
 import { Button, IconButton } from '@wordpress/ui';
 import { Icon } from '@wordpress/components';
-import { moreVertical, store, listView, comment, help, check } from '@wordpress/icons';
-import Notice from './Notice';
+import { moreVertical, store, commentAuthorAvatar, help, check } from '@wordpress/icons';
 import { HomeSkeleton } from './AdminSkeleton';
+
+/* The homescreen "Display options" icon (block-template-part-sidebar), copied
+   verbatim from WooCommerce's activity-panel/display-options/icons/display.js. */
+const DisplayIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+    <path fillRule="evenodd" clipRule="evenodd" d="M6 4H18C19.1046 4 20 4.89543 20 6V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6C4 4.89543 4.89543 4 6 4ZM18 5.5H6C5.72386 5.5 5.5 5.72386 5.5 6V9H18.5V6C18.5 5.72386 18.2761 5.5 18 5.5ZM18.5 10.5H10L10 18.5H18C18.2761 18.5 18.5 18.2761 18.5 18V10.5Z" fill="currentColor" />
+  </svg>
+);
 import { useReady } from '../../useReady';
 import type { MerchantState } from '../flow';
 
@@ -93,8 +100,6 @@ export default function HomeTasklist( {
   const salesValue = state.orderReceived ? '$15.00' : '$0.00';
   const ordersValue = state.orderReceived ? '1' : '0';
 
-  const showBanner = state.paypal !== 'active' && state.pendingPayment;
-
   /* Checklist progress. "Set up payments" checks off once PayPal is connected
      (paypal active); "Add your products" checks off when marked done (or once
      payments is set up, which implies products). The active step is the first
@@ -166,28 +171,14 @@ export default function HomeTasklist( {
       <header className="hm-subbar">
         <span className="hm-subbar__title">Home</span>
         <div className="hm-subbar__right">
-          <IconButton className="hm-subbar__icon" icon={ store } label="View store" variant="minimal" tone="neutral" />
-          <IconButton className="hm-subbar__icon" icon={ listView } label="Display options" variant="minimal" tone="neutral" />
-          <IconButton className="hm-subbar__icon" icon={ comment } label="Reviews" variant="minimal" tone="neutral" />
-          <IconButton className="hm-subbar__icon" icon={ help } label="Help" variant="minimal" tone="neutral" />
+          <button type="button" className="hm-subbar__icon" aria-label="View store"><Icon icon={ store } size={ 18 } /></button>
+          <button type="button" className="hm-subbar__icon" aria-label="Display options"><DisplayIcon /></button>
+          <button type="button" className="hm-subbar__icon" aria-label="Account"><Icon icon={ commentAuthorAvatar } size={ 18 } /></button>
+          <button type="button" className="hm-subbar__icon" aria-label="Help"><Icon icon={ help } size={ 18 } /></button>
         </div>
       </header>
 
       <div className="hm-canvas">
-        { showBanner && (
-          <div className="hm-banner">
-            <Notice
-              title="Action required: Connect PayPal Wallet to receive your payment"
-              actionLabel="Connect to PayPal Wallet"
-              onAction={ onConnectPaypal }
-              onDismiss={ () => {} }
-            >
-              A customer placed an order and paid using PayPal Wallet. To receive
-              the payment, connect PayPal Wallet to your store and complete the setup.
-            </Notice>
-          </div>
-        ) }
-
         <div className="hm-col">
           <h1 className="hm-title">Let's get you set up <span aria-hidden>🚀</span></h1>
           <div className="hm-subrow">

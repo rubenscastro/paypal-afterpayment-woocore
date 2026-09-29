@@ -112,11 +112,11 @@ export default function App() {
   /* Cross-track nudges appear 2s after their condition holds. */
   const showMerchantNudge = useDelayed(
     track === 'merchant' && merchant.productsDone && ! orderPlaced && ! merchantNudgeDismissed,
-    2000
+    1000
   );
   const showOrderNudge = useDelayed(
     track === 'shopper' && shopper.screen === 'order-received' && ! orderNudgeDismissed,
-    2000
+    1000
   );
 
   return (
