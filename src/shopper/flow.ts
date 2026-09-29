@@ -15,19 +15,29 @@ export const SHOPPER_SCREEN_LABEL: Record< ShopperScreen, string > = {
   'order-received': 'Order received',
 };
 
+/** A cart line: which product, and how many. */
+export interface CartLine {
+  id: string;
+  qty: number;
+}
+
 export interface ShopperState {
   screen: ShopperScreen;
   /** Which product the detail page shows. */
   product: string;
-  /** Items in the cart — drives the header cart badge. */
-  cartCount: number;
+  /** The actual items in the cart (drives the badge, cart page and summary). */
+  cart: CartLine[];
 }
 
 export const INITIAL_SHOPPER_STATE: ShopperState = {
   screen: 'shop',
   product: 'album',
-  cartCount: 0,
+  cart: [],
 };
+
+/** Total item count across the cart (sum of quantities). */
+export const cartItemCount = ( cart: CartLine[] ): number =>
+  cart.reduce( ( n, line ) => n + line.qty, 0 );
 
 export interface Product {
   id: string;

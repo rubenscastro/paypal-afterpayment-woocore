@@ -2,6 +2,7 @@
 import { PRODUCTS, type Product, type ShopperScreen } from './flow';
 import { useReady } from './useReady';
 import { ShopSkeleton } from './Skeletons';
+import AddToCartButton from './AddToCartButton';
 
 function ProductCard( {
   product,
@@ -30,7 +31,7 @@ function ProductCard( {
           <span>${ product.price.toFixed( 2 ) }</span>
         ) }
       </div>
-      <button type="button" className="sp-addcart" onClick={ () => onAddToCart( product.name ) }>Add to cart</button>
+      <AddToCartButton onAdd={ () => onAddToCart( product.id ) } />
     </div>
   );
 }
@@ -44,7 +45,7 @@ export default function ShopPage( {
   onOpenProduct: ( id: string ) => void;
   onAddToCart: ( name: string ) => void;
 } ) {
-  const ready = useReady( 'shop' );
+  const ready = useReady( 'shop', 1400 );
   if ( ! ready ) return <ShopSkeleton />;
 
   return (

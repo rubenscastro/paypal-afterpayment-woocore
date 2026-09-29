@@ -3,19 +3,28 @@
  * info panel + order details table + addresses), rendered in the "Raven Of
  * Sacreds" storefront visuals. Reached after completing the PayPal payment flow.
  */
-import { productById, type ShopperScreen } from './flow';
+import { productById, type CartLine, type ShopperScreen } from './flow';
 import { useReady } from './useReady';
 import { OrderReceivedSkeleton } from './Skeletons';
 
 export default function OrderReceivedPage( {
+  cart,
+  payMethod = 'PayPal',
   onNavigate,
 }: {
+  cart: CartLine[];
+  payMethod?: string;
   onNavigate: ( s: ShopperScreen ) => void;
 } ) {
-  const product = productById( 'album' );
-  const price = product.salePrice ?? product.price;
   const ready = useReady( 'order-received', 900 );
   if ( ! ready ) return <OrderReceivedSkeleton />;
+
+  const subtotal = cart.reduce( ( s, line ) => {
+    const p = productById( line.id );
+    return s + ( p.salePrice ?? p.price ) * line.qty;
+  }, 0 );
+  const taxes = subtotal * 0.06;
+  const total = subtotal + taxes;
 
   return (
     <div className="or">
@@ -29,9 +38,9 @@ export default function OrderReceivedPage( {
       <div className="or-ticket">
         <div className="or-ticket__row"><span className="or-ticket__label">Order number:</span><span className="or-ticket__value">233</span></div>
         <div className="or-ticket__row"><span className="or-ticket__label">Date:</span><span className="or-ticket__value">September 28, 2026</span></div>
-        <div className="or-ticket__row"><span className="or-ticket__label">Email:</span><span className="or-ticket__value">shopper@example.com</span></div>
-        <div className="or-ticket__row"><span className="or-ticket__label">Total:</span><span className="or-ticket__value">${ price.toFixed( 2 ) } USD</span></div>
-        <div className="or-ticket__row"><span className="or-ticket__label">Payment method:</span><span className="or-ticket__value">PayPal</span></div>
+        <div className="or-ticket__row"><span className="or-ticket__label">Email:</span><span className="or-ticket__value">avery.donovan@gmail.com</span></div>
+        <div className="or-ticket__row"><span className="or-ticket__label">Total:</span><span className="or-ticket__value">${ total.toFixed( 2 ) } USD</span></div>
+        <div className="or-ticket__row"><span className="or-ticket__label">Payment method:</span><span className="or-ticket__value">{ payMethod }</span></div>
       </div>
 
       <h2 className="or-h2">Order details</h2>
@@ -40,16 +49,23 @@ export default function OrderReceivedPage( {
           <tr><th>Product</th><th>Total</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td><a onClick={ () => onNavigate( 'product' ) }>{ product.name }</a> <span className="or-qty">× 1</span></td>
-            <td>${ price.toFixed( 2 ) }</td>
-          </tr>
+          { cart.map( ( line ) => {
+            const p = productById( line.id );
+            const unit = p.salePrice ?? p.price;
+            return (
+              <tr key={ line.id }>
+                <td><a onClick={ () => onNavigate( 'product' ) }>{ p.name }</a> <span className="or-qty">× { line.qty }</span></td>
+                <td>${ ( unit * line.qty ).toFixed( 2 ) }</td>
+              </tr>
+            );
+          } ) }
         </tbody>
         <tfoot>
-          <tr><th>Subtotal:</th><td>${ price.toFixed( 2 ) }</td></tr>
+          <tr><th>Subtotal:</th><td>${ subtotal.toFixed( 2 ) }</td></tr>
           <tr><th>Shipping:</th><td>Free shipping</td></tr>
-          <tr><th>Total:</th><td>${ price.toFixed( 2 ) } USD</td></tr>
-          <tr><th>Payment method:</th><td>PayPal</td></tr>
+          <tr><th>Taxes:</th><td>${ taxes.toFixed( 2 ) }</td></tr>
+          <tr><th>Total:</th><td>${ total.toFixed( 2 ) } USD</td></tr>
+          <tr><th>Payment method:</th><td>{ payMethod }</td></tr>
         </tfoot>
       </table>
 
@@ -57,18 +73,18 @@ export default function OrderReceivedPage( {
         <div className="or-address">
           <h2 className="or-h2">Billing address</h2>
           <address>
-            Jamie Rivers<br />
-            185 South Congress<br />
-            Austin, TX 78701<br />
-            shopper@example.com
+            Avery Donovan<br />
+            5127 Chestnut Hollow Dr<br />
+            Asheville, NC 28806<br />
+            avery.donovan@gmail.com
           </address>
         </div>
         <div className="or-address">
           <h2 className="or-h2">Shipping address</h2>
           <address>
-            Jamie Rivers<br />
-            185 South Congress<br />
-            Austin, TX 78701
+            Avery Donovan<br />
+            5127 Chestnut Hollow Dr<br />
+            Asheville, NC 28806
           </address>
         </div>
       </div>

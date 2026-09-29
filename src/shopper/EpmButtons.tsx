@@ -10,17 +10,17 @@ export default function EpmButtons( {
   onPay,
 }: {
   layout?: 'row' | 'stack';
-  onPay?: () => void;
+  onPay?: ( method: string ) => void;
 } ) {
   return (
     <div className={ `epm epm--${ layout }` }>
-      <button type="button" className="epm-btn epm-btn--gold" aria-label="PayPal" onClick={ onPay }>
+      <button type="button" className="epm-btn epm-btn--gold" aria-label="PayPal" onClick={ () => onPay?.( 'PayPal' ) }>
         <img src="/logos/paypal/epm-paypal.svg" alt="PayPal" height={ 22 } />
       </button>
-      <button type="button" className="epm-btn epm-btn--gold" aria-label="Pay Later" onClick={ onPay }>
+      <button type="button" className="epm-btn epm-btn--gold" aria-label="Pay Later" onClick={ () => onPay?.( 'Pay Later' ) }>
         <img src="/logos/paypal/epm-paylater.svg" alt="PayPal Pay Later" height={ 22 } />
       </button>
-      <button type="button" className="epm-btn epm-btn--venmo" aria-label="Venmo" onClick={ onPay }>
+      <button type="button" className="epm-btn epm-btn--venmo" aria-label="Venmo" onClick={ () => onPay?.( 'Venmo' ) }>
         <img src="/logos/paypal/epm-venmo.svg" alt="Venmo" height={ 16 } />
       </button>
     </div>

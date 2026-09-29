@@ -21,12 +21,14 @@ export default function Snackbar( {
 } ) {
   return (
     <div className="snackbar" role="status">
-      { icon && <span className="snackbar__icon" aria-hidden>{ icon }</span> }
-      <div className="snackbar__text">
-        <strong className="snackbar__title">{ title }</strong>
-        { desc && <span className="snackbar__desc">{ desc }</span> }
+      <div className="snackbar__inner">
+        { icon && <span className="snackbar__icon" aria-hidden>{ icon }</span> }
+        <div className="snackbar__text">
+          <strong className="snackbar__title">{ title }</strong>
+          { desc && <span className="snackbar__desc">{ desc }</span> }
+        </div>
+        <button type="button" className="snackbar__cta" onClick={ onGo }>{ cta }</button>
       </div>
-      <button type="button" className="snackbar__cta" onClick={ onGo }>{ cta }</button>
       <button type="button" className="snackbar__close" onClick={ onDismiss } aria-label="Dismiss">×</button>
     </div>
   );

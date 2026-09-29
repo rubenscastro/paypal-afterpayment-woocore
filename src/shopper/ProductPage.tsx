@@ -1,6 +1,7 @@
 /** Product detail page. */
 import { useState } from 'react';
 import EpmButtons from './EpmButtons';
+import AddToCartButton from './AddToCartButton';
 import { productById, RELATED_PRODUCT, type ShopperScreen } from './flow';
 
 export default function ProductPage( {
@@ -13,7 +14,7 @@ export default function ProductPage( {
   productId: string;
   onNavigate: ( s: ShopperScreen ) => void;
   onOpenProduct: ( id: string ) => void;
-  onPay: () => void;
+  onPay: ( method: string ) => void;
   onAddToCart: ( name: string ) => void;
 } ) {
   const product = productById( productId );
@@ -43,7 +44,7 @@ export default function ProductPage( {
               <span>{ qty }</span>
               <button type="button" onClick={ () => setQty( ( q ) => q + 1 ) } aria-label="Increase">+</button>
             </div>
-            <button type="button" className="sp-addcart" onClick={ () => onAddToCart( product.name ) }>Add to cart</button>
+            <AddToCartButton onAdd={ () => onAddToCart( product.id ) } />
           </div>
           <EpmButtons onPay={ onPay } />
           <dl className="pd-meta">
@@ -81,7 +82,7 @@ export default function ProductPage( {
               <span className="sp-price-was">${ rel.price.toFixed( 2 ) }</span>
               <span className="sp-price-now">${ rel.salePrice!.toFixed( 2 ) }</span>
             </div>
-            <button type="button" className="sp-addcart" onClick={ () => onAddToCart( rel.name ) }>Add to cart</button>
+            <AddToCartButton onAdd={ () => onAddToCart( rel.id ) } />
           </div>
         </div>
       </section>

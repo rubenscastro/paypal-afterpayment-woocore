@@ -1,5 +1,6 @@
-/** Storefront header — "Raven Of Sacreds" wordmark + nav + avatar + cart. */
-import type { ShopperScreen } from './flow';
+/** Storefront header — "Raven Of Sacreds" wordmark + nav + cart. */
+import { useEffect, useRef } from 'react';
+import { productById, type ShopperScreen } from './flow';
 
 const NAV: { label: string; screen?: ShopperScreen }[] = [
   { label: 'Shop', screen: 'shop' },
@@ -20,13 +21,33 @@ export default function ShopHeader( {
   active,
   cartCount,
   onNavigate,
+  toast,
+  onToastView,
+  onToastDismiss,
 }: {
   active: ShopperScreen;
   cartCount: number;
   onNavigate: ( s: ShopperScreen ) => void;
+  /** Id of the just-added product — shows a popover under the cart icon. */
+  toast?: string | null;
+  onToastView?: () => void;
+  onToastDismiss?: () => void;
 } ) {
+  const toastProduct = toast ? productById( toast ) : null;
+  /* The popover stays open until a click lands outside the cart cluster. */
+  const cartRef = useRef< HTMLSpanElement >( null );
+  useEffect( () => {
+    if ( ! toast ) return;
+    const onDown = ( e: MouseEvent ) => {
+      if ( ! cartRef.current?.contains( e.target as Node ) ) onToastDismiss?.();
+    };
+    document.addEventListener( 'mousedown', onDown );
+    return () => document.removeEventListener( 'mousedown', onDown );
+  }, [ toast, onToastDismiss ] );
+
   return (
     <header className="sh-header">
+      <div className="sh-header__inner">
       <a className="sh-brand" onClick={ () => onNavigate( 'shop' ) }>Raven Of Sacreds</a>
       <nav className="sh-nav">
         { NAV.map( ( item ) => (
@@ -38,12 +59,24 @@ export default function ShopHeader( {
             { item.label }
           </a>
         ) ) }
-        <span className="sh-avatar" aria-hidden />
-        <button type="button" className="sh-cart" aria-label="Cart" onClick={ () => onNavigate( 'cart' ) }>
-          <CartIcon />
-          { cartCount > 0 && <span className="sh-cart__badge">{ cartCount }</span> }
-        </button>
+        <span className="sh-cart-wrap" ref={ cartRef }>
+          <button type="button" className="sh-cart" aria-label="Cart" onClick={ () => { onToastDismiss?.(); onNavigate( 'cart' ); } }>
+            <CartIcon />
+            { cartCount > 0 && <span className="sh-cart__badge">{ cartCount }</span> }
+          </button>
+          { toastProduct && (
+            <div className="sh-cartpop" role="status">
+              <span className="sh-cartpop__arrow" aria-hidden />
+              <div className="sh-cartpop__row">
+                <img className="sh-cartpop__thumb" src={ toastProduct.image } alt="" />
+                <p className="sh-cartpop__text">“{ toastProduct.name }” has been added to your cart.</p>
+              </div>
+              <button type="button" className="sh-cartpop__link" onClick={ onToastView }>View cart</button>
+            </div>
+          ) }
+        </span>
       </nav>
+      </div>
     </header>
   );
 }

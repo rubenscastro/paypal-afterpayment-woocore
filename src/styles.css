@@ -821,55 +821,54 @@ body.is-table-dragging .cat-drag-handle {
   max-width: 360px;
 }
 
-/* Cross-track nudge snackbar (prototype): fixed bottom-centre, prominent dark
-   bar with a CTA that switches tracks. Animates opacity only so the centring
-   transform is never overridden. */
+/* Cross-track nudge bar (prototype): a full-width dark bar fixed across the
+   bottom of the page, with a CTA that switches tracks. */
 .snackbar {
   position: fixed;
-  left: 50%;
-  bottom: 28px;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1500;
+  height: 110px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  width: 520px;
-  max-width: calc(100vw - 32px);
-  padding: 14px 14px 14px 20px;
   background: #1e1e1e;
   color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.24);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   animation: snackbar-up 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
-/* Slide up from below while keeping the horizontal centring transform. */
+/* Content is capped to a centred 600px container inside the full-width bar. */
+.snackbar__inner {
+  display: flex; align-items: center; gap: 16px;
+  width: 100%; max-width: 600px; margin: 0 auto;
+  padding: 0 24px; box-sizing: border-box;
+}
 @keyframes snackbar-up {
-  from { opacity: 0; transform: translateX(-50%) translateY(120%); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
 }
 @media screen and (prefers-reduced-motion: reduce) { .snackbar { animation: none; } }
-.snackbar__icon { font-size: 22px; line-height: 1; }
+.snackbar__icon { font-size: 24px; line-height: 1; }
 .snackbar__text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-.snackbar__title { font-size: 14px; font-weight: 600; }
-.snackbar__desc { font-size: 13px; color: rgba(255, 255, 255, 0.75); }
+.snackbar__title { font-size: 15px; font-weight: 600; }
+.snackbar__desc { font-size: 14px; color: rgba(255, 255, 255, 0.75); }
 .snackbar__cta {
-  margin-left: 8px; white-space: nowrap;
+  margin-left: 8px; white-space: nowrap; text-align: center; min-width: 210px;
   background: #fff; color: #1e1e1e; border: none; border-radius: 6px;
-  padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  padding: 11px 20px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
 .snackbar__cta:hover { background: #ededed; }
+/* Close sits at the far-right edge of the full-width bar (outside the 600px content). */
 .snackbar__close {
+  position: absolute; right: 28px; top: 50%; transform: translateY(-50%);
   background: none; border: none; color: rgba(255, 255, 255, 0.7);
-  font-size: 20px; line-height: 1; cursor: pointer; padding: 4px;
+  font-size: 30px; line-height: 1; cursor: pointer; padding: 4px;
 }
 .snackbar__close:hover { color: #fff; }
 @media ( max-width: 600px ) {
-  .snackbar { left: 16px; right: 16px; transform: none; max-width: none; flex-wrap: wrap; animation: snackbar-up-m 0.32s cubic-bezier(0.2, 0.9, 0.3, 1); }
-}
-@keyframes snackbar-up-m {
-  from { opacity: 0; transform: translateY(120%); }
-  to { opacity: 1; transform: translateY(0); }
+  .snackbar { height: auto; min-height: 110px; }
+  .snackbar__inner { flex-wrap: wrap; padding: 16px 20px; }
 }
 
 /* PRODUCT column header — laid out so:
@@ -3822,8 +3821,20 @@ body.is-list-preview .cat-main-card .dataviews-view-list div[role='row'] .cat-ct
   position: fixed;
   left: 8px;
   bottom: 8px;
-  width: 148px;
+  width: 222px;
   z-index: 1000;
+  /* Hidden until the cursor nears the bottom of the screen (JS adds .is-revealed
+     when within the bottom 120px, or while the panel is open). */
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.store-switcher.is-revealed,
+.store-switcher:focus-within {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
 }
 .store-switcher__btn {
   display: flex;
@@ -3831,7 +3842,7 @@ body.is-list-preview .cat-main-card .dataviews-view-list div[role='row'] .cat-ct
   justify-content: space-between;
   gap: 8px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 11px 14px;
   background: #2c3338;
   color: #f0f0f0;
   border: 1px solid #3c434a;
@@ -3874,10 +3885,10 @@ body.is-list-preview .cat-main-card .dataviews-view-list div[role='row'] .cat-ct
   position: absolute;
   left: 0;
   bottom: calc(100% + 8px);
-  /* Wide enough that the longest option ("Group Stripe's methods", label plus
-     its switch) stays on one line. */
+  width: max-content;
   min-width: 222px;
-  padding: 6px;
+  max-width: 320px;
+  padding: 12px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
@@ -3901,6 +3912,26 @@ body.is-list-preview .cat-main-card .dataviews-view-list div[role='row'] .cat-ct
   margin: 6px 0;
   background: #e0e0e0;
 }
+.ts-select {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0 6px;
+  padding: 9px 12px;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  background: #fff;
+  color: #1e1e1e;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.ts-select:focus { outline: none; border-color: #3858e9; box-shadow: 0 0 0 1px #3858e9; }
+.ts-reset {
+  display: block; width: 100%; text-align: left;
+  padding: 8px; background: none; border: none; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 600; color: #3858e9;
+}
+.ts-reset:hover { text-decoration: underline; }
 .store-switcher__item {
   display: flex;
   align-items: center;

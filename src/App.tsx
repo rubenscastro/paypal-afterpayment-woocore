@@ -9,7 +9,7 @@
  * navigation pushes a history entry, so the browser Back/Forward buttons step
  * through the prototype and any state is a shareable link.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import TrackSwitcher from './TrackSwitcher';
 import Snackbar from './Snackbar';
 import { DEFAULT_TRACK, TRACK_IDS, TRACK_PARAM, type Track } from './tracks';
@@ -109,14 +109,25 @@ export default function App() {
     return () => window.removeEventListener( 'popstate', onPop );
   }, [] );
 
-  /* Cross-track nudges appear 2s after their condition holds. */
+  /* Whenever products flip to "added" (via the tasklist or the prototype menu
+     toggle), un-dismiss the merchant nudge so it re-appears. */
+  const prevProductsDone = useRef( merchant.productsDone );
+  useEffect( () => {
+    if ( merchant.productsDone && ! prevProductsDone.current ) {
+      setMerchantNudgeDismissed( false );
+    }
+    prevProductsDone.current = merchant.productsDone;
+  }, [ merchant.productsDone ] );
+
+  /* Cross-track nudges appear after their condition holds — the merchant nudge
+     after 1s, the order-received nudge after 2s. */
   const showMerchantNudge = useDelayed(
     track === 'merchant' && merchant.productsDone && ! orderPlaced && ! merchantNudgeDismissed,
     1000
   );
   const showOrderNudge = useDelayed(
     track === 'shopper' && shopper.screen === 'order-received' && ! orderNudgeDismissed,
-    1000
+    2000
   );
 
   return (
@@ -137,8 +148,10 @@ export default function App() {
 
       { showMerchantNudge && (
         <Snackbar
-          title="Store is live, customers can already pay."
-          cta="Go to shop"
+          icon="👉"
+          title="Store is live with products"
+          desc="Customers can pay with PayPal Wallet"
+          cta="Go to store"
           onGo={ () => setTrack( 'shopper' ) }
           onDismiss={ () => setMerchantNudgeDismissed( true ) }
         />
@@ -146,6 +159,7 @@ export default function App() {
 
       { showOrderNudge && (
         <Snackbar
+          icon="👉"
           title="An order has been placed."
           desc="The merchant has been notified."
           cta="Back to WooCommerce"
@@ -161,6 +175,15 @@ export default function App() {
         setMerchant={ setMerchant }
         shopper={ shopper }
         setShopper={ setShopper }
+        onReset={ () => {
+          /* Back to a clean first-access state. */
+          setTrack( DEFAULT_TRACK );
+          setMerchant( INITIAL_STATE );
+          setShopper( INITIAL_SHOPPER_STATE );
+          setOrderPlaced( false );
+          setMerchantNudgeDismissed( false );
+          setOrderNudgeDismissed( false );
+        } }
       />
     </>
   );

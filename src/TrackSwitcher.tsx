@@ -24,6 +24,7 @@ export default function TrackSwitcher( {
   setMerchant,
   shopper,
   setShopper,
+  onReset,
 }: {
   track: Track;
   onTrack: ( t: Track ) => void;
@@ -31,10 +32,26 @@ export default function TrackSwitcher( {
   setMerchant: ( updater: ( s: MerchantState ) => MerchantState ) => void;
   shopper: ShopperState;
   setShopper: ( updater: ( s: ShopperState ) => ShopperState ) => void;
+  onReset: () => void;
 } ) {
   const [ open, setOpen ] = useState( false );
+  /* Reveal the control only when the cursor is in the bottom-left corner — within
+     the bottom 120px AND the left 200px (keep it up while the panel is open so it
+     can't vanish mid-use). */
+  const [ inCorner, setInCorner ] = useState( false );
   const btnRef = useRef< HTMLButtonElement >( null );
   const popRef = useRef< HTMLDivElement >( null );
+
+  useEffect( () => {
+    const onMove = ( e: MouseEvent ) => {
+      const near = e.clientY >= window.innerHeight - 120 && e.clientX <= 200;
+      setInCorner( ( prev ) => ( prev === near ? prev : near ) );
+    };
+    window.addEventListener( 'mousemove', onMove );
+    return () => window.removeEventListener( 'mousemove', onMove );
+  }, [] );
+
+  const revealed = open || inCorner;
 
   useEffect( () => {
     if ( ! open ) return;
@@ -51,16 +68,12 @@ export default function TrackSwitcher( {
     };
   }, [ open ] );
 
-  const detail = track === 'merchant'
-    ? SCREEN_LABEL[ merchant.screen ]
-    : SHOPPER_SCREEN_LABEL[ shopper.screen ];
-
   const goScreen = ( screen: MerchantScreen ) => setMerchant( ( s ) => ( { ...s, screen } ) );
   const setPaypal = ( paypal: PayPalStatus ) => setMerchant( ( s ) => ( { ...s, paypal } ) );
   const goShopper = ( screen: ShopperScreen ) => setShopper( ( s ) => ( { ...s, screen } ) );
 
   return (
-    <div className="store-switcher">
+    <div className={ `store-switcher${ revealed ? ' is-revealed' : '' }` }>
       <button
         ref={ btnRef }
         type="button"
@@ -69,13 +82,7 @@ export default function TrackSwitcher( {
         aria-haspopup="menu"
         aria-expanded={ open }
       >
-        <span className="store-switcher__btn-label">
-          <span className="store-switcher__btn-caption">Prototype</span>
-          <span className="store-switcher__btn-value">
-            { TRACK_LABEL[ track ] }
-            { detail && <span className="store-switcher__btn-detail"> · { detail.replace( /^.*· /, '' ) }</span> }
-          </span>
-        </span>
+        <span className="store-switcher__btn-value">Prototype settings</span>
         <Icon icon={ chevronUp } size={ 20 } />
       </button>
 
@@ -95,14 +102,15 @@ export default function TrackSwitcher( {
             <>
               <SwitcherDivider />
               <SwitcherLabel>Go to screen</SwitcherLabel>
-              { MERCHANT_SCREENS.map( ( screen ) => (
-                <SwitcherRadio
-                  key={ screen }
-                  label={ SCREEN_LABEL[ screen ] }
-                  checked={ merchant.screen === screen }
-                  onClick={ () => goScreen( screen ) }
-                />
-              ) ) }
+              <select
+                className="ts-select"
+                value={ merchant.screen }
+                onChange={ ( e ) => goScreen( e.target.value as MerchantScreen ) }
+              >
+                { MERCHANT_SCREENS.map( ( screen ) => (
+                  <option key={ screen } value={ screen }>{ SCREEN_LABEL[ screen ] }</option>
+                ) ) }
+              </select>
 
               <SwitcherDivider />
               <SwitcherLabel>PayPal status</SwitcherLabel>
@@ -117,6 +125,11 @@ export default function TrackSwitcher( {
 
               <SwitcherDivider />
               <SwitcherToggle
+                label="Products added"
+                checked={ merchant.productsDone }
+                onClick={ () => setMerchant( ( s ) => ( { ...s, productsDone: ! s.productsDone } ) ) }
+              />
+              <SwitcherToggle
                 label="Payment pending banner"
                 checked={ merchant.pendingPayment }
                 onClick={ () => setMerchant( ( s ) => ( { ...s, pendingPayment: ! s.pendingPayment } ) ) }
@@ -128,16 +141,26 @@ export default function TrackSwitcher( {
             <>
               <SwitcherDivider />
               <SwitcherLabel>Go to screen</SwitcherLabel>
-              { SHOPPER_SCREENS.map( ( screen ) => (
-                <SwitcherRadio
-                  key={ screen }
-                  label={ SHOPPER_SCREEN_LABEL[ screen ] }
-                  checked={ shopper.screen === screen }
-                  onClick={ () => goShopper( screen ) }
-                />
-              ) ) }
+              <select
+                className="ts-select"
+                value={ shopper.screen }
+                onChange={ ( e ) => goShopper( e.target.value as ShopperScreen ) }
+              >
+                { SHOPPER_SCREENS.map( ( screen ) => (
+                  <option key={ screen } value={ screen }>{ SHOPPER_SCREEN_LABEL[ screen ] }</option>
+                ) ) }
+              </select>
             </>
           ) }
+
+          <SwitcherDivider />
+          <button
+            type="button"
+            className="ts-reset"
+            onClick={ () => { onReset(); setOpen( false ); } }
+          >
+            Reset prototype
+          </button>
         </div>
       ) }
     </div>

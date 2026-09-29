@@ -1,27 +1,9 @@
 /** Checkout — WooCommerce Blocks checkout with the PayPal express + gateway. */
 import { useState } from 'react';
 import EpmButtons from './EpmButtons';
+import { productById, type CartLine } from './flow';
 import { useReady } from './useReady';
 import { CheckoutSkeleton } from './Skeletons';
-
-function CartIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-      <circle cx="9" cy="20" r="1.4" fill="currentColor" />
-      <circle cx="18" cy="20" r="1.4" fill="currentColor" />
-      <path d="M2 3h2.5l2.2 12.2a1.5 1.5 0 0 0 1.5 1.2h9.3a1.5 1.5 0 0 0 1.5-1.2L21 7H6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CheckoutHeader( { cartCount }: { cartCount: number } ) {
-  return (
-    <header className="co-header">
-      <span className="co-header__brand">Raven Of Sacreds</span>
-      <span className="co-header__cart"><CartIcon />{ cartCount > 0 && <span className="sh-cart__badge">{ cartCount }</span> }</span>
-    </header>
-  );
-}
 
 /** Floating-label field: the label rests inside the input like a placeholder and
  *  floats up to the top when the field is focused or filled, so every field keeps
@@ -48,17 +30,22 @@ function Field( { label, value, optional, search }: { label: string; value?: str
   );
 }
 
-export default function CheckoutPage( { onPay, cartCount }: { onPay: () => void; cartCount: number } ) {
+export default function CheckoutPage( { onPay, cart }: { onPay: ( method: string ) => void; cart: CartLine[] } ) {
   const [ delivery, setDelivery ] = useState< 'ship' | 'pickup' >( 'ship' );
   const [ sameBilling, setSameBilling ] = useState( true );
   const [ optIn, setOptIn ] = useState( false );
-  const [ note, setNote ] = useState( false );
   const ready = useReady( 'checkout' );
+
+  const subtotal = cart.reduce( ( s, line ) => {
+    const p = productById( line.id );
+    return s + ( p.salePrice ?? p.price ) * line.qty;
+  }, 0 );
+  const taxes = subtotal * 0.06;
+  const total = subtotal + taxes;
 
   if ( ! ready ) {
     return (
       <div className="co">
-        <CheckoutHeader cartCount={ cartCount } />
         <CheckoutSkeleton />
       </div>
     );
@@ -66,8 +53,6 @@ export default function CheckoutPage( { onPay, cartCount }: { onPay: () => void;
 
   return (
     <div className="co">
-      <CheckoutHeader cartCount={ cartCount } />
-
       <div className="co-body">
         <div className="co-main">
           {/* Express checkout */}
@@ -95,11 +80,11 @@ export default function CheckoutPage( { onPay, cartCount }: { onPay: () => void;
             <h2 className="co-h2">Delivery</h2>
             <div className="co-toggle">
               <button type="button" className={ `co-toggle__opt${ delivery === 'ship' ? ' is-active' : '' }` } onClick={ () => setDelivery( 'ship' ) }>
-                <span className="co-toggle__title">🚚 Ship</span>
+                <span className="co-toggle__title">Ship</span>
                 <span className="co-toggle__sub">Sub description</span>
               </button>
               <button type="button" className={ `co-toggle__opt${ delivery === 'pickup' ? ' is-active' : '' }` } onClick={ () => setDelivery( 'pickup' ) }>
-                <span className="co-toggle__title">🏬 Pickup</span>
+                <span className="co-toggle__title">Pickup</span>
                 <span className="co-toggle__sub">Sub description</span>
               </button>
             </div>
@@ -154,12 +139,7 @@ export default function CheckoutPage( { onPay, cartCount }: { onPay: () => void;
             </div>
           </section>
 
-          <label className="co-check co-note">
-            <input type="checkbox" checked={ note } onChange={ ( e ) => setNote( e.target.checked ) } />
-            <span>Add a note to your order</span>
-          </label>
-
-          <button type="button" className="co-place" onClick={ onPay }>Proceed to PayPal</button>
+          <button type="button" className="co-place" onClick={ () => onPay( 'PayPal' ) }>Proceed to PayPal</button>
           <p className="co-terms">
             By proceeding with your purchase you agree to our{ ' ' }
             <a href="#" onClick={ ( e ) => e.preventDefault() }>Terms and Conditions</a> and{ ' ' }
@@ -170,33 +150,42 @@ export default function CheckoutPage( { onPay, cartCount }: { onPay: () => void;
         {/* Order summary */}
         <aside className="co-summary">
           <h2 className="co-summary__title">Order summary</h2>
-          { [ 0, 1 ].map( ( i ) => (
-            <div key={ i } className="co-line">
-              <div className="co-line__thumb">
-                <span className="co-line__qty">1</span>
+          { cart.map( ( line ) => {
+            const p = productById( line.id );
+            const unit = p.salePrice ?? p.price;
+            return (
+              <div key={ line.id } className="co-line">
+                <div className="co-line__thumb">
+                  <img src={ p.image } alt="" />
+                  <span className="co-line__qty">{ line.qty }</span>
+                </div>
+                <div className="co-line__info">
+                  <span className="co-line__name">{ p.name }</span>
+                  <span className="co-line__price">
+                    { p.salePrice
+                      ? <><s>${ p.price.toFixed( 2 ) }</s> ${ p.salePrice.toFixed( 2 ) }</>
+                      : <>${ p.price.toFixed( 2 ) }</> }
+                  </span>
+                  <span className="co-line__attrs">{ p.category }</span>
+                </div>
+                <span className="co-line__total">${ ( unit * line.qty ).toFixed( 2 ) }</span>
               </div>
-              <div className="co-line__info">
-                <span className="co-line__name">Product name</span>
-                <span className="co-line__price"><s>$26.00</s> $20.00</span>
-                <span className="co-line__attrs">Size: Medium / Material: Porcelain / Attribute: Value /</span>
-              </div>
-              <span className="co-line__total">$20.00</span>
-            </div>
-          ) ) }
+            );
+          } ) }
           <div className="co-summary__links">
-            <a>🏷 Add a coupon</a>
-            <a>🎁 Add a gift card</a>
+            <a>Add a coupon</a>
+            <a>Add a gift card</a>
           </div>
           <dl className="co-totals">
-            <div><dt>Subtotal</dt><dd>$40.00</dd></div>
+            <div><dt>Subtotal</dt><dd>${ subtotal.toFixed( 2 ) }</dd></div>
             <div><dt>Delivery</dt><dd className="co-totals__muted">Enter address to calculate</dd></div>
-            <div><dt>Taxes</dt><dd>$2.40</dd></div>
+            <div><dt>Taxes</dt><dd>${ taxes.toFixed( 2 ) }</dd></div>
           </dl>
           <div className="co-grandtotal">
             <span>Total</span>
-            <span className="co-grandtotal__amt">$42.40 <span>USD</span></span>
+            <span className="co-grandtotal__amt">${ total.toFixed( 2 ) } <span>USD</span></span>
           </div>
-          <p className="co-taxnote">Includes $2.40 tax</p>
+          <p className="co-taxnote">Includes ${ taxes.toFixed( 2 ) } tax</p>
         </aside>
       </div>
     </div>

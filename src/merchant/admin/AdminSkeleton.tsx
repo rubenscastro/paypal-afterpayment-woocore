@@ -7,6 +7,32 @@
  */
 
 /** Home tasklist skeleton: title + progress + setup card (hero + 5 rows) + a card. */
+/** Just the "Let's get you set up" card skeleton (hero + 5 steps) — reused on the
+ *  full Home skeleton and shown alone when a setup step is being completed. */
+export function SetupCardSkeleton() {
+  return (
+    <section className="hm-card">
+      <div className="hm-sk-hero">
+        <div className="hm-sk-hero__text">
+          <span className="hm-sk hm-sk--h2" />
+          <span className="hm-sk hm-sk--line" />
+          <span className="hm-sk hm-sk--line" style={ { width: '78%' } } />
+          <span className="hm-sk hm-sk--btn" />
+        </div>
+        <span className="hm-sk hm-sk--art" />
+      </div>
+      <ul className="hm-sk-rows">
+        { [ 0, 1, 2, 3, 4 ].map( ( i ) => (
+          <li key={ i } className="hm-sk-row">
+            <span className="hm-sk hm-sk--circle" />
+            <span className="hm-sk hm-sk--rowtext" style={ { width: `${ 60 - i * 6 }%` } } />
+          </li>
+        ) ) }
+      </ul>
+    </section>
+  );
+}
+
 export function HomeSkeleton() {
   return (
     <div className="hm">
@@ -17,25 +43,7 @@ export function HomeSkeleton() {
           <span className="hm-sk hm-sk--sub" />
           <span className="hm-sk hm-sk--progress" />
 
-          <section className="hm-card">
-            <div className="hm-sk-hero">
-              <div className="hm-sk-hero__text">
-                <span className="hm-sk hm-sk--h2" />
-                <span className="hm-sk hm-sk--line" />
-                <span className="hm-sk hm-sk--line" style={ { width: '78%' } } />
-                <span className="hm-sk hm-sk--btn" />
-              </div>
-              <span className="hm-sk hm-sk--art" />
-            </div>
-            <ul className="hm-sk-rows">
-              { [ 0, 1, 2, 3, 4 ].map( ( i ) => (
-                <li key={ i } className="hm-sk-row">
-                  <span className="hm-sk hm-sk--circle" />
-                  <span className="hm-sk hm-sk--rowtext" style={ { width: `${ 60 - i * 6 }%` } } />
-                </li>
-              ) ) }
-            </ul>
-          </section>
+          <SetupCardSkeleton />
 
           <section className="hm-card">
             <div className="hm-sk-cardhead"><span className="hm-sk hm-sk--h3" /></div>

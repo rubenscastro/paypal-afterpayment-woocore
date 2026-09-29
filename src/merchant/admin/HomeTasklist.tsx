@@ -4,11 +4,11 @@
  * "Connect PayPal to complete setup" task and — when a payment is pending — the
  * amber action-required banner pinned to the top (the second Figma tasklist frame).
  */
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, IconButton } from '@wordpress/ui';
 import { Icon } from '@wordpress/components';
 import { moreVertical, store, commentAuthorAvatar, help, check } from '@wordpress/icons';
-import { HomeSkeleton } from './AdminSkeleton';
+import { HomeSkeleton, SetupCardSkeleton } from './AdminSkeleton';
 
 /* The homescreen "Display options" icon (block-template-part-sidebar), copied
    verbatim from WooCommerce's activity-panel/display-options/icons/display.js. */
@@ -92,8 +92,22 @@ export default function HomeTasklist( {
   /** Mark "Add your products" done — advances the hero + checklist to payments. */
   onCompleteProducts: () => void;
 } ) {
-  /* Skeleton every time the Home screen is entered (remounts on navigation). */
+  /* Full-page skeleton every time the Home screen is entered (remounts on nav). */
   const ready = useReady( 'admin-home', 700 );
+
+  /* When "Add your products" is completed in place, load just the setup card
+     (not the whole page) before it flips to the "Set up payments" active step. */
+  const [ cardLoading, setCardLoading ] = useState( false );
+  const prevProductsDone = useRef( state.productsDone );
+  useEffect( () => {
+    if ( state.productsDone && ! prevProductsDone.current ) {
+      setCardLoading( true );
+      const t = setTimeout( () => setCardLoading( false ), 700 );
+      prevProductsDone.current = state.productsDone;
+      return () => clearTimeout( t );
+    }
+    prevProductsDone.current = state.productsDone;
+  }, [ state.productsDone ] );
 
   /* Stats overview: reflects the shopper sale once an order has been placed. */
   const [ statsTab, setStatsTab ] = useState( STATS_TABS[ 0 ] );
@@ -187,7 +201,8 @@ export default function HomeTasklist( {
           </div>
           <div className="hm-progress" aria-hidden><span style={ { width: `${ ( completeCount / stepCount ) * 100 }%` } } /></div>
 
-          {/* Setup card */}
+          {/* Setup card — shows just this card's skeleton while a step completes */}
+          { cardLoading ? <SetupCardSkeleton /> : (
           <section className="hm-card">
             <div className="hm-setup-hero">
               <div className="hm-setup-hero__text">
@@ -223,6 +238,7 @@ export default function HomeTasklist( {
               } ) }
             </ol>
           </section>
+          ) }
 
           {/* Things to do next */}
           <section className="hm-card">
