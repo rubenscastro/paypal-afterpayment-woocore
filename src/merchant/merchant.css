@@ -1,0 +1,954 @@
+/* =========================================================================
+   Merchant track — PayPal Wallet integration for WooCommerce.
+   Built from the "Merchant Flow" Figma section. Tokens:
+     text #1e1e1e · muted #757575 · faint #949494
+     border #e0e0e0 / #dcdcde · canvas #f0f0f1
+     woo blue #3858e9 · success #008a20/#edfaef · warning #f0b849/#fcf9e8
+   ========================================================================= */
+
+.merchant-reset,
+.ob,
+.ps,
+.hm,
+.ww,
+.wm {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  color: #1e1e1e;
+}
+
+
+/* =========================================================================
+   Onboarding funnel (full-screen Woo core profiler)
+   ========================================================================= */
+.ob {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  overflow-y: auto;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+/* Core-profiler progress bar: 8px tall, WP admin blue on a transparent track
+   (matches `progress-bar.scss` + Navigation's `progressBarColor`). The fill
+   animates its width as the wizard advances a step — nothing more. */
+.ob-progress {
+  position: sticky;
+  top: 0;
+  height: 8px;
+  background: transparent;
+  z-index: 2;
+}
+.ob-progress__fill {
+  height: 100%;
+  min-width: 8px;
+  background: var(--wp-admin-theme-color, #3858e9);
+  transition: width 0.4s ease;
+}
+@media ( prefers-reduced-motion: reduce ) {
+  .ob-progress__fill { transition: none; }
+}
+/* Navigation row under the progress bar — logo left (57px new-branding mark),
+   skip link right on steps that pass one (welcome doesn't). */
+.ob-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 21px 30px 0;
+  min-height: 36px;
+}
+.ob-logo { display: block; width: 57px; height: auto; }
+.ob-skip {
+  background: none;
+  border: none;
+  color: var(--wp-admin-theme-color, #3858e9);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-right: 24px;
+  border-radius: 2px;
+}
+.ob-skip:hover { text-decoration: underline; }
+.ob-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 768px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Welcome: content near the top, consent pinned to the page bottom. */
+.ob-welcome { flex: 1; display: flex; flex-direction: column; }
+.ob-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 90px;
+}
+/* Welcome illustration — real core-profiler art, 266×172 (background, like WC). */
+.ob-illus {
+  width: 266px;
+  height: 172px;
+  margin-bottom: 64px;
+  background: url(/logos/woo/welcome-desktop.svg) no-repeat center center;
+  background-size: contain;
+}
+
+/* Heading tokens from core-profiler heading/style.scss: title 32/40 weight 500,
+   subtitle 16/24 gray-700. Welcome bumps the title to 40/46. */
+.ob-title {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 500;
+  color: #1e1e1e;
+  margin: 0 0 12px;
+  text-align: center;
+}
+.ob-title--welcome { font-size: 40px; line-height: 46px; }
+.ob-title--sm { font-size: 32px; line-height: 40px; }
+.ob-center-text { text-align: center; }
+.ob-lede {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: #757575;
+  max-width: 520px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+.ob-lede--sm { font-size: 16px; }
+
+/* Primary CTA: 200×48, 14px normal weight (setup-store button spec). */
+.ob-cta.components-button.is-primary {
+  background: var(--wp-admin-theme-color, #3858e9);
+  border-radius: 2px;
+  width: 200px;
+  height: 48px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 400;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+/* Full-width Continue on the single-column steps (beats the 200px `.ob-cta`
+   width rule on specificity, not just source order). */
+.ob-cta.ob-cta--block.components-button.is-primary { width: 100%; }
+.ob-cta--block.components-button { margin-top: 24px; margin-bottom: 0; }
+/* Tertiary "Skip guided setup" under the CTA — text link in the theme colour. */
+.ob-skip-btn.components-button.is-tertiary {
+  color: var(--wp-admin-theme-color, #3858e9);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 400;
+  justify-content: center;
+}
+.ob-skip-btn.components-button.is-tertiary:hover:not(:disabled) { background: transparent; }
+
+/* Consent footer pinned to the bottom of the page. */
+.ob-consent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 534px;
+  margin: auto auto 40px;
+  padding-top: 40px;
+  font-size: 13px;
+  line-height: 16px;
+  color: #757575;
+}
+.ob-consent > span { max-width: 514px; }
+.ob-consent a { color: #757575; }
+
+/* Profile step radios */
+.ob-form { width: 100%; max-width: 476px; align-self: center; margin: 72px auto 0; }
+/* Profile: heading spans the full content width (title stays on one line), while
+   the choices + Continue sit in a 404px column. */
+.ob-form--profile { max-width: 768px; }
+.ob-title--nowrap { white-space: nowrap; }
+.ob-choices { width: 100%; max-width: 404px; margin: 0 auto; }
+/* Choice options — tokens from core-profiler choice.scss: padding 24px 16px
+   ($gap-large $gap), 18px between options, 20px radio with a 1px gray-600 ring
+   and 16px to the 14px/500 label. */
+.ob-radios { display: flex; flex-direction: column; gap: 18px; margin: 32px 0 8px; }
+.ob-radio {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 2px;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #1e1e1e;
+  text-align: left;
+  transition: border-color 0.12s ease;
+}
+.ob-radio:hover { border-color: #949494; }
+.ob-radio.is-selected,
+.ob-radio.is-selected:hover { border-color: #3858e9; box-shadow: 0 0 0 1px #3858e9; }
+.ob-radio__dot {
+  width: 20px; height: 20px; flex: none;
+  border: 1px solid #949494; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.ob-radio.is-selected .ob-radio__dot { border-color: #3858e9; }
+.ob-radio__dot span { width: 12px; height: 12px; border-radius: 50%; background: transparent; }
+.ob-radio.is-selected .ob-radio__dot span { background: #3858e9; }
+
+/* Business info: heading spans the content width; fields + Continue in a 404px
+   column (reusing .ob-choices). */
+.ob-form--business { max-width: 768px; }
+.ob-lede--wide { max-width: 720px; }
+.ob-req { color: #cc1818; }
+.ob-fields { display: flex; flex-direction: column; gap: 18px; margin: 32px 0 8px; }
+/* Vertically centre the opt-in checkbox against its two-line label. */
+.ob-optin .components-base-control__field { display: flex; align-items: center; }
+.ob-optin .components-checkbox-control__input-container { align-self: center; }
+
+/* Extensions grid — two fixed 492px columns per the spec. */
+.ob-ext { width: 100%; max-width: 1000px; align-self: center; margin: 64px auto 0; }
+.ob-ext__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 492px);
+  justify-content: center;
+  gap: 16px;
+  margin: 32px 0;
+}
+.ob-ext__card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+}
+.ob-ext__logo { width: 28px; height: 28px; object-fit: contain; flex: none; }
+.ob-ext__logo--sm { width: 28px; height: 28px; }
+.ob-ext__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ob-ext__title-row { display: flex; align-items: center; gap: 8px; }
+.ob-ext__title { font-size: 13px; font-weight: 600; }
+.ob-ext__chip {
+  font-size: 11px; font-weight: 500;
+  background: #edfaef; color: #005c00;
+  padding: 1px 8px; border-radius: 2px;
+}
+.ob-ext__desc { font-size: 12px; color: #757575; }
+.ob-ext__footer { text-align: center; }
+.ob-ext__terms { font-size: 12px; color: #757575; margin-top: 16px; }
+.ob-ext__terms a { color: #757575; }
+
+/* Jetpack / WordPress.com connect step — WP logo top-left, centred Woo wordmark,
+   no progress bar. */
+.jc { display: flex; flex-direction: column; background: #ffffff; }
+.jc-brand { padding: 20px 24px; }
+.jc-brand img { display: block; }
+.jc-body {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.jc-logo { margin-bottom: 20px; }
+.jc-title { font-size: 28px; font-weight: 600; margin: 0 0 12px; }
+.jc-lede { font-size: 14px; color: #50575e; line-height: 1.5; margin: 0 0 32px; max-width: 460px; }
+.jc-card {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.jc-avatar { border-radius: 50%; margin-bottom: 16px; }
+.jc-name { font-size: 15px; color: #1e1e1e; }
+.jc-email { font-size: 13px; color: #757575; margin-top: 4px; }
+.jc-terms { font-size: 12px; color: #757575; line-height: 1.5; margin: 24px 0; max-width: 400px; }
+.jc-terms a { color: #757575; }
+.jc-connect {
+  width: 100%;
+  background: #873dff;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+.jc-connect:hover { background: #7a2ff0; }
+.jc-connect:active { background: #6a1fe0; }
+.jc-connect:focus-visible { outline: 2px solid #3858e9; outline-offset: 2px; }
+.jc-switch {
+  background: none;
+  border: none;
+  color: #1e1e1e;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 20px;
+}
+.jc-switch:hover { color: #3858e9; }
+
+/* Loader — tokens from onboarding Loader.scss: 520px wrapper, 28px/500 title
+   58px below the illustration, a 520×4px progress bar that fills 0→100, and a
+   16/24 #FunWooFact paragraph. */
+.ob--loader { display: flex; align-items: center; justify-content: center; }
+.ob-loader {
+  max-width: 520px; width: 100%; padding: 24px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.ob-loader__illus { width: 260px; height: auto; }
+.ob-loader__title { font-size: 28px; line-height: 36px; font-weight: 500; color: #1e1e1e; margin: 58px 0 0; padding: 0; }
+.ob-loader__bar {
+  width: 520px; max-width: 100%; height: 4px;
+  background: #e0e0e0; border-radius: 2px; overflow: hidden;
+  margin: 24px 0 16px;
+}
+.ob-loader__fill {
+  display: block; height: 100%; width: 100%;
+  background: var(--wp-admin-theme-color, #3858e9);
+  border-radius: 2px;
+  transform-origin: left center;
+  animation: ob-fill linear forwards;
+}
+@keyframes ob-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.ob-loader__fact { font-size: 16px; line-height: 24px; color: #2f2f2f; opacity: 0.8; }
+@media ( prefers-reduced-motion: reduce ) {
+  .ob-loader__fill { animation: none; transform: scaleX(1); }
+}
+
+/* =========================================================================
+   Payments settings (Payments tab)
+   ========================================================================= */
+.ps { background: #fff; }
+.ps-header { padding: 24px 32px 0; }
+.ps-page-title { font-size: 23px; font-weight: 400; margin: 0 0 20px; }
+.ps-tabs {
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.ps-tab {
+  font-size: 13px;
+  color: #50575e;
+  padding: 10px 0 14px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ps-tab:hover { color: #1e1e1e; }
+.ps-tab.is-active { color: #3858e9; border-bottom-color: #3858e9; font-weight: 500; }
+.ps-tab.is-active:hover { color: #3858e9; }
+
+.ps-body { padding: 0 32px; }
+.ps-providers-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 0 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.ps-section-title { font-size: 14px; font-weight: 600; margin: 0; }
+.ps-providers-head__right { display: flex; align-items: center; gap: 8px; }
+.ps-location {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid #dcdcde; border-radius: 3px;
+  background: #fff; padding: 7px 10px; font-size: 13px; cursor: pointer; font-family: inherit;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.ps-location:hover { border-color: #3858e9; }
+
+.ps-row {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 24px 0;
+  border-bottom: 1px solid #e0e0e0;
+  width: 100%;
+  text-align: left;
+}
+.ps-row--stack { flex-direction: column; }
+.ps-row--stack .ps-row__lead { display: flex; align-items: flex-start; gap: 16px; width: 100%; }
+.ps-row--link {
+  background: none; border-top: none; border-left: none; border-right: none; cursor: pointer;
+  align-items: center;
+}
+.ps-row--link:hover { background: #fafafa; }
+.ps-row__logo { width: 40px; height: 40px; border-radius: 8px; flex: none; object-fit: contain; }
+.ps-row__logo--plain { border-radius: 8px; }
+.ps-row__main { flex: 1; min-width: 0; }
+.ps-row__title-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ps-row__title { font-size: 14px; font-weight: 600; }
+.ps-row__desc { font-size: 13px; color: #50575e; margin: 4px 0 0; }
+.ps-row__actions { display: flex; align-items: center; gap: 4px; flex: none; }
+
+.ps-chip {
+  font-size: 12px; font-weight: 500; line-height: 16px;
+  padding: 2px 8px; border-radius: 2px; white-space: nowrap;
+}
+.ps-chip--neutral { background: #f0f0f0; color: #1e1e1e; }
+.ps-chip--success { background: #edfaef; color: #005c00; }
+.ps-chip--warning { background: #fcf3d4; color: #614b00; }
+
+/* =========================================================================
+   Notice — Gutenberg design-system Notice (Warning intent). Values are the
+   Figma component's --wpds-* tokens (node 11463:107827); fallbacks equal the
+   token value. Nothing here is invented.
+   ========================================================================= */
+.wc-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wpds-dimension-gap-xs, 4px);
+  width: 100%;
+  padding: var(--wpds-dimension-padding-md, 12px);
+  border-radius: var(--wpds-border-radius-lg, 8px);
+  border: var(--wpds-border-width-xs, 1px) solid transparent;
+}
+.wc-notice--warning {
+  background: var(--wpds-color-background-surface-warning-weak, #fff7e1);
+  border-color: var(--wpds-color-stroke-surface-warning, #e1bd7c);
+}
+.wc-notice__icon {
+  flex: none;
+  width: var(--wpds-dimension-size-sm, 24px);
+  height: var(--wpds-dimension-size-sm, 24px);
+  color: var(--wpds-color-foreground-content-warning-weak, #936300);
+}
+.wc-notice__icon svg { display: block; }
+.wc-notice__content {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.wc-notice__text { display: flex; flex-direction: column; }
+/* Heading/md token: SF Pro Medium 13/20, weight 600, letter-spacing -0.078px */
+.wc-notice__title {
+  margin: 0;
+  padding: 2px 0;
+  font-size: var(--wpds-typography-font-size-md, 13px);
+  font-weight: 600;
+  line-height: var(--wpds-typography-line-height-sm, 20px);
+  letter-spacing: -0.078px;
+  color: var(--wpds-color-foreground-content-warning, #2e1900);
+}
+/* Body/md token: SF Pro Regular 13/20, weight 400 */
+.wc-notice__desc {
+  margin: 0;
+  padding: 2px 0;
+  font-size: var(--wpds-typography-font-size-md, 13px);
+  font-weight: 400;
+  line-height: var(--wpds-typography-line-height-sm, 20px);
+  letter-spacing: -0.078px;
+  color: var(--wpds-color-foreground-content-warning, #2e1900);
+}
+.wc-notice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wpds-dimension-gap-md, 12px);
+  padding-top: var(--wpds-dimension-gap-sm, 8px);
+}
+/* The action Button and dismiss IconButton are real @wordpress/ui components —
+   they carry their own styling and hover/focus/active states. */
+.wc-notice__close { flex: none; }
+/* Small top gap where the notice follows the PayPal row inside a stacked list item. */
+.ps-row--stack .wc-notice { margin-top: var(--wpds-dimension-gap-xs, 4px); }
+
+/* Other payment options */
+.ps-other { padding: 16px 0 40px; }
+.ps-other__head {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  border: 1px solid #e0e0e0; border-radius: 8px; background: #fff;
+  padding: 20px 16px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600;
+  transition: background 0.12s ease;
+}
+.ps-other__head:hover { background: #f6f7f7; }
+.ps-other__logos { display: inline-flex; gap: 6px; }
+.ps-other__logos img { width: 24px; height: 24px; border-radius: 4px; }
+.ps-other__spacer { flex: 1; }
+
+/* =========================================================================
+   Home tasklist
+   ========================================================================= */
+.hm { min-height: 100%; }
+/* Screen header (Figma 11469:60669): white, 56px, pl-32 pr-8, 1px #ddd bottom,
+   sticky under the admin bar. Title = Subtitle token (16/24 bold). */
+.hm-subbar {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px; background: #fff; box-shadow: inset 0 -1px 0 0 #dddddd;
+  padding: 0 8px 0 32px; position: sticky; top: 32px; z-index: 5;
+}
+.hm-subbar__title { font-size: 16px; line-height: 24px; font-weight: 700; color: #1e1e1e; }
+.hm-subbar__right { display: flex; align-items: center; }
+.hm-subbar__link {
+  display: inline-flex; align-items: center; height: 56px; padding: 0 8px;
+  color: #007cba; font-size: 13px; line-height: 18px; cursor: pointer;
+}
+.hm-subbar__link:hover { text-decoration: underline; }
+/* IconButton spacing in the header cluster (the button styles itself). */
+.hm-subbar__icon { margin-left: 8px; }
+
+.hm-canvas { background: #f0f0f1; padding: 24px; min-height: calc(100% - 50px); }
+.hm-col { max-width: 680px; margin: 0 auto; }
+.hm-banner { max-width: 680px; margin: 0 auto 24px; }
+.hm-heading { display: flex; align-items: center; justify-content: space-between; }
+/* Title Medium token: SF Pro Regular 24/32, weight 400. */
+.hm-title { font-size: 24px; line-height: 32px; font-weight: 400; color: #1e1e1e; margin: 0; }
+/* Body MD token: 13/20, Gray 60. */
+.hm-sub { font-size: 13px; line-height: 20px; color: #50575e; margin: 6px 0 12px; }
+.hm-progress { height: 10px; background: #fff; border: 1px solid #dddddd; border-radius: 5px; overflow: hidden; margin-bottom: 20px; }
+.hm-progress span { display: block; height: 100%; background: #3858e9; border-radius: 3px; }
+
+/* Tasklist card = Figma Frame 12326: 1px #ddd border, 3px radius. */
+.hm-card { background: #fff; border: 1px solid #dddddd; border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+/* Card header (Header / with kebab): px-24 py-16, 1px #ddd bottom. Title = Heading
+   XL token (20/24, weight 500, Gray 70). */
+.hm-card__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; border-bottom: 1px solid #dddddd;
+}
+.hm-card__title {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 20px; line-height: 24px; font-weight: 500; color: #3c434a; margin: 0;
+}
+/* Count badge: 24px circle, 12%-opacity Gray 40 fill, 16px Gray 60 number. */
+.hm-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 16px;
+  background: rgba(120, 124, 130, 0.12);
+  font-size: 16px; font-weight: 500; color: #50575e;
+}
+/* Hero (Frame 2575): pl-24 pr-40 py-24, 56px gap to the illustration, 1px #ddd
+   bottom divider. */
+.hm-setup-hero {
+  display: flex; gap: 56px; padding: 24px 40px 24px 24px;
+  border-bottom: 1px solid #dddddd;
+}
+.hm-setup-hero__text { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.hm-hero-top { display: flex; flex-direction: column; gap: 8px; }
+/* Heading XL token: SF Pro Semibold 20/24, weight 500, Gray 70. */
+.hm-hero-title { font-size: 20px; line-height: 24px; font-weight: 500; color: #3c434a; margin: 0; }
+/* Body MD token: 13/20, Gray 700. */
+.hm-hero-desc { font-size: 13px; line-height: 20px; color: #757575; margin: 0; }
+.hm-setup-hero__art { width: 104px; height: 110px; flex: none; }
+/* Real @wordpress/ui Button; only its placement in the flex column is ours. */
+.hm-primary { align-self: flex-start; }
+.hm-steps { list-style: none; margin: 0; padding: 0; }
+/* Step row (Incomplete/Resting): px-20 py-16, 20px gap, 1px #ddd bottom divider
+   (inset shadow so the active row's left accent can replace it). Label = Heading
+   LG token (15/20, weight 500, brand). */
+.hm-step {
+  display: flex; align-items: center; gap: 20px;
+  width: 100%; padding: 16px 20px;
+  box-shadow: inset 0 -1px 0 0 #dddddd;
+  color: #3858e9;
+  /* Reset so the row works as a <button>. */
+  background: transparent; border: none; text-align: left; font-family: inherit;
+}
+.hm-step.is-clickable { cursor: pointer; }
+.hm-step.is-clickable:not( .is-active ):hover { background: #f6f7f7; }
+.hm-step.is-active { background: #edf0fc; box-shadow: inset 6px 0 0 0 #3858e9; }
+.hm-step.is-active.is-clickable:hover { background: #e4e9fb; }
+/* Number circle: 32px, 1px brand ring, number = Subtitle Small (14 bold, brand). */
+.hm-step__num {
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid #3858e9;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; line-height: 18px; color: #3858e9; flex: none;
+}
+.hm-step__label { font-size: 15px; line-height: 20px; font-weight: 500; color: #3858e9; }
+/* Completed step (WooCommerce: filled brand circle + white check, muted bold
+   label). No left accent — completed rows read as done, not active. */
+.hm-step.is-complete .hm-step__num {
+  background: #3858e9; border-color: #3858e9; color: #fff;
+}
+.hm-step.is-complete .hm-step__num svg { fill: #fff; }
+.hm-step.is-complete .hm-step__label { color: #50575e; font-weight: 600; }
+
+/* ---- wp-admin loading skeletons ------------------------------------------
+   Ported from WooCommerce's placeholder treatment: #f0f0f0 blocks pulsing
+   opacity 0.7↔1 over 1.6s (its `loading-fade` keyframes). The skeletons reuse
+   the real page wrappers (.hm-*/.ps-*) so paddings and card chrome line up. */
+@keyframes hm-fade { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+.hm-sk { display: block; background: #f0f0f0; border-radius: 4px; animation: hm-fade 1.6s ease-in-out infinite; }
+@media screen and ( prefers-reduced-motion: reduce ) { .hm-sk { animation: none; } }
+
+.hm-sk--subtitle { width: 64px; height: 20px; }
+.hm-sk--title { width: 260px; height: 28px; }
+.hm-sk--sub { width: 340px; max-width: 80%; height: 14px; margin: 12px 0; }
+.hm-sk--progress { width: 100%; height: 10px; border-radius: 5px; margin-bottom: 20px; }
+.hm-sk-hero { display: flex; gap: 56px; padding: 24px 40px 24px 24px; border-bottom: 1px solid #dddddd; }
+.hm-sk-hero__text { flex: 1 0 0; display: flex; flex-direction: column; gap: 12px; }
+.hm-sk--h2 { width: 40%; height: 20px; }
+.hm-sk--line { width: 100%; height: 13px; }
+.hm-sk--btn { width: 120px; height: 36px; border-radius: 2px; margin-top: 8px; }
+.hm-sk--art { width: 104px; height: 110px; flex: none; border-radius: 8px; }
+.hm-sk-rows { list-style: none; margin: 0; padding: 0; }
+.hm-sk-row { display: flex; align-items: center; gap: 20px; padding: 16px 20px; box-shadow: inset 0 -1px 0 0 #dddddd; }
+.hm-sk-row:last-child { box-shadow: none; }
+.hm-sk--circle { width: 32px; height: 32px; border-radius: 50%; flex: none; }
+.hm-sk--rowtext { height: 15px; }
+.hm-sk-cardhead { padding: 16px 24px; border-bottom: 1px solid #dddddd; }
+.hm-sk--h3 { width: 160px; height: 20px; }
+
+.ps-sk-tabs { display: flex; flex-wrap: wrap; gap: 24px; }
+.hm-sk--tab { height: 16px; }
+.ps-sk-row { display: flex; align-items: flex-start; gap: 16px; padding: 20px 0; border-bottom: 1px solid #f0f0f1; }
+.ps-sk-row__main { flex: 1 0 0; display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+.hm-sk--logo { width: 40px; height: 40px; border-radius: 6px; flex: none; }
+.hm-sk--rowtitle { width: 180px; height: 16px; }
+.hm-sk--action { width: 90px; height: 36px; border-radius: 2px; flex: none; }
+
+/* Things-to-do rows: px-20 py-16, 20px gap, 1px #ddd bottom. Circle = 32px empty
+   (white, 1px #ddd). Title = Heading LG (15/20, brand). Meta = Body SM (12/16). */
+.hm-todos { list-style: none; margin: 0; padding: 0; }
+.hm-todo {
+  display: flex; gap: 20px; align-items: center;
+  padding: 16px 20px; box-shadow: inset 0 -1px 0 0 #dddddd;
+}
+.hm-todo__check {
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dddddd; background: #fff; flex: none;
+}
+.hm-todo__text { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.hm-todo__title { color: #3858e9; font-size: 15px; line-height: 20px; font-weight: 500; cursor: pointer; }
+.hm-todo__meta { color: #757575; font-size: 12px; line-height: 16px; }
+.hm-todo__kebab { flex: none; }
+
+/* Inbox note: px-24 py-16, 24px between content and actions, 1px #ddd bottom. */
+.hm-inbox {
+  display: flex; flex-direction: column; gap: 24px;
+  padding: 16px 24px; box-shadow: inset 0 -1px 0 0 #dddddd;
+}
+.hm-inbox__content { display: flex; flex-direction: column; gap: 8px; }
+.hm-inbox__header { display: flex; flex-direction: column; gap: 4px; }
+.hm-inbox__time { font-size: 13px; line-height: 20px; color: #757575; }
+.hm-inbox__title { font-size: 15px; line-height: 20px; font-weight: 600; color: #1e1e1e; }
+.hm-inbox__body { font-size: 13px; line-height: 20px; color: #757575; margin: 0; }
+.hm-inbox__actions { display: flex; align-items: flex-start; gap: 8px; }
+
+/* =========================================================================
+   Wallet wizard (welcome)
+   ========================================================================= */
+/* PayPal Wallet onboarding uses PayPal's brand typeface (Supreme LL) where the
+   font is available, falling back to the system stack otherwise. */
+.ww { font-family: 'Supreme LL', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+.ww-subbar, .wm-subbar {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; border-bottom: 1px solid #e0e0e0;
+  padding: 14px 24px; position: sticky; top: 32px; z-index: 5;
+}
+.ww-subbar__title { font-size: 18px; font-weight: 600; }
+
+.ww-body { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+.ww-hero { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.ww-hero__icon { border-radius: 12px; margin-bottom: 16px; }
+.ww-hero__title { font-size: 24px; font-weight: 400; margin: 0 0 10px; }
+.ww-hero__lede { font-size: 14px; color: #50575e; max-width: 480px; margin: 0 0 20px; line-height: 1.5; }
+.ww-hero__logos { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.ww-hero__logos img { display: block; }
+.ww-hero__hint { font-size: 13px; color: #50575e; max-width: 520px; margin: 0 0 24px; line-height: 1.5; }
+/* PayPal's own onboarding CTA — a black pill, not a WC DS button. Its own
+   hover/active states. */
+.ww-cta {
+  background: #1e1e1e; color: #fff; border: none; border-radius: 24px;
+  padding: 13px 28px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: background 0.12s ease;
+}
+.ww-cta:hover { background: #383838; }
+.ww-cta:active { background: #000; }
+.ww-cta:focus-visible { outline: 2px solid #3858e9; outline-offset: 2px; }
+.ww-divider { border: none; border-top: 1px solid #e0e0e0; margin: 40px 0; }
+
+.ww-features { max-width: 620px; margin: 0 auto; }
+.ww-features__intro { margin-bottom: 24px; }
+.ww-features__title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
+.ww-features__intro p { font-size: 13px; color: #50575e; margin: 0; line-height: 1.5; }
+.ww-pill {
+  font-size: 12px; font-weight: 500; color: #50575e;
+  background: #f0f0f1; border-radius: 3px; padding: 2px 8px;
+}
+.ww-included { font-size: 14px; font-weight: 600; margin: 24px 0 4px; }
+.ww-feature-list { list-style: none; margin: 0; padding: 0; }
+.ww-feature { padding: 16px 0; border-bottom: 1px solid #f0f0f1; }
+.ww-feature__head { display: flex; align-items: center; gap: 8px; }
+.ww-feature__title { font-size: 13px; font-weight: 600; }
+.ww-feature__logo { height: 24px; }
+.ww-feature__desc { font-size: 13px; color: #50575e; margin: 4px 0 0; }
+.ww-feature__desc a, .ww-learn { color: #3858e9; }
+.ww-footnote { font-size: 12px; color: #757575; text-align: center; margin: 24px 0; font-style: italic; }
+.ww-footnote a { color: #757575; }
+.ww-or { text-align: center; position: relative; margin: 24px 0; }
+.ww-or::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e0e0e0; }
+.ww-or span { position: relative; background: #fff; padding: 0 12px; font-size: 12px; color: #757575; }
+.ww-advanced {
+  display: flex; align-items: center; gap: 4px; margin: 0 auto;
+  border: none; background: none; color: #1e1e1e; font-size: 14px; cursor: pointer; font-family: inherit; font-weight: 500;
+  border-radius: 2px; padding: 4px 8px;
+}
+.ww-advanced:hover { color: #3858e9; }
+
+/* =========================================================================
+   Wallet management (tabs)
+   ========================================================================= */
+.wm-subbar__spacer { flex: 1; }
+.wm-tabs {
+  display: flex; gap: 28px; background: #fff;
+  padding: 0 24px; border-bottom: 1px solid #e0e0e0;
+  position: sticky; top: 82px; z-index: 4;
+}
+.wm-tab {
+  border: none; background: none; font-family: inherit;
+  font-size: 13px; color: #50575e; padding: 12px 0 14px;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer;
+}
+.wm-tab:hover { color: #1e1e1e; }
+.wm-tab.is-active { color: #3858e9; border-bottom-color: #3858e9; font-weight: 500; }
+.wm-tab.is-active:hover { color: #3858e9; }
+
+.wm-body { padding: 32px 32px 64px; max-width: 1200px; }
+
+.wm-section { display: flex; gap: 40px; padding: 24px 0; }
+.wm-section__aside { width: 240px; flex: none; }
+.wm-section__title { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+.wm-section__desc { font-size: 13px; color: #757575; margin: 0; line-height: 1.5; }
+.wm-section__content { flex: 1; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.wm-refresh {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 16px;
+  border: none; background: none; color: #3858e9; font-size: 13px; cursor: pointer; font-family: inherit;
+  border-radius: 2px;
+}
+.wm-refresh:hover { text-decoration: underline; }
+
+.wm-card { border: 1px solid #e0e0e0; border-radius: 6px; padding: 24px; background: #fff; }
+.wm-card--pad { padding: 24px; }
+.wm-card--list { padding: 8px 24px; }
+.wm-card__h { font-size: 14px; font-weight: 600; display: block; }
+.wm-card__p { font-size: 13px; color: #50575e; margin: 6px 0 0; line-height: 1.5; }
+.wm-card__actions { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.wm-learn { font-size: 13px; text-decoration: none; }
+
+.wm-task {
+  display: flex; align-items: center; gap: 12px; padding: 16px 0;
+  color: #3858e9; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f0f0f1;
+}
+.wm-task:last-child { border-bottom: none; }
+.wm-task__dot { width: 18px; height: 18px; border: 1.5px dashed #c3c4c7; border-radius: 50%; flex: none; }
+
+/* Methods tab */
+.wm-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.wm-method { border: 1px solid #e0e0e0; border-radius: 6px; padding: 20px; display: flex; flex-direction: column; }
+.wm-method__head { display: flex; align-items: center; gap: 10px; }
+.wm-method__logo { width: 28px; height: 28px; object-fit: contain; }
+.wm-method__title { font-size: 14px; font-weight: 600; }
+.wm-method__desc { font-size: 13px; color: #50575e; margin: 12px 0 20px; flex: 1; line-height: 1.5; }
+.wm-method__foot { display: flex; align-items: center; justify-content: space-between; }
+
+/* Settings tab */
+.wm-conn { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 16px 0 0; }
+.wm-conn dt { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; color: #757575; }
+.wm-conn dd { margin: 4px 0 0; font-size: 13px; word-break: break-all; }
+.wm-hr { border: none; border-top: 1px solid #f0f0f1; margin: 24px 0; }
+.wm-field-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; color: #757575; margin: 0 0 4px; }
+.wm-field-help { font-size: 13px; color: #50575e; margin: 0 0 12px; line-height: 1.5; }
+.wm-collapse {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; text-align: left; cursor: pointer; font-family: inherit;
+  transition: background 0.12s ease;
+}
+.wm-collapse:hover { background: #f6f7f7; }
+.wm-task:hover { color: #1d35b4; text-decoration: underline; }
+
+/* Styling tab */
+.wm-style { display: flex; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+.wm-style__panel { width: 420px; flex: none; padding: 28px; border-right: 1px solid #e0e0e0; }
+.wm-style__panel .components-base-control { margin-bottom: 0; }
+.wm-mt { margin-top: 20px; }
+.wm-radios { display: flex; gap: 32px; }
+.wm-radios label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.wm-radios input { accent-color: #3858e9; }
+
+.wm-style__preview { flex: 1; background: #faf9f7; display: flex; flex-direction: column; }
+.wm-style.is-dark .wm-style__preview { background: #1e1e1e; }
+.wm-style__toolbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; }
+.wm-style__devices { display: flex; gap: 14px; font-size: 18px; color: #757575; }
+.wm-style__devices .is-active { color: #3858e9; }
+.wm-mock { margin: 0 24px 24px; }
+.wm-mock__topbar { display: flex; align-items: center; justify-content: space-between; background: #e7dfd6; padding: 14px 16px; }
+.wm-mock__topbar > span:first-child { width: 60px; height: 8px; background: #a8a29a; border-radius: 2px; }
+.wm-mock__nav { display: flex; gap: 8px; }
+.wm-mock__nav i { width: 24px; height: 8px; background: #a8a29a; border-radius: 2px; display: block; }
+.wm-mock__content { display: flex; gap: 32px; background: #fff; padding: 32px; }
+.wm-mock__image { width: 240px; height: 200px; background: #9b9b9b; flex: none; }
+.wm-mock__col { flex: 1; display: flex; flex-direction: column; }
+.wm-mock__line { height: 8px; background: #a8a29a; border-radius: 2px; margin-bottom: 10px; width: 60%; }
+.wm-mock__line--short { width: 30%; }
+.wm-mock__paylater { font-size: 12px; color: #1e1e1e; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin: 12px 0; }
+.wm-mock__paylater a { color: #3858e9; }
+.wm-mock__addcart {
+  margin-top: auto; background: #b7b7b7; color: #fff; text-align: center;
+  padding: 14px; font-size: 13px; letter-spacing: 0.04em; max-width: 220px; align-self: flex-end;
+}
+
+@media ( max-width: 900px ) {
+  .wm-section { flex-direction: column; gap: 16px; }
+  .wm-section__aside { width: auto; }
+  .wm-methods { grid-template-columns: 1fr; }
+  .wm-style { flex-direction: column; }
+  .wm-style__panel { width: auto; border-right: none; border-bottom: 1px solid #e0e0e0; }
+}
+
+/* Two 492px columns need ~1040px; collapse to one fixed column, then fluid. */
+@media ( max-width: 1040px ) {
+  .ob-ext { max-width: 492px; }
+  .ob-ext__grid { grid-template-columns: 492px; }
+}
+@media ( max-width: 540px ) {
+  .ob-ext { max-width: 100%; }
+  .ob-ext__grid { grid-template-columns: 1fr; }
+}
+
+/* =========================================================================
+   PayPal Connect flow — mac-style browser popup over a black overlay.
+   Reproduces the Figma "PayPal Connection Flow" screens.
+   ========================================================================= */
+.ppc-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba( 0, 0, 0, 0.62 );
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; box-sizing: border-box;
+}
+.ppc-window {
+  width: 480px; max-width: 100%; height: min( 86vh, 720px );
+  background: #fff; border-radius: 12px; overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: 0 30px 80px rgba( 0, 0, 0, 0.5 );
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Title bar + traffic lights */
+.ppc-titlebar { position: relative; height: 38px; flex: none; background: #34343a; display: flex; align-items: center; }
+.ppc-lights { position: absolute; left: 14px; display: flex; gap: 8px; z-index: 1; }
+.ppc-light { width: 12px; height: 12px; border-radius: 50%; border: none; padding: 0; display: block; }
+.ppc-light--red { background: #ff5f57; cursor: pointer; }
+.ppc-light--amber { background: #febc2e; }
+.ppc-light--green { background: #28c840; }
+.ppc-title {
+  width: 100%; text-align: center; padding: 0 96px; box-sizing: border-box;
+  font-size: 13px; font-weight: 600; color: #c7c7cc;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Address bar */
+.ppc-address { height: 40px; flex: none; background: #262629; display: flex; align-items: center; gap: 10px; padding: 0 14px; }
+.ppc-address__lead, .ppc-address__tail { display: flex; align-items: center; }
+.ppc-address__tail { gap: 14px; }
+.ppc-url { flex: 1; min-width: 0; font-size: 13px; color: #d7d7db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Viewport */
+.ppc-viewport { flex: 1; overflow-y: auto; background: #fff; }
+.ppc-viewport--blank { background: #f4f4f4; }
+
+/* Spinner */
+.ppc-spinner { width: 42px; height: 42px; border-radius: 50%; border: 4px solid #e0e0e0; border-top-color: #0070e0; animation: ppc-spin 0.9s linear infinite; box-sizing: border-box; }
+@keyframes ppc-spin { to { transform: rotate( 360deg ); } }
+@media screen and ( prefers-reduced-motion: reduce ) { .ppc-spinner { animation-duration: 2.4s; } }
+
+/* Brand marks: the real PayPal SVG assets shared with the wallet page. */
+.ppc-mark { display: block; width: auto; }
+
+/* Loading screen */
+.ppc-loading { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; padding: 60px 0; }
+
+/* Shared page bits */
+.ppc-page { color: #2c2e2f; }
+.ppc-btn { width: 100%; border: none; cursor: pointer; font-family: inherit; font-weight: 600; }
+.ppc-btn--blue { height: 52px; border-radius: 26px; background: #0070e0; color: #fff; font-size: 16px; margin-top: 6px; }
+.ppc-btn--blue:hover { background: #0064c8; }
+.ppc-btn--pillblue { height: 52px; border-radius: 26px; background: #003087; color: #fff; font-size: 16px; }
+.ppc-btn--pillblue:hover { background: #00256a; }
+.ppc-btn--pillblack { height: 56px; border-radius: 28px; background: #0a0a0a; color: #fff; font-size: 16px; margin-top: 8px; }
+.ppc-btn--pillblack:hover { background: #222; }
+.ppc-link { color: #0070e0; text-decoration: none; font-size: 15px; font-weight: 600; }
+.ppc-link--left { display: block; text-align: left; margin: 6px 0 20px; }
+.ppc-link--center { display: block; text-align: center; margin: 14px 0 0; }
+.ppc-link--underline { text-decoration: underline; }
+.ppc-field { display: block; margin-bottom: 14px; }
+.ppc-input { width: 100%; box-sizing: border-box; height: 52px; padding: 0 14px; border: 1px solid #9da3a6; border-radius: 6px; font-size: 15px; color: #2c2e2f; background: #fff; font-family: inherit; }
+.ppc-input--tall { height: 60px; }
+.ppc-input:focus { outline: none; border-color: #0070e0; box-shadow: 0 0 0 1px #0070e0; }
+.ppc-footer { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 14px; padding: 22px 20px; }
+.ppc-footer span { font-size: 12px; color: #4a4d4f; }
+.ppc-footer--pipes span + span::before { content: '|'; margin-right: 14px; color: #c9c9c9; }
+
+/* Connect (checkAccount) */
+.ppc-page__logo { padding: 22px 28px 0; }
+.ppc-band { height: 44px; background: #f5f6f8; margin-top: 18px; }
+.ppc-connect { padding: 30px 28px 0; }
+.ppc-connect__title { font-size: 21px; line-height: 28px; font-weight: 400; color: #2c2e2f; margin: 0 0 16px; }
+.ppc-connect__lede { font-size: 15px; line-height: 22px; color: #545658; margin: 0 0 22px; }
+.ppc-select { position: relative; height: 60px; border: 1px solid #9da3a6; border-radius: 6px; padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+.ppc-select__label { font-size: 12px; color: #6c7378; }
+.ppc-select__value { font-size: 15px; color: #2c2e2f; }
+.ppc-select__chevron { position: absolute; right: 14px; top: 50%; transform: translateY( -50% ); color: #6c7378; font-size: 18px; }
+
+/* Login (signin) */
+.ppc-login { padding: 30px 28px 24px; text-align: center; position: relative; }
+.ppc-login__logo { display: flex; justify-content: center; margin-bottom: 34px; }
+.ppc-login__id { font-size: 16px; color: #2c2e2f; margin: 0 0 20px; }
+.ppc-login__id a { color: #0070e0; text-decoration: none; font-weight: 600; }
+.ppc-login .ppc-field { text-align: left; }
+.ppc-lang { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 40px 0 0; }
+.ppc-flag { font-size: 16px; }
+.ppc-lang__chevron { color: #6c7378; font-size: 16px; }
+.ppc-lang__list { font-size: 14px; color: #2c2e2f; }
+.ppc-lang__list strong { font-weight: 700; }
+.ppc-login__footer { margin-top: 30px; gap: 0 12px; }
+.ppc-login__footer span + span::before { content: ''; }
+.ppc-login.is-loading > *:not( .ppc-spinner--overlay ) { opacity: 0.4; }
+.ppc-spinner--overlay { position: absolute; top: 46%; left: 50%; width: 54px; height: 54px; transform: translate( -50%, -50% ); border-width: 4px; border-top-color: #003087; }
+
+/* Account type (sellerIntentDecisionExisting) */
+.ppc-account { padding: 24px 28px 28px; }
+.ppc-account__logo { display: flex; justify-content: center; margin-bottom: 24px; }
+.ppc-account__title { font-size: 24px; line-height: 30px; font-weight: 800; color: #0a0a0a; margin: 0 0 22px; letter-spacing: -0.3px; }
+.ppc-choice { display: flex; gap: 14px; width: 100%; text-align: left; padding: 20px; margin-bottom: 16px; border: 1px solid #d5d7da; border-radius: 12px; background: #fff; cursor: pointer; font-family: inherit; }
+.ppc-choice:hover { border-color: #9da3a6; }
+.ppc-choice.is-selected { border-color: #0a0a0a; box-shadow: inset 0 0 0 1px #0a0a0a; }
+.ppc-choice__icon { flex: none; padding-top: 2px; }
+.ppc-choice__text { display: flex; flex-direction: column; gap: 6px; }
+.ppc-choice__text strong { font-size: 19px; line-height: 24px; font-weight: 800; color: #0a0a0a; letter-spacing: -0.2px; }
+.ppc-choice__text span { font-size: 14px; line-height: 20px; color: #2c2e2f; }
+
+/* Done (casualSellerDone) */
+.ppc-done { padding: 22px 28px 30px; text-align: center; }
+.ppc-done__logo { display: flex; justify-content: center; margin-bottom: 26px; }
+.ppc-cards { display: block; margin: 0 auto 26px; }
+.ppc-done__title { font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 14px; letter-spacing: -0.3px; }
+.ppc-done__lede { font-size: 15px; line-height: 22px; color: #2c2e2f; margin: 0 auto 24px; max-width: 300px; }
+.ppc-done__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 14px; }
+.ppc-done__links:first-of-type { margin-top: 34px; }
+.ppc-done__links span { font-size: 13px; color: #2c2e2f; }
+.ppc-done__rule { height: 1px; background: #e5e5e5; margin: 22px 0 16px; }
+.ppc-done__lang { font-size: 13px; color: #2c2e2f; text-align: left; margin: 0 0 12px; }
+.ppc-done__copy { font-size: 13px; color: #2c2e2f; text-align: left; margin: 0; }
+
+@media ( max-width: 520px ) {
+  .ppc-overlay { padding: 0; }
+  .ppc-window { height: 100%; border-radius: 0; }
+}

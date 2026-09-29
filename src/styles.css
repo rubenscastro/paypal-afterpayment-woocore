@@ -1,0 +1,3967 @@
+/* =========================================================================
+   Woo Products Prototype — matches Figma (RSM · All Products · Bulk Editing)
+   Visual tokens are taken from the Figma variable defs:
+     gray-900 #1e1e1e  gray-700 #757575  gray-600 #949494
+     gray-200 #e0e0e0  gray-100 #f0f0f0  white    #ffffff
+     theme    #3858e9
+     Success bg #cdf5d3 / fg #002b00
+     Error   bg #fbe5e2 / fg #4a0000
+     Info    bg #e1ecf8 / fg #001758
+     Neutral weak bg #f0f0f0 / fg #6d6d6d
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    Roboto, sans-serif;
+  color: #1e1e1e;
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* ---------- WP admin shell ---------- */
+
+.wp-admin {
+  display: grid;
+  /* 144px, not 160: the widest nav item ("WooCommerce") needs 141px — 8 padding
+     + 20 icon + 8 gap + 100 label + 5 padding — so this hugs the items with no
+     dead strip after them. */
+  grid-template-columns: 160px 1fr;
+  grid-template-rows: 32px auto;
+  grid-template-areas:
+    'topbar topbar'
+    'sidebar main';
+  /* The whole document scrolls (window-level), not an inner content box: grow
+     with content, and keep the chrome in view with sticky positioning below. */
+  min-height: 100vh;
+  /* Dark canvas behind the framed content card (matches the topbar/sidebar so
+     the gutter reads as one continuous chrome). */
+  background: #23282d;
+}
+
+/* ── Top admin bar — matches Figma node 291:259686 ── */
+.wp-topbar {
+  grid-area: topbar;
+  background: #23282d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 12px 0 8px;
+  font-size: 14px;
+  line-height: 1;
+  color: #eeeeee;
+  /* Stay pinned at the top of the window as the page scrolls. */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Left cluster */
+.wp-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* WP logo — 20×20 icon, muted colour */
+.wp-topbar-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: #a2aab2;
+  text-decoration: none;
+  cursor: pointer;
+  margin-right: 5px; /* gap-[8px] between logo and first node */
+}
+.wp-topbar-logo svg { fill: currentColor; }
+.wp-topbar-logo:hover { color: #72aee6; }
+
+/* Generic node — matches menus/core/admin bar/normal */
+.wp-topbar-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 6px 12px 6px 8px;
+  color: #eeeeee;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wp-topbar-node:hover { background: #2c3338; color: #eeeeee; }
+.wp-topbar-node svg { fill: currentColor; flex-shrink: 0; }
+
+/* Muted node (updates counter) — #a2aab2 per Figma */
+.wp-topbar-node--muted {
+  color: #a2aab2;
+}
+.wp-topbar-node--muted:hover { color: #a2aab2; }
+.wp-topbar-node--muted svg { fill: currentColor; }
+
+/* Right: Howdy text */
+.wp-topbar-howdy {
+  font-size: 14px;
+  color: #eeeeee;
+  white-space: nowrap;
+  cursor: default;
+}
+
+/* ── Sidebar — matches Figma node 6:25235 exactly ── */
+.wp-sidebar {
+  grid-area: sidebar;
+  background: #23282d;
+  /* Stay in view while the page scrolls; the nav scrolls within itself only if
+     it's taller than the viewport. */
+  position: sticky;
+  top: 32px;
+  align-self: start;
+  height: calc(100vh - 32px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.wp-sidebar::-webkit-scrollbar { width: 4px; }
+.wp-sidebar::-webkit-scrollbar-track { background: transparent; }
+.wp-sidebar::-webkit-scrollbar-thumb { background: #3c434a; border-radius: 2px; }
+
+/* Nav list */
+.wp-nav-list,
+.wp-sidebar ul {
+  list-style: none;
+  padding: 12px 0 0;
+  margin: 0;
+}
+
+/* Nav item — flex row, 34px tall, icon at 8px left */
+.wp-sidebar .wp-nav-item {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 5px 0 8px;
+  gap: 8px;
+  color: #f0f0f0;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  position: relative;
+}
+.wp-sidebar .wp-nav-item:hover {
+  color: #72aee6;
+}
+
+/* Icon — 20×20, Core/Light Gray/900 (#a2aab2, the same muted grey the admin
+   bar uses), fills currentColor. */
+.wp-sidebar .wp-nav-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #a2aab2;
+}
+.wp-sidebar .wp-nav-icon-wrap svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Label */
+.wp-sidebar .wp-nav-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "Collapse menu" — 11px per Figma */
+.wp-sidebar .wp-nav-item.is-small {
+  font-size: 11px;
+}
+
+/* Badge */
+.wp-sidebar .wp-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #d63638;
+  color: #fff;
+  font-size: 11px;
+  padding: 0 5px;
+  flex-shrink: 0;
+}
+
+/* Active item — #3858e9 bg, white text, right arrow indicator */
+.wp-sidebar .wp-nav-item.is-active {
+  background: #3858e9;
+  color: #fff;
+}
+.wp-sidebar .wp-nav-item.is-active .wp-nav-icon-wrap {
+  color: #fff;
+}
+/* Right-pointing triangle on active parent (matches the screenshot) */
+.wp-sidebar .wp-nav-item.is-active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 8px solid transparent;
+  border-right-color: #f0f0f1;
+  border-left: 0;
+  margin-right: -1px;
+}
+
+/* Submenu — shown inline below the active parent */
+.wp-sidebar .wp-sub {
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+  background: #2c3338;
+}
+
+/* Submenu item — works on both <a> and <button type="button"> */
+.wp-sidebar .wp-sub-item {
+  display: block;
+  width: 100%;
+  padding: 6px 5px 6px 12px;
+  font-size: 14px;
+  color: #c3c4c7;
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1.4;
+  /* Reset button defaults when rendered as <button> */
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+}
+.wp-sidebar .wp-sub-item:hover {
+  color: #72aee6;
+}
+
+/* Active sub-item — bold white */
+.wp-sidebar .wp-sub-item.is-active-sub {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Main content area */
+.wp-main {
+  grid-area: main;
+  background: #f0f0f1;
+}
+
+/* The framed look: a white content card on the dark canvas. The whole page
+   scrolls, so the card has no scroll box of its own. The top-left corner is
+   square (0) — it meets the sticky topbar/sidebar seam — while the other corners
+   stay rounded. The inline-start gutter is 0 so the card meets the sidebar. */
+.wp-main {
+  background: #fff;
+  border-radius: 0 8px 8px 8px;
+  margin: 0;
+  /* Breathing room below the last content (the "More payment options" grid). */
+  padding-bottom: 48px;
+}
+.admin-ui-page {
+  min-height: 100%;
+}
+
+/* The DS Page defaults to a #fcfcfc off-white that shows through the gaps between
+   the white list/sections. admin-ui 2.x renders the Page with a hashed CSS-module
+   class, so target its stable `admin-ui-navigable-region` wrapper (the direct
+   child of our card) to paint the content area white throughout. */
+.cat-main-card > .admin-ui-navigable-region {
+  min-height: 100%;
+  background: #fff;
+}
+
+/* subtle hide scrollbars on main */
+.wp-main::-webkit-scrollbar { width: 10px; height: 10px; }
+.wp-main::-webkit-scrollbar-thumb { background: #c9cbce; border-radius: 5px; }
+
+
+/* ===== Posts grid (Grid variation) ========================================= */
+/* Status tabs, rendered into the DataViews toolbar via the `header` prop. */
+.post-tabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 0 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+/* Footer select-all + count sit flush left by default; indent to the 24px
+   content gutter so they line up with the cards above. (Logical property, to
+   beat DataViews' own `padding-inline-start` without an id/!important.) */
+.post-grid-dnd .dataviews-footer {
+  padding-inline-start: 24px;
+}
+.post-tab {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #3c434a;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px; /* overlap the row's bottom border */
+  padding: 8px 0 10px;
+  cursor: pointer;
+  transition: color 0.12s ease;
+}
+.post-tab:hover { color: #1e1e1e; }
+.post-tab.is-active {
+  color: #1e1e1e;
+  border-bottom-color: #1e1e1e;
+}
+.post-tab:focus-visible { outline: 2px solid var(--wp-admin-theme-color, #3858e9); outline-offset: 2px; }
+/* Disabled in manual sort (only "All" applies there). */
+.post-tab.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.post-tab.is-disabled:hover { color: #3c434a; }
+
+/* Card cover art (placeholder gradient). */
+.post-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+}
+/* Card description (excerpt) — smaller and muted vs the title. */
+.post-excerpt {
+  display: block;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+/* Remove DataViews' subtle 1px inset border on the card media (the faint
+   "outline" around each image). Kept below the selection/focus rings, which use
+   higher-specificity selectors, so those still show. */
+.dataviews-view-grid .dataviews-view-grid__card .dataviews-view-grid__media::after {
+  box-shadow: none;
+}
+
+/* ── Move dialog — exact padding spec ─────────────────────────────────────────
+   32px outer on every side · 16px between the title, description, fields, and the
+   Move button. The outer 32px is set EXPLICITLY on `.move-dialog` (below) — the DS
+   Dialog's built-in popup padding is build-dependent (24px on the locally-linked
+   @wordpress/ui, 0px on Vercel's fresh install), so relying on it broke the
+   deployed modal. Some builds ALSO give the header + footer their own block padding
+   (doubling the top/bottom), so we zero header-top / footer-bottom (and the
+   children's inline padding) and let header-bottom / footer-top set the 16px gaps —
+   leaving the popup's explicit 32px as the sole outer inset on every side. The
+   close icon is taken out of flow so the header's height is the title's — making
+   title→description exactly the header's padding-block-end (no close-icon offset). */
+.move-dialog header {
+  position: relative;
+  padding-block-start: 0;
+  /* 15px, not 16: the header's content box renders 1px taller than the title's
+     line box, so 15px lands the measured title→description gap at exactly 16px. */
+  padding-block-end: 15px;
+  margin-block-end: 0;
+}
+.move-dialog header button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.move-dialog footer {
+  /* 15px for the same +1px reason — lands the field→button gap at exactly 16px. */
+  padding-block-start: 15px;
+  padding-block-end: 0;
+  margin-block-start: 0;
+}
+/* The popup already pads 24px on ALL sides, but the header, content, AND footer
+   each ALSO pad 24px inline — doubling the left/right to ~48px. Zero the
+   children's inline padding so only the popup's 24px remains. */
+.move-dialog header,
+.move-dialog [class*="__content"],
+.move-dialog footer {
+  padding-inline: 0;
+}
+/* Centre the modal on the content frame (`.wp-main`), not the whole viewport. The
+   viewport centre sits 170px right of the frame centre because the showcase adds a
+   320px specs column (+20px gap) on the right — so shift the popup left by
+   (320 + 20) / 2 = 170px.
+   ⚠️ Set the outer padding EXPLICITLY (32px) instead of leaning on the DS Dialog's
+   built-in popup padding — that default differs by build: the locally-linked
+   `@wordpress/ui` pads the popup 24px, but Vercel's freshly-installed build pads it
+   0px, so the DEPLOYED modal lost all its padding. The header/content/footer rules
+   above zero their own insets, so this 32px is the sole outer inset on every side. */
+.move-dialog {
+  padding: 32px;
+  margin-inline-start: -170px;
+}
+.move-dialog-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+/* Grid reorder (Manually sort). Row mode: the whole card is grabbable. Handle
+   mode: only the grip is (below). */
+.post-grid-dnd.is-reorderable.is-drag-row .dataviews-view-grid [role="gridcell"] {
+  cursor: grab;
+}
+
+/* Drag grip (handle mode), centred ON the cover — matches the design mock. It
+   only renders in reorder mode, so it stays visible (not hover-gated). */
+.dataviews-view-grid__media { position: relative; }
+.grid-drag-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate( -50%, -50% );
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  background: rgba( 255, 255, 255, 0.92 );
+  box-shadow: 0 1px 3px rgba( 0, 0, 0, 0.3 );
+  color: #1e1e1e;
+  cursor: grab;
+  opacity: 0; /* hover-only */
+  transition: opacity 0.1s linear, background 0.1s linear;
+  z-index: 2;
+}
+.dataviews-view-grid__card:hover .grid-drag-handle,
+.dataviews-view-grid__card:focus-within .grid-drag-handle {
+  opacity: 1;
+  background: #fff;
+}
+body.is-grid-dragging .grid-drag-handle { cursor: grabbing; }
+
+/* Reorder surfaces: stop native image-drag + text selection from hijacking the
+   pointer drag (esp. row mode, where the whole cover is the drag surface). */
+.post-grid-dnd.is-reorderable .dataviews-view-grid__card { user-select: none; }
+.post-grid-dnd.is-reorderable .post-cover {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+body.is-grid-dragging,
+body.is-grid-dragging .dataviews-view-grid [role="gridcell"] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* The floating drag preview — an image-only token (the grid's take on the tree's
+   name-only pill) that follows the cursor. Deliberately NOT a card clone:
+   DataViews' grid card styles are all scoped under `.dataviews-view-grid`, so a
+   full clone appended to <body> loses them and re-lays-out. */
+.grid-drag-preview {
+  position: fixed;
+  left: 0;
+  top: 0;
+  /* Square, to match DataViews' 1:1 grid media — same crop as the card. */
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px rgba( 0, 0, 0, 0.32 );
+  pointer-events: none;
+  z-index: 99999;
+  cursor: grabbing;
+  will-change: transform;
+}
+.grid-drag-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The insertion bar showing where the card will land on drop — same weight and
+   treatment as the tree's `.cat-drop-line`, just vertical (2px line + a dotted
+   ring at the leading end). */
+.grid-drop-indicator {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var( --wpds-color-bg-interactive-brand-strong, #3858e9 );
+  pointer-events: none;
+  z-index: 99998;
+  opacity: 0;
+  transition: opacity 0.1s linear, transform 0.09s ease, height 0.09s ease;
+}
+.grid-drop-indicator::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX( -50% );
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var( --wpds-color-bg-interactive-brand-strong, #3858e9 );
+  background: #fff;
+}
+
+/* ── Flat table reorder (Manually sort) ───────────────────────────────────────
+   Two affordances, mirroring the grid/tree: a leading grip (handle mode) or the
+   whole row (row mode). The DataViews table has no separate handle column, so the
+   grip rides at the start of the primary cell's media slot (a fixed 32px flex box
+   that grows to `auto` to fit the grip before the thumbnail). */
+.post-table-dnd.is-reorderable .dataviews-view-table tbody .dataviews-view-table__row {
+  user-select: none;
+}
+.post-table-dnd.is-reorderable.is-drag-row .dataviews-view-table tbody .dataviews-view-table__row,
+.post-table-dnd.is-reorderable.is-drag-row-handle .dataviews-view-table tbody .dataviews-view-table__row {
+  cursor: grab;
+}
+/* The fixed 32px media slot grows to fit the leading grip before the thumbnail.
+   Applies whenever the grip is shown: handle mode and row-handle (the cue). */
+.post-table-dnd.is-reorderable.is-drag-handle .dataviews-column-primary__media,
+.post-table-dnd.is-reorderable.is-drag-row-handle .dataviews-column-primary__media {
+  width: auto;
+  gap: 8px;
+  overflow: visible; /* the fixed 32px media slot clips by default — let the grip show */
+}
+/* The flat table reuses the tree's EXACT reorder affordances (`.cat-drag-handle`,
+   `.cat-drop-line`, `.cat-drag-preview` — all in tree.css). This only adapts the
+   grip to the DataViews table DOM: drop the tree's -8px chevron-hug margin, and
+   give it a stacking context so it's the hit target over the overflow-clipped
+   media box (an svg pass-through keeps `closest('.cat-drag-handle')` matching). */
+.post-table-dnd .cat-drag-handle {
+  position: relative;
+  z-index: 1;
+  margin-inline-end: 0;
+}
+.post-table-dnd .cat-drag-handle svg { pointer-events: none; }
+/* Header select-all aligns with the row checkboxes. The header lives inside
+   DataViews' sortable-column Button (8px left padding), and the base
+   `.prod-cell--header` adds 28px for chevron rows — but the flat Posts table has
+   no chevron column, so cancel both (−8px margin cancels the button pad, 0
+   padding) to land the checkbox at the 24px cell edge, exactly like the rows. */
+.post-table-dnd .prod-cell--header {
+  padding-left: 0;
+  margin-left: -8px;
+}
+/* In Arrange, a grip leads each row (handle + row-handle modes), shifting the
+   row checkbox one gutter right (16px grip + 12px gap = 28px). Match it so the
+   select-all stays aligned. Row mode shows no grip, so it keeps the base edge. */
+body.is-manual-sort .post-table-dnd:not( .is-drag-row ) .prod-cell--header {
+  padding-left: 28px;
+}
+/* Flat Posts table (the tree copy): the cover rides in the `.prod-cell` lead as
+   a small thumbnail (the grid's `.post-cover` is a full-bleed card image). */
+.prod-cell .post-cover {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+/* The flat table is wrapped in `.cat-main-card`, so it inherits Tree 1's footer
+   rules (which pin the footer to the tree's handle+checkbox column — 40px, or 0
+   in Browse). A flat list has no such column, so its footer just sits at the 24px
+   content gutter. Both selectors out-specify the two inherited rules (base 0,2,0
+   and the browse-mode body:not(...) 0,3,1) without touching Tree 1. */
+.cat-main-card .post-table-dnd .dataviews-footer,
+body:not( .is-manual-sort ) .cat-main-card .post-table-dnd .dataviews-footer {
+  padding-inline-start: 24px;
+}
+/* Sticky footer pinned to the card bottom even with few rows: the copy's extra
+   `.post-table-dnd` wrapper must flex-fill the Page so the DataViews (whose footer
+   is already `position: sticky`) reaches the bottom instead of sitting under the
+   last row. */
+.post-table-dnd {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.post-table-dnd .dataviews-wrapper {
+  flex: 1;
+  min-height: 0;
+}
+body.is-table-dragging,
+body.is-table-dragging .dataviews-view-table__row,
+body.is-table-dragging .cat-drag-handle {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* Page header ("Settings" title) + the tabs beneath it. The @wordpress/admin-ui
+   Page hashes its own class names (`__header` etc.), so target the *stable*
+   structure instead: `.admin-ui-navigable-region` is the page region, whose
+   first child is the sticky header and whose `.post-tabs` child is the tabs.
+
+   Keyed off `.post-tabs`, the shared tab-bar class, so every iteration's
+   settings screen gets the same chrome.
+
+   Both sit on the WP-admin light grey, distinct from the white content below. */
+.cat-main-card .admin-ui-navigable-region > :first-child,
+.cat-main-card .admin-ui-navigable-region > .post-tabs {
+  background: #f0f0f1;
+}
+/* The DS Page makes the header sticky at top:0 — the same spot as the sticky
+   32px wp-admin topbar, so it hides behind it. Stick it just below the topbar,
+   above the scrolling content but under the topbar's own z-index (100). */
+.cat-main-card .admin-ui-navigable-region > :first-child {
+  top: 32px;
+  z-index: 90;
+}
+
+/* Content area has no padding — DataViews rows span full width so dividers
+   reach the page edges. 24px indentation is provided by DataViews' native
+   first-child / last-child cell padding and by the toolbar padding below. */
+.admin-ui-page__content {
+  padding: 0 !important;
+}
+
+/* Toolbar (status tabs + search/filter/gear): full-width row, content
+   indented 24px from each edge to align with table cell content. */
+.dv-toolbar {
+  padding-inline: 24px;
+  border-block-end: 1px solid #e4e4e4;
+}
+
+/* Filter chips row: same 24px inline indent, small top gap after the
+   toolbar border. */
+.dv-filters-row {
+  padding-inline: 24px;
+  margin-block-start: var(--wpds-dimension-gap-lg, 16px);
+}
+
+/* Tab spacing: Figma RSM tab→tab gap is 12px. Default Tabs.List has no
+   gap (tabs touch), so we add it. The default Tab also brings 16px of
+   inline padding inside each button — Figma uses zero padding so the
+   12px gap is the only spacing between tab labels. */
+.dv-tabs-list {
+  gap: var(--wpds-dimension-gap-md, 12px);
+}
+.dv-tabs-list [role="tab"] {
+  padding-inline: 0;
+}
+
+
+/* Toolbar (DS Tabs on the left, DS IconButtons on the right) */
+.toolbar {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e1e1e1;
+  padding: 0;
+  gap: 0;
+}
+.toolbar-spacer {
+  flex: 1;
+}
+
+/* Search-mode toolbar: leading search icon, full-width Input, trailing close
+   button. Replaces the tabs row while a search is active. */
+.toolbar.toolbar-search {
+  gap: 8px;
+  padding: 0 12px;
+  height: 48px;
+}
+.toolbar.toolbar-search .toolbar-search-input {
+  flex: 1;
+}
+
+/* @wordpress/ui Tabs is rendered as-is. Its built-in 16px horizontal
+   per-tab padding and its absent visible bottom-indicator both diverge from
+   the Figma — flagged as a DS gap rather than overridden, per CLAUDE.md
+   ("never override DS component internals"). */
+
+/* =========================================================================
+   Products table — emulates @wordpress/dataviews table layout,
+   extended with hierarchical parent→variation rows.
+   ========================================================================= */
+.dv-table-wrapper {
+  width: 100%;
+}
+.dv-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+.dv-table thead th {
+  text-align: left;
+  color: #757575;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid #e1e1e1;
+  white-space: nowrap;
+  background: #fff;
+}
+.dv-table thead th .sort-arrow {
+  margin-left: 4px;
+  opacity: 0.7;
+}
+
+/* col widths */
+.dv-col-chevron { width: 32px; padding-left: 12px; padding-right: 0; }
+.dv-col-check   { width: 32px; padding-left: 0; padding-right: 0; }
+.dv-col-name    { width: auto; }
+.dv-col-status  { width: 140px; }
+.dv-col-sku     { width: 140px; }
+.dv-col-stock   { width: 140px; }
+.dv-col-cat     { width: 200px; }
+.dv-col-price   { width: 120px; text-align: left; }
+.dv-col-actions { width: 220px; padding-right: 12px; }
+/* Both the header and body cells in the actions column are right-aligned —
+   needs to be more specific than the generic `.dv-table thead th` rule
+   above which sets text-align: left. */
+.dv-table .dv-col-actions { text-align: right; }
+
+.dv-table tbody tr {
+  height: 60px;
+  border-bottom: 1px solid #e1e1e1;
+}
+.dv-table tbody tr:hover {
+  background: #f6f7f7;
+}
+.dv-table tbody tr.is-selected {
+  background: #eef4fb;
+}
+.dv-table tbody td {
+  padding: 0 16px;
+  vertical-align: middle;
+  color: #1e1e1e;
+}
+
+/* chevron button */
+.chev-btn {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #1e1e1e;
+  border-radius: 2px;
+}
+.chev-btn:hover { background: #f0f0f0; }
+.chev-btn svg {
+  transition: transform 120ms ease;
+}
+.chev-btn.is-open svg {
+  transform: rotate(90deg);
+}
+
+/* checkbox */
+.dv-check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #3858e9;
+  cursor: pointer;
+}
+
+/* Product name cell: optional chevron + thumbnail + title + variant-count badge */
+.prod-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* When a description (or breadcrumb) line is showing, the primary cell grows to
+   two-plus lines. The leading controls should stay centered against the FIRST
+   line (the title), not against the whole taller block. We top-align the row,
+   then give line 1 a fixed 24px band so the title and the controls share the
+   same optical center. */
+.prod-cell--top {
+  align-items: flex-start;
+}
+.prod-cell--top .prod-name-group {
+  min-height: 24px;
+}
+/* .chev-btn is already 24px tall, so it fills the band with no nudge; the 16px
+   checkbox is centered within the 24px band. */
+.prod-cell--top > .dv-row-check {
+  margin-top: 4px;
+}
+
+/* Save-feedback snackbar — fixed bottom-center, above sidebar drawers. */
+.app-snackbar-list {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  max-width: 360px;
+}
+
+/* PRODUCT column header — laid out so:
+   • the select-all checkbox aligns horizontally with every row's checkbox
+     (row checkbox sits at 60px from the td's left edge: 24 td-pad + 24
+     chevron/placeholder + 12 gap; in the header we live inside a Button
+     with 8px of left padding, so the additional padding-left needed is
+     60 − 24 (td) − 8 (button) = 28px).
+   • the "Product" label sits 16px to the right of the checkbox.
+   This default holds for the Categories screen and the Products screen's
+   inline-nesting mode (both have a left chevron column in their rows). */
+.prod-cell--header {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 28px;
+}
+/* Chevron-less rows (no left chevron column): the row checkbox sits at the
+   24px cell edge, so pull the header checkbox back there too. The header lives
+   inside the sortable column Button (8px left padding); a -8px margin cancels
+   it so the checkbox lands at exactly 24px, aligned with the rows. Scoped via
+   body class to the products screen (drill-in / badge-toggle) and the
+   categories screen (badge-toggle). */
+body.is-chevronless-products .prod-cell--header,
+body.is-chevronless-categories .prod-cell--header,
+body.is-chevronless-brands .prod-cell--header {
+  padding-left: 0;
+  margin-left: -8px;
+}
+
+/* "Chevron on the left + header" mode: a master expand/collapse chevron sits
+   before the select-all checkbox. Shift the header 8px left and gap at 12px so
+   the chevron lands at the same x as the row chevrons while the checkbox stays
+   aligned with the row checkboxes (chevron 24 + 12 gap = 36px, mirroring the
+   rows). Overrides the base 28px padding (must follow it in source order). */
+.prod-cell--header-expander {
+  padding-left: 0;
+  margin-left: -8px;
+  gap: 12px;
+}
+
+/* Chevron-on-the-left (inline) mode: rows indent their checkbox past the left
+   chevron column (24px chevron + 12px gap = 36px past the 24px cell pad). The
+   footer's select-all checkbox lives at the 24px footer edge, so shift the
+   whole bulk-actions cluster right by that 36px to line it up with the row /
+   header checkboxes. */
+body.is-inline-nesting .dataviews-bulk-actions-footer__container,
+body.is-inline-nesting-categories .dataviews-bulk-actions-footer__container,
+body.is-inline-nesting-brands .dataviews-bulk-actions-footer__container {
+  padding-left: 36px;
+}
+
+/* DataViews injects this span before the title field's render output for
+   nested (variation) rows. We hide its em-dash characters and use a fixed
+   width as a spacer that lands the variation's checkbox under the PARENT's
+   thumbnail.
+
+   The needed width depends on the approach, because the parent's thumbnail
+   position differs:
+     • Badge-toggle (no left chevron): parent thumb ≈ checkbox + gap past the
+       24px cell pad → 28px spacer aligns the variation checkbox.
+     • Inline nesting (left chevron): parent thumb sits a chevron-width
+       further right → 64px (see body.is-inline-nesting override below). */
+.dataviews-view-table__level {
+  display: inline-block;
+  width: 28px;
+  text-indent: -9999px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+body.is-inline-nesting .dataviews-view-table__level {
+  width: 64px;
+}
+
+/* Cap the View Config popover to a fixed height and scroll its body — same
+   pattern as the DataViews storybook. Without this the popover grows to fit
+   the full Properties list and can run off the bottom of the viewport. */
+.dataviews-config__popover .dataviews-config__popover-content-wrapper {
+  max-height: min(calc(100vh - 120px), 600px);
+  overflow-y: auto;
+}
+/* Hide the scrollbar in the View settings popover on every screen — scrolling
+   still works. Cover the whole popover subtree (the scroll container carries a
+   hashed emotion class, so target broadly) plus Gutenberg's own popover content
+   wrapper, which is the scroller in some DataViews builds. */
+.dataviews-config__popover,
+.dataviews-config__popover *,
+.dataviews-config__popover .components-popover__content {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+.dataviews-config__popover::-webkit-scrollbar,
+.dataviews-config__popover *::-webkit-scrollbar,
+.dataviews-config__popover .components-popover__content::-webkit-scrollbar {
+  display: none; /* WebKit/Blink */
+  width: 0;
+  height: 0;
+}
+
+/* Let DataViews own its cell padding (default: 12px all sides, 24px for
+   first/last child). Removing the earlier padding-left:0 override restores
+   the inter-column breathing room that matches the storybook look. */
+
+/* The checkbox column is always DOM :first-child (even though it's hidden via
+   display:none), so DataViews' native `tr td:first-child { padding-left: 24px }`
+   applies to the hidden checkbox — not to the title field. The title field is
+   always :nth-child(2). Give it the same 24px left indent to align with the
+   toolbar tabs row and the rest of the page header. */
+.dataviews-view-table tr th:nth-child(2),
+.dataviews-view-table tr td:nth-child(2) {
+  /* `!important` is needed because DataViews ships a `has-compact-density`
+     rule with higher specificity that zeros out the th's padding-left in
+     compact mode. Without this override, the th-pad would drop to 0 while
+     the td-pad stays at 24, throwing the master-checkbox header out of
+     alignment with the row checkboxes whenever the user switches density. */
+  padding-left: 24px !important;
+}
+
+/* Actions column still gets extra left separation so inline Edit / Quick edit
+   buttons don't crowd the right-aligned Price text on row hover. */
+.dataviews-view-table td.dataviews-view-table__actions-column,
+.dataviews-view-table th.dataviews-view-table__actions-column {
+  padding-left: 32px;
+}
+
+
+/* Hide DataViews' built-in checkbox column entirely (header + body + col).
+   We render the row checkbox inside the primary (Product) cell so the
+   Figma RSM order is preserved: chevron · checkbox · thumbnail · name.
+   `table-layout: auto` sizes the column to its widest cell (the `<th>`),
+   so hiding only the body cells leaves a ~40px gutter. `display: none`
+   on the whole column collapses it. Trade-off: we lose DataViews' bulk
+   select-all header checkbox; selection still works per-row, and the
+   bulk-action toolbar in `<DataViews.Footer />` still operates on the
+   selection set. */
+.dataviews-view-table .dataviews-view-table__checkbox-column,
+.dataviews-view-table .dataviews-view-table__col-checkbox {
+  display: none;
+}
+
+/* Row checkbox rendered inside the primary cell (sibling of the chevron
+   and the thumbnail). Uses the `--wp-admin-theme-color` accent for the
+   checked state — same as DataViews' built-in checkbox. */
+.dv-row-check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--wp-admin-theme-color, #3858e9);
+  cursor: pointer;
+}
+
+/* Search input width — Veronica spec for this prototype.
+   `flex-shrink: 0` keeps the box from collapsing when the toolbar runs
+   out of space. */
+.dataviews-search {
+  width: 181px;
+  flex-shrink: 0;
+}
+
+
+/* Chevron button — rendered for variable products with variations. Rotates
+   90° when expanded. The placeholder reserves the same width on simple-
+   product rows so thumbnails stay aligned across rows. */
+.chev-btn,
+.chev-btn-placeholder {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.chev-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+  border-radius: var(--wpds-border-radius-sm, 2px);
+}
+.chev-btn:hover {
+  background: var(--wpds-color-bg-interactive-neutral-weak-active, #ededed);
+}
+.chev-btn svg {
+  transition: transform 120ms ease;
+}
+.chev-btn.is-open svg {
+  transform: rotate(90deg);
+}
+.prod-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #f0f0f0 center/cover no-repeat;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+.prod-name-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+.prod-title {
+  font-size: 13px;
+  color: #1e1e1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+/* Name + description stacked in the primary column — the DataViews table
+   pattern (title on top, description beneath). Sits after the chevron +
+   checkbox in `.prod-cell`, so the description aligns under the title text at
+   every level of the tree. */
+.cat-name-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.cat-name-block .prod-name-group {
+  max-width: 100%;
+}
+.cat-row-description {
+  /* Matches DataViews: the table description inherits the 13px cell font,
+     muted (#757575). Sits in a 24px line-band (vertically centered) to match
+     the title line's height. Weight is forced to normal — the whole cell is
+     rendered inside `.dataviews-title-field`, which sets font-weight 499, so
+     without this the description would look heavier than the other columns. */
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #757575;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  max-width: 620px;
+}
+
+/* Date column — "<label>: <date> <time>" line, muted to match the DataViews
+   posts example. */
+.cat-date-cell {
+  font-size: 13px;
+  color: #757575;
+  white-space: nowrap;
+}
+.cat-date-label {
+  color: #757575;
+}
+
+/* ── Flat search results ──────────────────────────────────────────────────
+   In the flat search modes the primary cell drops the chevron + indent and
+   surfaces the ancestor path as a breadcrumb. */
+.cat-cell--flat .prod-name-group {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Ancestor breadcrumb (e.g. News › World), separators drawn with the DS
+   chevron icon. Muted, one line by default. */
+.cat-breadcrumb {
+  font-size: 12px;
+  font-weight: 400;
+  color: #757575;
+  min-width: 0;
+}
+.cat-breadcrumb-path {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  /* Muted + normal weight even in the "ancestors before" mode, where the path
+     sits directly in the name group (inside .dataviews-title-field) rather than
+     inside .cat-breadcrumb. */
+  color: #757575;
+  font-weight: 400;
+}
+
+/* Ancestors-before: the full path + chevron + bold name share the name group,
+   spaced tightly (2px) like the breadcrumb chevrons rather than the group's
+   default 8px gap. */
+.cat-name-group--fullpath {
+  gap: 2px;
+}
+.cat-breadcrumb-chevron {
+  flex: 0 0 auto;
+  color: #757575;
+}
+/* 2-line mode: breadcrumb sits on its own line under the name. */
+.cat-breadcrumb--stacked {
+  display: flex;
+}
+/* 1-line mode: breadcrumb follows the name inline, after an em-dash. */
+.cat-breadcrumb--inline {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.cat-breadcrumb-dash {
+  color: #757575;
+}
+
+/* Mobile: the 1-line (inline) breadcrumb collapses to the 2-line stacked
+   layout — it wraps onto its own line under the name and drops the em-dash.
+   782px is WP admin's mobile breakpoint. */
+@media ( max-width: 782px ) {
+  .cat-breadcrumb--inline {
+    flex-basis: 100%;
+    gap: 0;
+  }
+  .cat-breadcrumb--inline .cat-breadcrumb-dash {
+    display: none;
+  }
+}
+
+/* Variation row indent is owned by `.dataviews-view-table__level` above.
+   DataViews does not add a `tr.is-variation` class — keep this empty. */
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge-success { background: #cdf5d3; color: #002b00; }
+.badge-error   { background: #fbe5e2; color: #4a0000; }
+.badge-info    { background: #e1ecf8; color: #001758; }
+.badge-neutral { background: #f0f0f0; color: #1e1e1e; }
+.badge-neutral-weak { background: #f0f0f0; color: #6d6d6d; }
+
+/* Price cell — numbers are right-aligned; DataViews handles cell-level
+   alignment via justify-content:flex-end on the __cell-content-wrapper
+   (triggered automatically for type:'number' fields). This rule controls
+   only the internal layout of children within the price cell itself. */
+.price-cell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.price-cell .price-strike {
+  color: #949494;
+  text-decoration: line-through;
+  font-size: 12px;
+}
+.price-cell .price-sale {
+  color: inherit;
+}
+
+/* Actions cell */
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+/* Pagination */
+.dv-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  height: 56px;
+  border-top: 1px solid #e1e1e1;
+  color: #1e1e1e;
+}
+.dv-footer-left,
+.dv-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dv-footer .muted {
+  color: #757575;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* subtle hide scrollbars on main */
+.wp-main::-webkit-scrollbar { width: 10px; height: 10px; }
+.wp-main::-webkit-scrollbar-thumb { background: #c9cbce; border-radius: 5px; }
+
+/* The View options popover is rendered entirely by `Popover.*` from
+   `@wordpress/ui` and DS controls (`SelectControl`, `ToggleGroupControl`,
+   `ItemGroup` / `Item`) from `@wordpress/components`. No custom popover
+   styling — all visual treatment comes from the design system. */
+
+/* =========================================================================
+   Popover menu (used for Add-new product-type dropdown and row ⋮ more-menu)
+   ========================================================================= */
+.pm-popup {
+  position: fixed;
+  background: #fff;
+  border: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+  border-radius: var(--wpds-border-radius-md, 4px);
+  box-shadow: var(--wpds-elevation-md, 0 4px 12px rgba(0, 0, 0, 0.08));
+  padding: 4px;
+  min-width: 180px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pm-popup.is-rich {
+  min-width: 280px;
+  padding: 4px;
+  gap: 0;
+}
+.pm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+  text-align: left;
+  border-radius: var(--wpds-border-radius-sm, 2px);
+  white-space: nowrap;
+}
+/* Rich rows: Figma node 34:54570 — px-12 py-8, gap-10 between icon and text,
+   icon vertically centered across the label + description block. */
+.pm-popup.is-rich .pm-item {
+  padding: 8px 12px;
+  gap: 10px;
+  align-items: center;
+}
+.pm-item:hover:not(:disabled) {
+  background: var(--wpds-color-bg-interactive-neutral-weak-active, #ededed);
+}
+.pm-item:disabled {
+  color: var(--wpds-color-fg-interactive-neutral-disabled, #8d8d8d);
+  cursor: not-allowed;
+}
+.pm-item.is-danger {
+  color: var(--wpds-color-fg-content-error, #4a0000);
+}
+.pm-item-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+}
+.pm-item-content {
+  display: flex;
+  flex-direction: column;
+  /* Figma: gap-4 between label and description */
+  gap: 4px;
+  min-width: 0;
+  white-space: normal;
+}
+.pm-item-label {
+  font-size: 13px;
+  /* Figma: regular weight, not medium */
+  font-weight: 400;
+  line-height: 20px;
+  color: inherit;
+}
+.pm-item-desc {
+  font-size: 12px;
+  line-height: 16px;
+  /* Figma: Gutenberg/Gray 700 = #757575 */
+  color: #757575;
+  white-space: normal;
+}
+
+/* Quick actions (Edit / Quick edit) appear on row hover or focus only —
+   matches the DataViews storybook behavior so the row stays visually quiet
+   until the user expresses intent on it. The ⋮ kebab is always visible
+   for the rest of the actions. */
+.dv-table tbody tr .row-quick-actions {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 4px;
+  white-space: nowrap;
+  visibility: hidden;
+}
+.dv-table tbody tr .row-quick-actions button {
+  white-space: nowrap;
+}
+.dv-table tbody tr:hover .row-quick-actions,
+.dv-table tbody tr:focus-within .row-quick-actions,
+.dv-table tbody tr.is-selected .row-quick-actions {
+  visibility: visible;
+}
+
+/* Column-visibility list items */
+.vo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vo-list-item {
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+  border-radius: var(--wpds-border-radius-sm, 2px);
+  font-size: 13px;
+  color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+}
+
+/* =========================================================================
+   Selection bar — fixed bottom bar shown when ≥1 product is selected
+   ========================================================================= */
+
+.selection-bar {
+  position: fixed;
+  left: 160px;
+  right: 0;
+  bottom: 0;
+  height: 48px;
+  background: #fff;
+  border-top: 1px solid #e1e1e1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  font-size: 13px;
+  z-index: 40;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.selection-bar-pill {
+  width: 24px;
+  height: 24px;
+  background: #3858e9;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.selection-bar-count {
+  color: #1e1e1e;
+  font-weight: 500;
+}
+.selection-bar-spacer {
+  flex: 1;
+}
+.selection-bar-total,
+.selection-bar-page {
+  color: #757575;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+/* Destructive action button in SelectionBar (e.g. Delete).
+   Uses the WP admin error/danger red token where available, falls back to
+   the standard WordPress error colour. */
+.selection-bar-action--destructive {
+  color: var(--wp-components-color-error, #cc1818) !important;
+}
+.selection-bar-action--destructive:hover:not(:disabled) {
+  color: var(--wp-components-color-error, #cc1818) !important;
+  opacity: 0.85;
+}
+
+/* =========================================================================
+   Quick Edit Drawer
+   ========================================================================= */
+
+.qe-backdrop {
+  position: fixed;
+  inset: 32px 0 0 160px;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 50;
+  animation: qe-fade 120ms ease-out;
+}
+@keyframes qe-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* `--wp-ui-drawer-z-index` is read by @wordpress/ui's Drawer viewport,
+   backdrop, and popup. Without it, the drawer renders below
+   `.admin-ui-navigable-region` (z-index: 1) and is hidden behind the
+   products table. */
+:root {
+  --wp-ui-drawer-z-index: 100;
+}
+
+.qe-drawer-popup {
+  position: fixed;
+  top: 32px;
+  right: 0;
+  bottom: 16px; /* stop 16px above the viewport bottom, aligning with the framed card */
+  width: 450px;
+  background: #fff;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  animation: qe-slide 180ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+@keyframes qe-slide {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.qe-header {
+  display: flex;
+  align-items: center;
+  padding: 12px var(--wpds-dimension-padding-2xl, 24px);
+  border-bottom: 1px solid #e1e1e1;
+  gap: 8px;
+}
+.qe-title {
+  flex: 1;
+  margin: 0;
+  font-size: 20px !important;
+  font-weight: 600;
+  color: #1e1e1e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qe-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--wpds-dimension-padding-2xl, 24px);
+}
+
+.qe-section {
+  padding: 16px;
+  border-bottom: 1px solid #e1e1e1;
+}
+.qe-section:last-child { border-bottom: none; }
+
+/* Section heading inside the drawer (General, Price, …). Heading LG token —
+   15px text on 20px line-height — to distinguish from the smaller uppercase
+   field labels (Field.Label) used for individual fields. */
+.qe-section-title {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+  color: #1e1e1e;
+  margin: 0 0 4px 0;
+}
+
+/* Variation Status select items (Figma node 253-129111).
+   Each option in the design-system Select popup renders a label + helper
+   description on two lines. The Select primitive renders an indicator
+   icon to the left of these children, so this only styles the text block. */
+.qe-status-popup {
+  /* Match the trigger width so descriptions wrap inside the drawer column
+     instead of growing the popup wider than the trigger. */
+  width: var(--anchor-width);
+}
+.qe-status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  white-space: normal;
+}
+.qe-status-item-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: inherit;
+}
+.qe-status-item-desc {
+  font-size: 12px;
+  color: var(--wpds-color-fg-content-neutral-weak, #707070);
+  white-space: normal;
+}
+.qe-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.qe-section-header .qe-section-title { margin-bottom: 0; }
+
+.qe-link-btn {
+  background: transparent;
+  border: none;
+  color: #3858e9;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+}
+.qe-link-btn:hover { text-decoration: underline; }
+
+.qe-divider {
+  border: none;
+  border-top: 1px solid #e1e1e1;
+  margin: 16px 0;
+}
+
+/* Between-fields spacing. Field.Root itself is a Stack gap=sm (label→input),
+   so we only add vertical spacing between sibling fields. Fields are direct
+   children of `.qe-body` (no `.qe-section` wrapper in the rendered DOM). */
+.qe-body > * + * {
+  margin-top: 20px;
+}
+
+/* Larger gap before each section heading so sections breathe (32px per
+   bulk-edit spec). The first heading inherits the body padding, not this rule. */
+.qe-body > * + h3.qe-section-title {
+  margin-top: 32px;
+}
+
+/* ── Sectioned edit drawer ─────────────────────────────────────────────────
+   Collapsible Content / Display / … sections (DS `Collapsible`) replace the
+   flat field list. The body drops its own padding so each section spans full
+   width with a divider between; the header + panel carry the 24px horizontal
+   padding. */
+.qe-body.qe-body--sectioned {
+  padding: 0;
+}
+.qe-body.qe-body--sectioned > * + * {
+  margin-top: 0; /* dividers separate sections, not the 20px field gap */
+}
+.qe-collapsible {
+  border-bottom: 1px solid #e1e1e1;
+}
+.qe-collapsible:last-child {
+  border-bottom: none;
+}
+/* Section header = the collapsible trigger: title left, chevron right. */
+.qe-collapsible__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: start;
+}
+.qe-collapsible__title {
+  font-size: 13px; /* matches the editor's panel section titles */
+  line-height: 20px;
+  font-weight: 500;
+  color: #1e1e1e;
+}
+.qe-collapsible__chevron {
+  flex: none;
+  color: #1e1e1e;
+}
+.qe-collapsible__panel {
+  padding: 0 24px 20px;
+}
+.qe-collapsible__panel > * + * {
+  margin-top: 20px; /* between-fields spacing within a section */
+}
+.qe-plugin-placeholder {
+  margin: 0;
+  font-size: 13px;
+  color: var(--wpds-color-fg-content-neutral-weak, #707070);
+}
+
+.qe-row-2 {
+  display: grid;
+  /* `minmax(0, 1fr)` (not just `1fr`) lets the columns shrink below the
+     intrinsic min-content width of inputs like <input type="datetime-local">
+     whose native picker icon + format string would otherwise overflow. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+.qe-price-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.qe-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.qe-row-4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+/* Toggle */
+/* Consecutive checkbox toggles (e.g. Downloadable + Virtual in General)
+   sit 16px apart instead of the generic 20px between body siblings. */
+.qe-body > .qe-inline-toggle + .qe-inline-toggle {
+  margin-top: 16px;
+}
+.qe-inline-toggle {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+.qe-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  color: #1e1e1e;
+  font-size: 13px;
+}
+.qe-toggle::before {
+  content: '';
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+  background: #c3c4c7;
+  border-radius: 10px;
+  position: relative;
+  transition: background 140ms ease;
+}
+.qe-toggle.is-on::before {
+  background: #3858e9;
+}
+.qe-toggle-knob {
+  display: none;
+}
+.qe-toggle {
+  position: relative;
+}
+.qe-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 140ms ease;
+}
+.qe-toggle.is-on::after {
+  transform: translateX(14px);
+}
+.qe-toggle-label {
+  font-size: 13px;
+  color: #1e1e1e;
+}
+
+/* Chip combobox — container is InputLayout rendered as a column flex box */
+.qe-chip-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+/* Wrapping row of pill chips */
+.qe-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px 0;
+}
+/* Individual pill chip */
+.qe-chip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 13px;
+  color: #1e1e1e;
+  cursor: default;
+  overflow: hidden;
+}
+.qe-chip-pill:focus { outline: 2px solid var(--wp-admin-theme-color, #3858e9); outline-offset: 1px; }
+/* Circular avatar at start of chip */
+.qe-chip-pill-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-inline-start: 1px;
+}
+.qe-chip-pill-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Chip label text */
+.qe-chip-pill-label {
+  padding-inline: 8px 2px;
+  padding-block: 2px;
+  line-height: 18px;
+}
+.qe-chip-pill:not(:has(.qe-chip-pill-avatar)) .qe-chip-pill-label {
+  padding-inline-start: 10px;
+}
+/* Remove button inside chip */
+.qe-chip-pill-x {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px 2px 0;
+  color: #757575;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+.qe-chip-pill-x:hover { color: #1e1e1e; }
+/* Search input below the chips */
+.qe-chip-search {
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #1e1e1e;
+  background: transparent;
+  width: 100%;
+  min-height: 36px;
+}
+.qe-chip-search::placeholder { color: #757575; }
+
+/* Combobox dropdown popup */
+.qe-combobox-positioner {
+  width: var(--anchor-width);
+}
+.qe-combobox-popup {
+  background: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  outline: none;
+}
+.qe-combobox-list {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.qe-combobox-empty {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #757575;
+}
+.qe-combobox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: #1e1e1e;
+  cursor: pointer;
+  outline: none;
+}
+.qe-combobox-item[data-highlighted] {
+  background: #f0f0f0;
+}
+/* Check icon: hidden by default, shown when item is selected */
+.qe-combobox-item-check {
+  display: flex;
+  align-items: center;
+  width: 16px;
+  flex-shrink: 0;
+  color: #3858e9;
+  opacity: 0;
+}
+.qe-combobox-item[data-selected] .qe-combobox-item-check {
+  opacity: 1;
+}
+.qe-combobox-item-avatar {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Date/time trigger — looks like a TextInput with a leading calendar icon.
+   Clicking opens the DateTimePicker popover. Mirrors the @wordpress/ui
+   InputLayout shell (border, radius, hover) so it sits flush with adjacent
+   text inputs (Discount, Sale price, etc.). */
+.qe-datetime-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--wpds-dimension-padding-md, 12px);
+  background: var(--wpds-color-bg-interactive-neutral-weak, #fff);
+  border: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-interactive-neutral, #8d8d8d);
+  border-radius: var(--wpds-border-radius-sm, 2px);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: var(--wpds-color-fg-interactive-neutral, #1e1e1e);
+  text-align: left;
+}
+.qe-datetime-trigger:hover {
+  border-color: var(--wpds-color-stroke-interactive-neutral-active, #1e1e1e);
+}
+.qe-datetime-trigger:focus-visible {
+  outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+  outline-offset: -1px;
+}
+.qe-datetime-icon {
+  display: inline-flex;
+  color: var(--wpds-color-fg-content-neutral-weak, #757575);
+}
+.qe-datetime-icon svg {
+  fill: currentColor;
+}
+.qe-datetime-value {
+  flex: 1;
+  min-width: 0;
+}
+.qe-datetime-value.is-placeholder {
+  color: var(--wpds-color-fg-content-neutral-weak, #757575);
+}
+
+/* Image grid — matches Figma 99:101614: 64×64 tiles with 12px gap;
+   the add button is a bordered input-like tile with a blue dashed border
+   and a blue + icon (theme color --wpds-color-stroke-focus-brand). */
+.qe-image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+/* Individual image tile — draggable, with hover overlay + close button. */
+.qe-image-tile {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  background: #f0f0f0 center/cover no-repeat;
+  border-radius: 6px;
+  flex-shrink: 0;
+  cursor: grab;
+  overflow: hidden; /* clips the dark overlay to the tile's rounded corners */
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+.qe-image-tile:active {
+  cursor: grabbing;
+}
+/* Dark overlay on hover — ::after sits above the background-image. */
+.qe-image-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 150ms ease;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.qe-image-tile:hover::after {
+  background: rgba(0, 0, 0, 0.25);
+}
+/* Drag-over: inset box-shadow doesn't get clipped by overflow:hidden. */
+.qe-image-tile.is-drag-over {
+  box-shadow: inset 0 0 0 2px var(--wpds-color-stroke-focus-brand, #3858e9);
+}
+
+/* Remove button wrapper — inside the tile, top-right, above the overlay. */
+.qe-image-remove {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2; /* above the ::after overlay */
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.qe-image-tile:hover .qe-image-remove,
+.qe-image-remove:focus-within {
+  opacity: 1;
+}
+
+/* White circle button — unstyled DS Button styled as circle.
+   styles.css loads after DS CSS so cascade order wins, no !important needed. */
+.qe-image-remove__btn {
+  width: 22px;
+  height: 22px;
+  min-width: 0;
+  padding: 0;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  color: #1e1e1e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+.qe-image-remove__btn:hover {
+  background: #f0f0f0;
+}
+.qe-image-add {
+  width: 64px;
+  height: 64px;
+  background: #fff;
+  border: 1px dashed var(--wpds-color-stroke-focus-brand, #3858e9);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wpds-color-fg-interactive-brand, #3858e9);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  flex-shrink: 0;
+}
+.qe-image-add:hover {
+  background: var(--wpds-color-bg-interactive-brand-weak-active, #e6eaf4);
+}
+.qe-image-add svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ── Bulk edit: stacked/overlapping image thumbnails ── */
+.be-image-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.be-image-stack {
+  display: flex;
+  align-items: center;
+}
+
+.be-image-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
+}
+
+.be-image-thumb:not(:first-child) {
+  margin-left: -20px;
+}
+
+/* Footer */
+.qe-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px var(--wpds-dimension-padding-2xl, 24px);
+  border-top: 1px solid #e1e1e1;
+  background: #fff;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   Bulk-edit "Overwrite & Transform" — mode-row layout
+
+   Each field is rendered as a label on top with a 2-column row below:
+   left = mode dropdown ("Set to" / "Increase by amount" / …), right =
+   value input (with prefix/suffix that varies by mode). The row collapses
+   to 1 column under 360px so values don't get cramped in narrow drawers.
+   ────────────────────────────────────────────────────────────────────── */
+
+.qe-mode-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+@media (max-width: 360px) {
+  .qe-mode-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Image fields use a single-column stack: mode dropdown on top spanning the
+   full width, image tiles below — only when a mode is active. No empty
+   placeholder column when the field is "Don't change" / "Clear". */
+.qe-image-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* "Don't change" option in the popup and on the trigger should read as a
+   real choice (matching the other items like "Set to", "Increase by amount")
+   rather than as a placeholder hint. Use the default body text color. */
+.qe-status-item-muted {
+  color: #1e1e1e;
+}
+
+.qe-drawer-popup [class*="__is-placeholder"] {
+  color: #1e1e1e;
+}
+
+/* "(Mixed)" placeholders — appears in (a) conservative plain fields wrapped
+   in .qe-mixed-field and (b) transform-variant disabled value inputs that
+   sit next to "Don't change" mode dropdowns. Uses #5d5d5d per design spec. */
+.qe-mixed-field [class*="__is-placeholder"],
+.qe-mixed-field input::placeholder,
+.qe-drawer-popup input::placeholder {
+  color: #5d5d5d;
+}
+
+/* Disabled value input — paired with a "Don't change" mode dropdown.
+   Figma RSM bulk-edit (node 634:263698) shows the disabled field with a
+   filled gray background (#f0f0f0), a #cccccc border, and tertiary text
+   so the disabled state reads as "blocked by the mode column" rather than
+   "broken input." Default Base UI disabled state is just a faded border —
+   too subtle in a column-of-fields layout. */
+.qe-drawer-popup [class*="__input-layout"][class*="__is-disabled"] {
+  background: #f0f0f0;
+  border-color: #cccccc;
+}
+.qe-drawer-popup [class*="__input-layout"][class*="__is-disabled"] input,
+.qe-drawer-popup [class*="__input-layout"][class*="__is-disabled"] [class*="__input-layout-slot"] {
+  color: #5d5d5d;
+}
+/* Native ::placeholder selector — the disabled input renders "(Mixed)" via
+   the HTML placeholder attribute. WebKit/Firefox apply their own opacity
+   that washes out the color, so we set it explicitly + opacity:1. */
+.qe-drawer-popup [class*="__input-layout"][class*="__is-disabled"] input::placeholder,
+.qe-drawer-popup input::placeholder {
+  color: #5d5d5d !important;
+  opacity: 1;
+  -webkit-text-fill-color: #5d5d5d;
+}
+
+/* Same treatment for the taxonomy "Don't change" / "Clear" placeholder
+   so categories/brands/tags match the rest of the disabled-field column. */
+.qe-chip-empty {
+  background: #f0f0f0;
+  border-color: #cccccc;
+  color: #5d5d5d;
+}
+
+/* Helper / hint text under a field (e.g. SKU note about uniqueness). */
+.qe-field-help {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--wpds-color-fg-content-neutral-weak, #707070);
+  line-height: 1.4;
+}
+
+/* Disabled chip-input placeholder shown when a taxonomy mode is "Clear"
+   or "Don't change" — visually matches the empty InputLayout shell so
+   the column stays the right height. */
+.qe-chip-empty {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  background: #f6f7f7;
+  color: var(--wpds-color-fg-content-neutral-weak, #707070);
+}
+.qe-chip-empty-placeholder {
+  font-size: 13px;
+}
+
+/* Tighter image-grid variant for the bulk-edit value column. The default
+   .qe-image-grid uses 64px tiles which overflow the 1fr column when paired
+   with a mode dropdown — drop to 48px so the picker fits without wrapping. */
+.qe-image-grid-bulk {
+  gap: 6px;
+}
+.qe-image-grid-bulk .qe-image-tile,
+.qe-image-grid-bulk .qe-image-add {
+  width: 48px;
+  height: 48px;
+}
+.qe-image-grid-bulk[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Date-time trigger button styled to match a plain text input so the popover
+   pattern reads as "click the field to pick." The placeholder span uses the
+   standard placeholder gray. */
+.qe-datetime-trigger {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  background: #fff;
+  border: 1px solid #cccccc;
+  border-radius: 2px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #1e1e1e;
+  text-align: left;
+  cursor: pointer;
+}
+.qe-datetime-trigger:hover { border-color: #949494; }
+.qe-datetime-trigger:focus-visible {
+  outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+  outline-offset: 1px;
+}
+.qe-datetime-trigger-placeholder {
+  color: #8d8d8d;
+}
+
+/* DateTimePicker popover — wider than the default popover to fit the
+   calendar comfortably. */
+.qe-datetime-popup {
+  padding: 8px;
+  min-width: 280px;
+}
+
+/* "Options" popover in the drawer header — lets the user switch between the
+   Conservative and Transform UX variants on the fly. Sized small, with a
+   tiny uppercase label above the radio group. */
+.qe-options-popup {
+  background: #fff;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  min-width: 200px;
+  z-index: 120;
+}
+.qe-options-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--wpds-color-fg-content-neutral-weak, #707070);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Recent additions (migrated from the active prototype branch).
+   Append-only so later rules override earlier conflicting ones via CSS
+   cascade.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* :root z-index variables for @wordpress/ui overlays. AlertDialog / Dialog
+   popups read --wp-ui-dialog-z-index; Drawer reads --wp-ui-drawer-z-index. */
+:root {
+  --wp-ui-dialog-z-index: 1000020;
+  /* The DataViews row-actions kebab is a @wordpress/ui Menu whose positioner
+     reads --wp-ui-menu-z-index (default `initial`, i.e. auto). Without a value
+     it gets no stacking lift, so positioned rows paint over the open menu and
+     it appears invisible. Tooltip/Popover read the matching -popover- var. Set
+     both above DataViews' own internals (max 159990) and page content. */
+  --wp-ui-menu-z-index: 1000000;
+  --wp-ui-popover-z-index: 1000000;
+}
+
+/* PopoverMenu sits above every DataViews internal popover (max 159990)
+   and modal (max 1000001). */
+.pm-popup {
+  z-index: 1000010;
+}
+
+/* Balance descriptions so the last line never holds an orphan word. */
+.pm-item-desc {
+  text-wrap: pretty;
+}
+
+/* The "Images" field in the schema is toggle-only — its standalone column
+   is hidden via the marker class injected into both header and cells. */
+.dataviews-view-table th:has(.dv-images-toggle-marker),
+.dataviews-view-table td:has(.dv-images-toggle-marker) {
+  display: none;
+}
+
+/* Confirmation modals (Move to Trash / Delete permanently).
+   Default `size="small"` caps at 400px; the design wants 512px wide. */
+.confirm-modal.components-modal__frame.has-size-small {
+  max-width: 512px;
+}
+.confirm-modal .components-modal__content {
+  padding-bottom: 16px;
+}
+.confirm-modal__body {
+  margin: 0 0 24px;
+  color: #1e1e1e;
+  text-wrap: pretty;
+}
+.confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Summary column — clamp to two lines so the column doesn't stretch.
+   Same muted gray as other secondary cell text. */
+.prod-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #757575;
+  max-width: 280px;
+}
+
+/* Row + header checkbox — mirrors @wordpress/components CheckboxControl
+   visual treatment (custom drawn instead of native browser checkbox). */
+.dv-row-check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid #949494;
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  accent-color: initial;
+  transition: border-color 0.1s ease-in-out, background-color 0.1s ease-in-out;
+}
+.dv-row-check:hover {
+  border-color: var(--wp-admin-theme-color, #3858e9);
+}
+.dv-row-check:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px var(--wp-admin-theme-color, #3858e9);
+}
+.dv-row-check:checked,
+.dv-row-check:indeterminate {
+  background-color: var(--wp-admin-theme-color, #3858e9);
+  border-color: var(--wp-admin-theme-color, #3858e9);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.dv-row-check:checked {
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M9 19.4L3.3 13.7l1.4-1.4L9 16.6 19.3 6.3l1.4 1.4z' fill='%23fff'/></svg>");
+  background-size: 14px 14px;
+}
+.dv-row-check:indeterminate {
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><rect x='5' y='11' width='14' height='2' fill='%23fff'/></svg>");
+  background-size: 14px 14px;
+}
+
+/* Prevent shift-click range from highlighting all the row text. */
+.dataviews-view-table tr td:nth-child(2) {
+  user-select: none;
+}
+
+/* IMAGES label sits 8px above the thumbnail grid. */
+.qe-section-title + .qe-image-grid {
+  margin-top: 4px; /* combined with the title's 4px = 8px total spacing */
+}
+
+/* ── Drawer section spacing overrides (final) ──────────────────────────
+   Sections are separated by spacing only (no horizontal rules):
+   • 32px between sections (before each section heading)
+   • 16px between section heading and its first content row
+   ────────────────────────────────────────────────────────────────────── */
+.qe-divider {
+  display: none;
+}
+/* Title carries no bottom margin — spacing comes from the next sibling. */
+.qe-section-title {
+  margin: 0;
+}
+/* First content row after a section heading sits 16px below it. Higher
+   specificity than the generic `.qe-body > * + *` 20px rule. */
+.qe-body > h3.qe-section-title + * {
+  margin-top: 16px;
+}
+
+/* Search context: when a parent row is only present because its variations
+   matched the query (parent itself doesn't match), dim the whole parent
+   row to 60% opacity. The matched variation rows render full opacity. */
+.dataviews-view-table tbody tr:has(.prod-cell--dimmed-parent) {
+  opacity: 0.6;
+}
+
+/* Nest Downloadable / Virtual under "Simple product" in the Product type
+   filter popup. The widget renders each option as a `.dataviews-filters__
+   search-widget-listitem` containing a child `span[title="<label>"]`. We
+   target by the title attribute to indent only these two rows. The 28px
+   indent (24px checkbox + 4px gap → roughly the start of the parent label
+   text) keeps the inner checkbox→label gap intact. */
+.dataviews-filters__search-widget-listitem:has(> span[title="Downloadable"]),
+.dataviews-filters__search-widget-listitem:has(> span[title="Virtual"]) {
+  padding-left: 36px;
+}
+
+/* Custom empty state for the products table (passed via DataViews `empty`).
+   Stacked column: sticker → title → body → Clear filters button. Mirrors
+   Figma RSM design. */
+.products-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 80px 24px;
+  text-align: center;
+}
+.products-empty-state__icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+.products-empty-state__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e1e1e;
+}
+.products-empty-state__body {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #757575;
+  max-width: 360px;
+  text-wrap: pretty;
+}
+
+/* ── Media picker modal ─────────────────────────────────────────────────
+   Triggered by the "+" button in the Quick Edit drawer's Images section.
+   Lets the user pick atelier-aura images to add to the product gallery. */
+.media-picker-modal .components-modal__content {
+  padding-block-start: 16px;
+  padding-block-end: 16px;
+}
+.media-picker__toolbar {
+  margin-bottom: 16px;
+  max-width: 320px;
+}
+.media-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  padding-bottom: 16px;
+}
+.media-picker__tile {
+  position: relative;
+  aspect-ratio: 1;
+  background: #f0f0f0 center/cover no-repeat;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 120ms ease;
+}
+.media-picker__tile:hover:not(.is-disabled) {
+  box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color, #3858e9);
+}
+.media-picker__tile.is-checked {
+  box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color, #3858e9);
+}
+.media-picker__tile.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.media-picker__check {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #fff;
+  border-radius: 2px;
+  padding: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+}
+.media-picker__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 16px;
+  margin-top: 8px;
+}
+.media-picker__count {
+  font-size: 13px;
+  color: #1e1e1e;
+}
+
+/* ── Iteration switcher ──────────────────────────────────────────────────
+   Fixed floating button in the bottom-left corner showing the current
+   iteration. Solid WP-blue background so it pops against the page chrome. */
+.iteration-fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 999;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 12px;
+  background: #fff;
+  color: #1e1e1e;
+  border: 1px solid #e0e0e0;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.iteration-fab:hover {
+  background: #f6f7f7;
+}
+.iteration-fab svg {
+  fill: currentColor;
+}
+.iteration-popup {
+  position: fixed;
+  bottom: 72px;
+  left: 24px;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  min-width: 300px;
+}
+.iteration-popup__label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #757575;
+  padding: 8px 12px 4px;
+  letter-spacing: 0.04em;
+}
+/* Second (and later) section headers in the States popover — add a divider
+   and a little breathing room above the group. */
+.iteration-popup__label--group {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+.iteration-popup__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: #1e1e1e;
+  text-align: left;
+}
+.iteration-popup__item:hover {
+  background: #f6f7f7;
+}
+.iteration-popup__radio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #949494;
+  background: #fff;
+  flex-shrink: 0;
+}
+.iteration-popup__item.is-selected .iteration-popup__radio {
+  border-color: var(--wp-admin-theme-color, #3858e9);
+  border-width: 2px;
+}
+.iteration-popup__radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+}
+.iteration-popup__item.is-selected .iteration-popup__radio-dot {
+  background: var(--wp-admin-theme-color, #3858e9);
+}
+/* Store-size switcher option: stacked name + distribution hint. */
+.store-popup__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.store-popup__name {
+  font-size: 13px;
+  color: #1e1e1e;
+}
+.store-popup__hint {
+  font-size: 11px;
+  color: #757575;
+  white-space: nowrap;
+}
+
+/* ── Attributes section (Quick Edit drawer, Attributes iteration only) ── */
+.qe-attr-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* Spacing between consecutive attribute rows = 16px (overrides the generic
+   `.qe-body > * + *` 20px rule for this specific section). */
+.qe-body > .qe-attr-row + .qe-attr-row {
+  margin-top: 16px;
+}
+.qe-attr-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.qe-attr-row-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #1e1e1e;
+}
+.qe-attr-row-remove {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #757575;
+  border-radius: 2px;
+}
+.qe-attr-row-remove:hover {
+  color: #1e1e1e;
+  background: #f0f0f0;
+}
+.qe-attr-adder {
+  position: relative;
+  margin-top: 4px;
+}
+.qe-attr-adder-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--wp-admin-theme-color, #3858e9);
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.qe-attr-adder-trigger:disabled {
+  color: #949494;
+  cursor: not-allowed;
+}
+.qe-attr-adder-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  min-width: 180px;
+  z-index: 10;
+}
+.qe-attr-adder-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: #1e1e1e;
+  text-align: left;
+}
+.qe-attr-adder-item:hover {
+  background: #f6f7f7;
+}
+
+/* Submenu opened off the injected "Attribute" entry in the Add filter
+   dropdown (Attributes iteration). */
+.attr-submenu {
+  z-index: 1000020;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  min-width: 160px;
+}
+.attr-submenu__item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: #1e1e1e;
+  text-align: left;
+}
+.attr-submenu__item:hover {
+  background: #f6f7f7;
+}
+
+/* ── Attributes-iteration custom Add filter ─────────────────────────────
+   When the Attributes iteration is active we render our own funnel-icon
+   button next to DataViews' (which we visually hide). The hidden button
+   stays in the DOM so we can programmatically click it to surface the
+   filter chips row after adding a filter via the custom menu. */
+body.is-attr-iteration .dataviews-filters__container-visibility-toggle {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  pointer-events: none !important;
+}
+/* Hide DataViews' chip-row Add filter button — we portal our own
+   AttributeAddFilter (in text variant) next to it for parity. */
+body.is-attr-iteration .dv-filters-row .dataviews-filters-button {
+  display: none !important;
+}
+/* Text variant of our Add filter, styled to match the original blue link. */
+.attr-add-filter-text {
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  color: var(--wp-admin-theme-color, #3858e9);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.attr-add-filter-text:hover {
+  background: rgba(56, 88, 233, 0.06);
+}
+
+/* Custom Add-filter menu used in the Attributes iteration. Mirrors the
+   look of the Menu component from @wordpress/components with a nested
+   submenu (Attribute → Fragrance/Size/Color). */
+.attr-menu {
+  z-index: 1000020;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  min-width: 200px;
+}
+.attr-menu__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: #1e1e1e;
+  text-align: left;
+  gap: 8px;
+}
+.attr-menu__item:hover,
+.attr-menu__item--submenu.is-open {
+  background: var(--wp-admin-theme-color, #3858e9);
+  color: #fff;
+}
+.attr-menu__chev {
+  opacity: 0.7;
+}
+
+/* ---------- Categories screen ---------- */
+
+.cat-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding-inline-start: calc( var(--cat-level, 0) * 24px );
+}
+
+.cat-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+  color: #757575;
+  flex-shrink: 0;
+}
+
+.cat-chevron:hover {
+  background: #f0f0f0;
+}
+
+.cat-chevron--spacer {
+  cursor: default;
+}
+
+.cat-chevron--spacer:hover {
+  background: transparent;
+}
+
+.cat-name-label {
+  font-weight: 500;
+  color: #1e1e1e;
+}
+
+.cat-slug {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: #757575;
+  background: #f6f7f7;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.cat-muted {
+  color: #757575;
+}
+
+.cat-product-count {
+  color: #757575;
+  text-decoration: none;
+}
+
+/* Category name + post count are link-like: on hover they turn brand blue and
+   keep the underline. (Matches the List-view title hover below.) */
+.cat-product-count:hover {
+  color: var(--wp-admin-theme-color, #3858e9);
+  text-decoration: underline;
+}
+
+.prod-title:hover {
+  color: var(--wp-admin-theme-color, #3858e9);
+  text-decoration: underline;
+}
+
+/* (Product count and Date column alignment are handled natively by
+   DataViews via field `type`: 'integer' auto-aligns to end; absence of
+   `type` defaults to start. Same pattern Products uses for Price + Date.) */
+
+/* Delete action — render menu items whose text is "Delete" in red. The
+   class is applied by a MutationObserver in CategoriesScreen.tsx because
+   CSS can't match by text content and DataViews' menu items expose neither
+   `action.id` nor `aria-label` on the rendered DOM. Scoping by text means
+   the filter dropdown (`Category view` / `Product count`) is unaffected. */
+[role="menuitem"].cat-action-delete {
+  color: #cc1818 !important;
+}
+[role="menuitem"].cat-action-delete:hover,
+[role="menuitem"].cat-action-delete[data-active-item],
+[role="menuitem"].cat-action-delete[data-highlighted],
+[role="menuitem"].cat-action-delete:focus {
+  color: #cc1818 !important;
+  background-color: rgba( 204, 24, 24, 0.08 ) !important;
+}
+
+/* Description column — single-line truncation matching the other text columns. */
+.cat-description-cell {
+  display: inline-block;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #757575;
+  vertical-align: middle;
+}
+
+/* Expand-all / Collapse-all icon-button bar above the DataViews table.
+   px values match the existing prototype convention (8px / 24px). */
+.cat-toolbar {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  padding: 8px 24px 0;
+}
+
+/* ── Categories Quick Edit drawer ──────────────────────────────────────── */
+
+.cat-drawer {
+  width: 450px;
+  max-width: 90vw;
+}
+
+.cat-drawer-section {
+  padding-block: 32px 0;
+}
+
+.cat-drawer-section:first-of-type {
+  padding-block-start: 16px;
+}
+
+/* Section title used in the categories drawer — smaller, uppercase, muted.
+   Uses #5d5d5d which is already in this file (see qe-mixed-field rules). */
+.cat-drawer-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #5d5d5d;
+  margin: 0 0 16px;
+}
+
+/* Parent placeholder button spans full width to match adjacent inputs. */
+.cat-parent-placeholder {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* ── ParentCategoryPicker ──────────────────────────────────────────────── */
+
+/* Trigger button — visually identical to the @wordpress/ui Select trigger
+   wrapped by an InputLayout. Uses the same WPDS design tokens so it adopts
+   the design system's height (40px default, 32px compact), padding, border,
+   font, and hover/focus treatment automatically. Combined CSS from
+   InputLayout (`form/primitives/input-layout/style.module.css`) and
+   Select.Trigger (`utils/css/select-trigger.module.css`). */
+.cat-parent-picker-trigger {
+  --wp-ui-input-layout-padding-inline: var( --wpds-dimension-padding-md, 12px );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var( --wpds-dimension-gap-xs, 4px );
+  width: 100%;
+  height: 40px;
+  padding-block: 4px;
+  padding-inline-start: var( --wp-ui-input-layout-padding-inline );
+  padding-inline-end: calc( var( --wp-ui-input-layout-padding-inline ) - 4px );
+  background-color: var( --wpds-color-bg-interactive-neutral-weak, #fff );
+  border-width: var( --wpds-border-width-xs, 1px );
+  border-style: solid;
+  border-color: var( --wpds-color-stroke-interactive-neutral, #949494 );
+  border-radius: var( --wpds-border-radius-sm, 2px );
+  font-family: var( --wpds-typography-font-family-body, inherit );
+  font-size: var( --wpds-typography-font-size-md, 13px );
+  line-height: 1.4;
+  color: var( --wpds-color-fg-interactive-neutral, #1e1e1e );
+  cursor: pointer;
+  text-align: start;
+}
+
+.cat-parent-picker-trigger__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-parent-picker-trigger:hover {
+  border-color: var( --wpds-color-stroke-interactive-neutral-active, #757575 );
+}
+
+.cat-parent-picker-trigger:focus-visible {
+  outline: 2px solid var( --wpds-color-stroke-focus-brand, #3858e9 );
+  outline-offset: -1px;
+}
+
+/* Picker popover panel */
+.cat-parent-picker {
+  width: 320px;
+  max-height: 360px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+/* Search bar */
+.cat-parent-picker-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.cat-parent-picker-search-input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-size: 13px;
+  background: transparent;
+  color: #1e1e1e;
+}
+
+.cat-parent-picker-search-input::placeholder {
+  color: #757575;
+}
+
+/* Scrollable list */
+.cat-parent-picker-list {
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+/* Each row */
+.cat-parent-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  text-align: left;
+}
+
+.cat-parent-picker-row:hover {
+  background: #f6f7f7;
+}
+
+.cat-parent-picker-row.is-selected {
+  background: #eef4fb;
+}
+
+.cat-parent-picker-row.is-disabled {
+  opacity: 0.4;
+}
+
+/* Row label button */
+.cat-parent-picker-label {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+  text-align: left;
+  color: #1e1e1e;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.cat-parent-picker-label:disabled {
+  cursor: not-allowed;
+}
+
+/* Empty state */
+.cat-parent-picker-empty {
+  padding: 16px 12px;
+  font-size: 12px;
+  color: #757575;
+  text-align: center;
+}
+
+/* ── MediaPickerSingle (Thumbnail field) ─────────────────────────────────
+   Image-present row matches the Figma at node 850:32838: 32×32 thumb +
+   filename text on the left, close-small (X) icon on the right. */
+
+.cat-image-single {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cat-image-filename-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 4px;
+  width: 100%;
+}
+
+.cat-image-filename-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+}
+
+.cat-image-filename-thumb {
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba( 0, 0, 0, 0.1 );
+  border-radius: 6px;
+  background: #f0f0f0 center/cover no-repeat;
+  flex-shrink: 0;
+  display: block;
+}
+
+.cat-image-filename-text {
+  font-size: 13px;
+  line-height: 16px;
+  color: #1e1e1e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.cat-image-filename-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: #1e1e1e;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.cat-image-filename-remove:hover {
+  background: rgba( 0, 0, 0, 0.04 );
+}
+
+.cat-image-filename-remove:focus-visible {
+  outline: 2px solid var( --wpds-color-stroke-focus-brand, #3858e9 );
+  outline-offset: -1px;
+}
+
+/* "Add image" dashed placeholder button — matches the Figma thumbnail field
+   (850-33448): full width, dashed gray-600 border, centered theme-colored
+   "Add image" label, 8px padding, 2px radius. */
+.cat-image-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px;
+  background: #fff;
+  border: 1px dashed #949494;
+  border-radius: 2px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--wpds-color-fg-interactive-brand, #3858e9);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.cat-image-add:hover {
+  background: var(--wpds-color-bg-interactive-brand-weak-active, #e6eaf4);
+  border-color: var(--wpds-color-stroke-focus-brand, #3858e9);
+}
+
+/* ── Bulk Edit Category Drawer ──────────────────────────────────────────── */
+
+.cat-bulk-row {
+  padding-block: 32px 0;
+}
+
+.cat-bulk-row:first-of-type {
+  padding-block-start: 16px;
+}
+
+.cat-bulk-row-control {
+  margin-block-start: 8px;
+}
+
+/* Mixed-state placeholder color for the description textarea */
+.cat-bulk-mixed textarea {
+  color: #757575;
+}
+
+/* ── Drag-to-reorder (Task 10) ──────────────────────────────────────────── */
+
+/* 6-dot drag handle — hidden by default, revealed on row hover.
+   Uses #c3c4c7 which is already the palette's "UI control light gray"
+   (also used for the toggle off-state background above). */
+.cat-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 24px;
+  cursor: grab;
+  color: #c3c4c7;
+  font-size: 16px;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+  flex-shrink: 0;
+}
+
+.cat-name-cell:hover .cat-drag-handle {
+  opacity: 1;
+}
+
+/* While a row is being dragged, dim it so the ghost reads clearly. */
+.cat-name-cell.is-dragging {
+  opacity: 0.5;
+}
+
+/* Drop indicators — horizontal line between rows (before / after)
+   or blue tinted background for reparent (inside). */
+.cat-name-cell {
+  position: relative; /* anchor for ::before / ::after pseudo-elements */
+}
+
+.cat-name-cell.is-drop-before::before,
+.cat-name-cell.is-drop-after::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var( --wp-admin-theme-color );
+  pointer-events: none;
+}
+
+.cat-name-cell.is-drop-before::before { top: 0; }
+.cat-name-cell.is-drop-after::after  { bottom: 0; }
+
+/* Inside / reparent highlight — uses the same rgba tint already used in
+   .attr-add-filter-text:hover (rgba(56,88,233,0.06)), bumped to 0.08. */
+.cat-name-cell.is-drop-inside {
+  background: rgba( 56, 88, 233, 0.08 );
+  box-shadow: inset 0 0 0 1px var( --wp-admin-theme-color );
+}
+
+/* ── Snackbar stack ──────────────────────────────────────────────────────
+   `<Snackbar>` from @wordpress/components ships its own visual style; this
+   container positions the stack: fixed at bottom-center of the viewport,
+   stacking multiple snackbars vertically with an 8px gap. */
+
+.cat-snackbar-list {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX( -50% );
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none; /* Let the table receive clicks behind the stack… */
+}
+
+.cat-snackbar-list > * {
+  pointer-events: auto; /* …but the snackbars themselves are interactive. */
+}
+
+/* ── Category delete / confirm dialog ────────────────────────────────────── */
+
+/* Reuse the existing confirm-modal sizing for category delete modal. */
+.cat-confirm-dialog.components-modal__frame.has-size-small {
+  max-width: 512px;
+}
+.cat-confirm-dialog .components-modal__content {
+  padding-bottom: 16px;
+}
+.cat-confirm-dialog__body p {
+  margin: 0 0 12px;
+  color: #1e1e1e;
+  text-wrap: pretty;
+}
+.cat-confirm-dialog__body p:last-child {
+  margin-bottom: 0;
+}
+
+.cat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* Note: the "Delete" button in the cat confirm dialog uses
+   WPButton isDestructive from @wordpress/components, matching the pattern
+   established in App.tsx for the product delete modal. */
+
+/* Screen-reader-only helper — visually hides content while keeping it
+   accessible to assistive technology (used for the aria-live announcer). */
+.cat-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect( 0 0 0 0 );
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================================
+   Merge Categories Dialog
+   ========================================================================= */
+
+.cat-merge-dialog {
+  width: 560px;
+  max-width: 90vw;
+}
+
+.cat-merge-radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 16px 0;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/* #757575 is gray-700 from the project palette (see header comment). */
+.cat-merge-radio-meta {
+  font-size: 12px;
+  color: #757575;
+  margin-top: 2px;
+}
+
+.cat-merge-back {
+  background: transparent;
+  border: 0;
+  color: var( --wp-admin-theme-color );
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+/* Cap the Page header subtitle / description width so long copy stays
+   readable (matches the design's 680px line-length on Attributes etc). */
+.admin-ui-page__header-subtitle {
+  max-width: 680px;
+}
+
+/* Attributes screen — Values column renders inline badges with truncation. */
+.attr-values-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Attributes screen — primary cell has no chevron/thumbnail (no nesting,
+   no image). Just checkbox + name. */
+.attr-name-cell .dv-row-check + .prod-name-group {
+  margin-inline-start: 12px;
+}
+
+/* `CheckboxControl`'s `help` slot ships with a wider line-height than
+   `Field.Description`. Tighten it (and align spacing) so the helper text
+   under the "Enable pages for each value" checkbox matches the rest of
+   the drawer's helper text visually. */
+.attr-pages-toggle .components-base-control__help {
+  font-size: 12px;
+  line-height: 16px;
+  margin: 4px 0 0;
+  color: #757575;
+  text-wrap: pretty;
+}
+
+/* Avoid widows in drawer body text. `text-wrap: pretty` rebalances the last
+   two lines of any block-level text so single-word last lines don't appear
+   (helper text under fields, field descriptions, etc). The property inherits,
+   so setting it on `.qe-body` covers every nested label / description /
+   hint inside the Quick edit, Bulk edit, and Add new drawers. */
+.qe-body {
+  text-wrap: pretty;
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   Variations drill-in
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Chevron-only nesting (categories / brands): a bare chevron after the name
+   (reuses .chev-btn styling). Don't let it shrink in the flex name group. */
+.chev-after {
+  flex-shrink: 0;
+}
+
+/* Interactive variation-count badge in the product name cell — wraps the DS
+   Badge in a button that drills in to the variations screen (replaces the old
+   expand/collapse chevron). The prototype's unlayered rules win over the
+   Badge's own @layer styles, so we can restyle its inner pill on hover.
+   `[class*="badge"]` targets the DS Badge's hashed CSS-module class. */
+.variations-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--wpds-border-radius-lg, 8px);
+  flex-shrink: 0;
+  color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+}
+.variations-badge-btn:focus-visible {
+  outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+  outline-offset: 1px;
+}
+.variations-badge-btn [class*="badge"] {
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.1s ease-in-out;
+}
+.variations-badge-btn:hover [class*="badge"] {
+  background: var(--wpds-color-bg-surface-neutral-weak, #f4f4f4);
+}
+/* Count text + drill-in chevron, laid out inside the badge pill. */
+.variations-badge-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.variations-badge-inner svg {
+  /* Match the badge's text color (darker gray) — no dimming. */
+  fill: currentColor;
+  flex-shrink: 0;
+  margin-inline-end: -2px;
+}
+
+/* Breadcrumb header on the variations screen — sits in the Page `breadcrumbs`
+   slot and matches the page-title typography. "Products" navigates back. */
+.variations-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-family: var(--wpds-typography-font-family-heading, -apple-system, system-ui, sans-serif);
+  font-size: var(--wpds-typography-font-size-lg, 15px);
+  font-weight: var(--wpds-typography-font-weight-medium, 499);
+  line-height: var(--wpds-typography-line-height-lg, 28px);
+}
+.variations-breadcrumb__link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  /* Per design: dark gray + underlined (not the theme blue). */
+  color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+  text-decoration: underline;
+  cursor: pointer;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.variations-breadcrumb__link:hover {
+  opacity: 0.7;
+}
+.variations-breadcrumb__link:focus-visible {
+  outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+  outline-offset: 2px;
+}
+.variations-breadcrumb__sep {
+  color: var(--wpds-color-fg-content-neutral-weak, #707070);
+  flex-shrink: 0;
+}
+.variations-breadcrumb__current {
+  color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Variation rows have no chevron, so the name-column header needs no chevron
+   compensation. Zero the 28px padding (which exists for the chevron on the
+   products/categories screens) so the header checkbox + label align with the
+   row content at the standard 24px column padding. */
+body.is-variations-screen .prod-cell--header {
+  padding-left: 0;
+}
+
+/* On the variations screen, hide DataViews' native funnel button so our custom
+   VariationsFilterMenu (which reuses the same visual button) stands in its
+   place. The native button stays in the DOM — clicked programmatically — to
+   reveal the filter-chips row. Mirrors the Attributes-iteration trick. */
+body.is-variations-screen .dataviews-filters__container-visibility-toggle {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  pointer-events: none !important;
+}
+
+/* Clickable title = preview trigger in List view. */
+.prod-title[role="button"] {
+  cursor: pointer;
+}
+.prod-title[role="button"]:hover {
+  color: var(--wp-admin-theme-color, #3858e9);
+}
+.prod-title.is-preview-active {
+  color: var(--wp-admin-theme-color, #3858e9);
+}
+
+/* List view: the nesting chevron is the leading media element, so the title +
+   native fields align in the column beside it. DataViews styles the media
+   wrapper as a bordered ~48px thumbnail box by default — collapse it fully to
+   the chevron. High specificity + !important so it always beats DataViews'
+   own media styling (which otherwise renders as a box around the chevron). */
+body.is-list-preview .dataviews-view-list .dataviews-view-list__media-wrapper {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+/* DataViews draws a subtle thumbnail-border ring via the media wrapper's
+   ::after pseudo-element (content:""; box-shadow ring). With a chevron instead
+   of an image that ring reads as a box around the chevron — remove it. */
+body.is-list-preview .dataviews-view-list .dataviews-view-list__media-wrapper::after {
+  display: none !important;
+  content: none !important;
+  box-shadow: none !important;
+}
+.cat-list-lead {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  /* Sit above DataViews' full-row click overlay (z-index 1) so clicking the
+     chevron expands/collapses instead of selecting the row. */
+  position: relative;
+  z-index: 2;
+}
+.cat-list-desc {
+  font-weight: 400;
+  color: #757575;
+}
+
+/* Selected-row highlight for the Table view — match DataViews' native list
+   selection tint (subtle theme colour) so the two layouts are consistent. The
+   List view already uses this natively. */
+.dataviews-view-table tbody tr.is-selected {
+  background-color: rgba( var( --wp-admin-theme-color--rgb, 56, 88, 233 ), 0.08 );
+}
+
+/* ── Mock front-end preview ──────────────────────────────────────────────── */
+.cat-preview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid #dcdcde;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.cat-preview__empty {
+  margin: auto;
+  padding: 40px;
+  color: #787c82;
+  text-align: center;
+}
+.cat-preview__chrome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #f6f7f7;
+  border-bottom: 1px solid #dcdcde;
+  flex: 0 0 auto;
+}
+.cat-preview__dots {
+  display: inline-flex;
+  gap: 5px;
+}
+.cat-preview__dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d5d7da;
+}
+.cat-preview__url {
+  flex: 1;
+  font-size: 12px;
+  color: #787c82;
+  background: #fff;
+  border: 1px solid #e4e6e8;
+  border-radius: 4px;
+  padding: 4px 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cat-preview__scroll {
+  flex: 1;
+  overflow: auto;
+}
+
+/* Front-end theme chrome (deliberately un-WP-admin: this is a site front end) */
+.cat-preview__site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 32px;
+  border-bottom: 1px solid #ececec;
+}
+.cat-preview__brand {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: #1a1a1a;
+}
+.cat-preview__nav {
+  display: flex;
+  gap: 20px;
+  color: #6b7177;
+  font-size: 14px;
+}
+.cat-preview__main {
+  padding: 36px 32px 48px;
+  max-width: 760px;
+}
+.cat-preview__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  color: #9098a0;
+  margin: 0 0 8px;
+}
+.cat-preview__heading {
+  font-size: 34px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 750;
+  color: #16181a;
+  margin: 0 0 12px;
+}
+.cat-preview__intro {
+  font-size: 16px;
+  color: #565d64;
+  line-height: 1.6;
+  margin: 0 0 34px;
+}
+.cat-preview__posts {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.cat-preview__post {
+  display: flex;
+  gap: 16px;
+}
+.cat-preview__thumb {
+  flex: 0 0 104px;
+  height: 104px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #eef0f1 0%, #dfe3e6 100%);
+}
+.cat-preview__post-body {
+  min-width: 0;
+}
+.cat-preview__post-title {
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 650;
+  color: #16181a;
+  margin: 0 0 4px;
+}
+.cat-preview__post-meta {
+  font-size: 13px;
+  color: #9098a0;
+  margin: 0 0 8px;
+}
+.cat-preview__post-excerpt {
+  font-size: 14px;
+  color: #565d64;
+  line-height: 1.55;
+  margin: 0;
+}
+.cat-preview__no-posts {
+  color: #787c82;
+  font-size: 15px;
+}
+
+/* Grid: the always-visible CTA is a full-width button forming the card's last
+   row (a `cta` field). Outline so it reads as secondary to the card itself. The
+   grid lays each field as name + value; here the name is redundant (the button
+   says it), so drop it and let the value span the row. */
+/* Prefixed with `.dataviews-view-grid__card` to out-specify the Flex component's
+   own emotion class (injected at runtime, so it otherwise wins the cascade). */
+.dataviews-view-grid__card .dataviews-view-grid__field:has( .post-card-cta ) {
+  display: block;
+  margin-top: 4px;
+}
+.dataviews-view-grid__card .dataviews-view-grid__field:has( .post-card-cta ) .dataviews-view-grid__field-name {
+  display: none;
+}
+/* Let the value cell fill the row so the button can span the whole card. */
+.dataviews-view-grid__card .dataviews-view-grid__field:has( .post-card-cta ) .dataviews-view-grid__field-value {
+  display: block;
+  width: 100%;
+}
+/* The card button is `@wordpress/ui`'s Button, whose class is hashed — not
+   `.components-button` — so target the element. */
+.post-card-cta button {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ── CTA mode: always visible ────────────────────────────────────────────────
+   The prototype-wide "always visible" option (Prototype settings → CTA mode).
+   Each DataViews layout hides its row actions until the row is hovered/focused
+   — the table fades them with opacity, the list collapses them to zero width,
+   the grid fades the whole overlay. This undoes that, so the primary action is
+   simply there. Reveal only: the buttons keep DataViews' neutral styling. The
+   Payments tab layers its own solid/outline emphasis on top (payments.css),
+   scoped to `.pay-table` so no other tab is restyled. The kebab
+   (`.dataviews-all-actions-button`) is left to each layout's own rules. */
+body.is-cta-always .dataviews-view-table tr .dataviews-item-actions .components-button:not( .dataviews-all-actions-button ) {
+  opacity: 1;
+}
+body.is-cta-always .dataviews-view-list div[role='row'] .dataviews-view-list__item-actions > :not( :last-child ) {
+  flex-basis: min-content;
+  width: auto;
+  overflow: unset;
+}
+/* Grid intentionally omitted: its always-visible CTA is a button on the card
+   face (a `cta` field — see PostsScreen), and the kebab overlay stays on hover. */
+
+
+/* Disputes (Flat table) always-mode CTA — the `dispute-cta` column with the
+   design system's real Button (solid to respond, outline to view). Present only
+   in always mode; on hover the CTA is the DataViews primary action instead. The
+   button hugs the right of its cell so the gap to the kebab is constant. */
+.dispute-cta {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+/* Pin the CTA column against the actions column so button + kebab read as one
+   cluster. The table is wide and scrolls, so the CTA column is sticky right
+   beside the (also sticky) actions column. `right` = actions-column width. */
+.post-table-dnd .dataviews-view-table td.dataviews-view-table__actions-column,
+.post-table-dnd .dataviews-view-table th.dataviews-view-table__actions-column {
+  padding-inline-start: var( --wpds-dimension-gap-lg, 16px );
+}
+.post-table-dnd .dataviews-view-table td:has( .dispute-cta ),
+.post-table-dnd .dataviews-view-table th:has( .dispute-cta-header ) {
+  position: sticky;
+  right: 56px;
+  z-index: 1;
+  width: 1%;
+  white-space: nowrap;
+  padding-inline-end: 0;
+  text-align: right;
+  background: var( --wp-dataviews-color-background, #fff );
+}
+
+/* Disputes (Flat table): the Order cell is a link, in the admin theme colour. */
+.dispute-order-link {
+  color: var( --wp-admin-theme-color, #3858e9 );
+  text-decoration: none;
+}
+.dispute-order-link:hover {
+  text-decoration: underline;
+}
+
+
+/* ── Tree 1 always-visible CTA ────────────────────────────────────────────────
+   The `cat-cta` column with the design system's real Button (outline), rendered
+   exactly like the Payments tab's `pay-cta`. Only present in always mode (see
+   `tableFields`/`dvView`); on hover the CTA is the primary 'edit' action. */
+.cat-cta {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+/* Table: pin the CTA column flush against the actions column, so button + kebab
+   read as one cluster. */
+.cat-main-card .dataviews-view-table td:has( .cat-cta ) {
+  width: 1%;
+  white-space: nowrap;
+  padding-inline-end: 0;
+  text-align: right;
+}
+.cat-main-card .dataviews-view-table td.dataviews-view-table__actions-column,
+.cat-main-card .dataviews-view-table th.dataviews-view-table__actions-column {
+  padding-inline-start: var( --wpds-dimension-gap-lg, 16px );
+}
+/* List: the CTA field would otherwise stack under the title among the other
+   fields (slug · posts · date). Lift just the CTA out beside the kebab — the
+   item wrapper is the positioning context — and collapse the empty field row it
+   leaves behind. Mirrors the Payments list treatment. */
+body.is-list-preview .cat-main-card .dataviews-view-list__item-wrapper {
+  position: relative;
+}
+body.is-list-preview .cat-main-card .dataviews-view-list__field:has( .cat-cta ) {
+  height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+body.is-list-preview .cat-main-card .dataviews-view-list div[role='row'] .cat-cta {
+  position: absolute;
+  /* DataViews pins its actions box 16px down from the wrapper top, 24px tall;
+     sit on that axis, just left of the kebab. */
+  top: 16px;
+  height: 24px;
+  align-items: center;
+  right: 56px;
+  width: auto;
+}
+
+/* ── Prototype switcher — a floating control at the foot of the sidebar. Its
+   first section picks the iteration (the prototype's primary choice); the rest
+   is whatever settings that iteration brings. Fixed over the dark sidebar
+   chrome; its popover opens upward. */
+.store-switcher {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  width: 148px;
+  z-index: 1000;
+}
+.store-switcher__btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: #2c3338;
+  color: #f0f0f0;
+  border: 1px solid #3c434a;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+.store-switcher__btn:hover { background: #32373c; }
+.store-switcher__btn svg { fill: currentColor; flex: none; }
+.store-switcher__btn-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.store-switcher__btn-caption {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a2aab2;
+  line-height: 1.4;
+}
+.store-switcher__btn-value {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+/* What the active iteration adds after its own name ("i2 · Cards") — the same
+   line, dropped back so the iteration still reads first. */
+.store-switcher__btn-detail {
+  font-weight: 400;
+  color: #a2aab2;
+}
+.store-switcher__popup {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  /* Wide enough that the longest option ("Group Stripe's methods", label plus
+     its switch) stays on one line. */
+  min-width: 222px;
+  padding: 6px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  /* With the iteration section on top the menu can outgrow a short window, and
+     it opens upward — so cap it at the viewport and scroll rather than letting
+     the first options disappear off the top. */
+  max-height: calc( 100vh - 64px );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.store-switcher__label {
+  padding: 6px 8px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #757575;
+}
+.store-switcher__divider {
+  height: 1px;
+  margin: 6px 0;
+  background: #e0e0e0;
+}
+.store-switcher__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: #1e1e1e;
+  text-align: left;
+}
+.store-switcher__item:hover { background: #f0f0f1; }
+.store-switcher__radio {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border: 1.5px solid #c3c4c7;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.store-switcher__item.is-selected .store-switcher__radio {
+  border-color: #3858e9;
+}
+.store-switcher__radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+}
+.store-switcher__item.is-selected .store-switcher__radio-dot {
+  background: #3858e9;
+}
+/* A radio with a second, muted line under its label (the iteration picks): the
+   dot keeps to the first line's height rather than centring on the pair. */
+.store-switcher__item--stacked {
+  align-items: flex-start;
+}
+.store-switcher__item--stacked .store-switcher__radio {
+  margin-top: 2px;
+}
+.store-switcher__item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.store-switcher__item-hint {
+  font-size: 11px;
+  line-height: 1.35;
+  color: #757575;
+}
+/* An iteration with no settings of its own yet — a line, so the popover stops
+   at the divider rather than looking cut off. */
+.store-switcher__empty {
+  margin: 0;
+  padding: 4px 8px 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #757575;
+}
+/* On/off options read as switches rather than radios, and the switch trails the
+   label (the wp-admin `FormToggle` arrangement) instead of leading it like the
+   radio dot — so the label edge stays flush down the whole popover. */
+.store-switcher__item--toggle {
+  justify-content: space-between;
+  gap: 12px;
+}
+/* A section heading that is itself a toggle (Incentives): the label's own type
+   on the left, the switch on the right — replacing a label + item pair. */
+.store-switcher__item--heading {
+  padding-block: 6px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #757575;
+}
+.store-switcher__switch {
+  position: relative;
+  flex: none;
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: #c3c4c7;
+  transition: background 0.12s ease-in-out;
+}
+.store-switcher__switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.12s ease-in-out;
+}
+.store-switcher__item.is-selected .store-switcher__switch {
+  background: #3858e9;
+}
+.store-switcher__item.is-selected .store-switcher__switch-knob {
+  transform: translateX( 14px );
+}
+@media ( prefers-reduced-motion: reduce ) {
+  .store-switcher__switch,
+  .store-switcher__switch-knob {
+    transition: none;
+  }
+}
+

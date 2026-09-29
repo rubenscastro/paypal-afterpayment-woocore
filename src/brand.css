@@ -1,0 +1,90 @@
+/* ── Brand furniture ─────────────────────────────────────────────────────────
+   Presentation of WooCommerce's own marks — the "Official" badge and the row of
+   supported payment-method logos. Neither carries an iteration's design
+   decisions (the logo row's class names are upstream WooCommerce's), so both
+   live here with the shell rather than inside i2 or i3, and both iterations
+   render the same components from `src/`.
+
+   Loaded after `styles.css` and before each iteration's stylesheet, so an
+   iteration can still override anything here. */
+
+.pay-official {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: #3c434a;
+}
+.pay-official__mark {
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- WooPayments supported-methods logo row ----------
+   Ported from @woocommerce/onboarding's WooPaymentsMethodsLogos (SCSS vars
+   resolved: $gap-small 8px, $gap-smaller 4px, $gray-100 #f0f0f0, $gray-700
+   #757575, $gray-900 #1e1e1e). Rendered below the Woo row's description. */
+.woocommerce-woopayments-payment-methods-logos {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+}
+.woocommerce-woopayments-payment-methods-logos img {
+  width: 38px;
+  height: 24px;
+  border-radius: 3px;
+}
+.woocommerce-woopayments-payment-methods-logos img:not( .has-background ) {
+  border: 1px solid #f0f0f0;
+}
+/* Marks with a backdrop get 2px more so they match the bordered ones' footprint. */
+.woocommerce-woopayments-payment-methods-logos img.has-background {
+  width: 40px;
+  height: 26px;
+}
+.woocommerce-woopayments-payment-methods-logos-count {
+  width: 38px;
+  height: 24px;
+  border: 1px solid transparent;
+  background-color: rgba( 117, 117, 117, 0.1 );
+  color: #1e1e1e;
+  text-align: center;
+  line-height: 24px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.woocommerce-woopayments-payment-methods-logos-count:hover {
+  cursor: pointer;
+  background-color: rgba(
+    var( --wp-admin-theme-color--rgb, 56, 88, 233 ),
+    0.15
+  );
+  border-color: var( --wp-admin-theme-color, #3858e9 );
+}
+.woocommerce-woopayments-payment-methods-logos-count:focus-visible {
+  outline: 2px solid var( --wp-admin-theme-color, #007cba );
+  outline-offset: 1px;
+}
+/* Popover (portals to <body>, so this is global, not scoped to the table). */
+.woocommerce-woopayments-payment-methods-logos-popover
+  .components-popover__content {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 3px;
+  max-width: 255px;
+  padding: 4px;
+  box-shadow: none;
+}
+.woocommerce-woopayments-payment-methods-logos-popover
+  .woocommerce-woopayments-payment-methods-logos {
+  display: grid;
+  grid-template-columns: repeat( 4, 1fr );
+  gap: 4px;
+  padding: 0;
+}
