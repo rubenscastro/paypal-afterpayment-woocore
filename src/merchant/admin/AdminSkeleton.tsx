@@ -96,26 +96,34 @@ export function WalletManageSkeleton() {
   );
 }
 
-/** Payments settings skeleton: page title + tabs + section title + provider rows. */
+/** Payments settings skeleton: page title + tabs + section head + provider rows.
+ *  Reuses the real .ps-* wrappers (.ps-header, .ps-tabs/.ps-tab,
+ *  .ps-providers-head, .ps-row) so every padding, inset and divider matches the
+ *  live page and the swap to real content doesn't shift anything. */
 export function PaymentsSkeleton() {
   return (
     <div className="ps">
       <div className="ps-header">
-        <span className="hm-sk hm-sk--title" style={ { margin: '0 0 18px' } } />
-        <div className="ps-sk-tabs">
+        <h1 className="ps-page-title"><span className="hm-sk" style={ { display: 'inline-block', width: 150, height: 23, verticalAlign: 'middle' } } /></h1>
+        <nav className="ps-tabs">
           { Array.from( { length: 6 } ).map( ( _v, i ) => (
-            <span key={ i } className="hm-sk hm-sk--tab" style={ { width: `${ 56 + ( i % 3 ) * 22 }px` } } />
+            <span key={ i } className="ps-tab">
+              <span className="hm-sk" style={ { display: 'block', width: `${ 56 + ( i % 3 ) * 22 }px`, height: 14 } } />
+            </span>
           ) ) }
-        </div>
+        </nav>
       </div>
       <div className="ps-body">
-        <span className="hm-sk hm-sk--h3" style={ { margin: '0 0 20px' } } />
+        <div className="ps-providers-head">
+          <span className="hm-sk" style={ { width: 150, height: 18 } } />
+          <span className="hm-sk" style={ { width: 190, height: 36, borderRadius: 3 } } />
+        </div>
         { [ 0, 1, 2 ].map( ( i ) => (
-          <div key={ i } className="ps-sk-row">
+          <div key={ i } className="ps-row">
             <span className="hm-sk hm-sk--logo" />
-            <div className="ps-sk-row__main">
-              <span className="hm-sk hm-sk--rowtitle" />
-              <span className="hm-sk hm-sk--line" style={ { width: '68%' } } />
+            <div className="ps-row__main">
+              <span className="hm-sk hm-sk--rowtitle" style={ { display: 'block' } } />
+              <span className="hm-sk hm-sk--line" style={ { display: 'block', width: '68%', marginTop: 8 } } />
             </div>
             <span className="hm-sk hm-sk--action" />
           </div>

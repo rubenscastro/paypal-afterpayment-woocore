@@ -35,8 +35,12 @@ export default function MerchantApp( {
   const update = ( patch: Partial< MerchantState > ) => setState( ( s ) => ( { ...s, ...patch } ) );
 
   /* Pending setup tasks (of 5) — shown as the blue badge on the Home submenu.
-     Products done = 1 step, PayPal connected = 2 steps. */
-  const completedSetup = state.paypal === 'active' ? 2 : state.productsDone ? 1 : 0;
+     Kept in sync with the Home tasklist: adding products completes both "Add
+     your products" and "Launch your store"; connecting PayPal adds "Set up
+     payments". */
+  const productsDone = state.productsDone || state.paypal === 'active';
+  const completedSetup =
+    ( productsDone ? 1 : 0 ) + ( state.paypal === 'active' ? 1 : 0 ) + ( productsDone ? 1 : 0 );
   const pendingTasks = 5 - completedSetup;
 
   /* The PayPal integration popup (mac-browser overlay). Opened from the wallet
@@ -131,7 +135,12 @@ export default function MerchantApp( {
     case 'wallet-welcome':
       return (
         <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
-          <WalletWizard onBack={ () => go( 'payments' ) } onConnect={ () => setConnectOpen( true ) } loading={ ctaLoading } />
+          <WalletWizard
+            onBack={ () => go( 'payments' ) }
+            onConnect={ () => setConnectOpen( true ) }
+            loading={ ctaLoading }
+            pendingOrder={ state.pendingPayment && state.paypal !== 'active' }
+          />
           { connectFlow }
         </WpAdminShell>
       );

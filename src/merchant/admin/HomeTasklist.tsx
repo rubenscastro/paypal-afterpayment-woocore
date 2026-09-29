@@ -5,7 +5,7 @@
  * amber action-required banner pinned to the top (the second Figma tasklist frame).
  */
 import { useEffect, useRef, useState } from 'react';
-import { Button, IconButton } from '@wordpress/ui';
+import { Badge, Button, IconButton } from '@wordpress/ui';
 import { Icon } from '@wordpress/components';
 import { moreVertical, store, commentAuthorAvatar, help, check } from '@wordpress/icons';
 import { HomeSkeleton, SetupCardSkeleton } from './AdminSkeleton';
@@ -52,25 +52,22 @@ const SETUP_HERO = {
     art: '/logos/woo/customize-store-illustration.svg',
     alt: 'Customize your store illustration',
   },
+  /* Shown once a shopper has paid but PayPal isn't connected yet — the setup card
+     pivots to completing the PayPal Wallet setup, using the wallet badge icon. */
+  paypalWallet: {
+    title: 'Set up PayPal Wallet',
+    desc: 'A customer placed an order and paid using PayPal Wallet. To receive the payment, connect PayPal Wallet to your store and complete the setup.',
+    cta: 'Set up PayPal Wallet',
+    art: '/logos/paypal/paypal-wallet-badge.svg',
+    alt: 'PayPal Wallet',
+  },
 } as const;
 
 /* Inbox notes (static prototype content). Each has its own action buttons plus a
    Dismiss; the whole row highlights on hover but isn't itself clickable. */
 const INBOX = [
   {
-    time: '11 minutes ago',
-    title: 'PayPal Working Capital',
-    body: 'Business loans from $1k to $230k for first-time borrowers. Looking to fuel your business growth? With a PayPal Working Capital loan, approved loans are funded in minutes and repaid as a share of your sales. Minimum payment required every 90 days. The lender for PayPal Working Capital is WebBank.',
-    actions: [ 'Learn More' ],
-  },
-  {
-    time: '11 minutes ago',
-    title: 'Fraud protection is now required — enable today',
-    body: 'Card networks like Visa, Mastercard and American Express now require fraud prevention controls, and non-compliance may result in fines and processing restrictions. Please enable reCAPTCHA in your PayPal Payments settings to help protect your store and maintain compliance.',
-    actions: [ 'Enable reCAPTCHA →', 'Learn more' ],
-  },
-  {
-    time: '5 hours ago',
+    time: '6 minutes ago',
     title: "Setup a Refund and Returns Policy page to boost your store's credibility.",
     body: 'We have created a sample draft Refund and Returns Policy page for you. Please have a look and update it to fit your store.',
     actions: [ 'Edit page' ],
@@ -123,6 +120,17 @@ export default function HomeTasklist( {
   const completedSteps = paymentsComplete ? 2 : productsComplete ? 1 : 0;
   const activeIndex = completedSteps;
 
+  /* Which individual steps read as done. Products (0) and payments (1) track
+     their real state; "Launch your store" (4) is marked done once products are
+     added (there's nothing more to do in the prototype), so completion isn't a
+     contiguous prefix; the remaining steps follow contiguous progress. */
+  const stepComplete = ( i: number ): boolean => {
+    if ( i === 0 ) return productsComplete;
+    if ( i === 1 ) return paymentsComplete;
+    if ( i === 4 ) return productsComplete;
+    return i < activeIndex;
+  };
+
   /* Once a shopper has paid but PayPal isn't connected yet, the tasklist pivots
      to getting paid: the "Set up payments" step reads "Set up PayPal Wallet" and
      opens the wallet setup wizard directly (rather than the Payments settings
@@ -139,7 +147,12 @@ export default function HomeTasklist( {
      task, "Start customizing your store"). */
   const hero = paymentsComplete
     ? SETUP_HERO.customize
-    : productsComplete ? SETUP_HERO.payments : SETUP_HERO.products;
+    : orderPending
+      ? SETUP_HERO.paypalWallet
+      : productsComplete ? SETUP_HERO.payments : SETUP_HERO.products;
+  /* The PayPal Wallet hero shows a small square icon (not a full illustration);
+     it renders beside the title+description and is centered against them only. */
+  const isIconHero = hero === SETUP_HERO.paypalWallet;
   const onHeroCta = paymentsComplete
     ? () => {}
     : productsComplete ? paymentsAction : onCompleteProducts;
@@ -148,35 +161,16 @@ export default function HomeTasklist( {
   const stepAction = ( i: number ): ( () => void ) | undefined =>
     i === 0 ? onCompleteProducts : i === 1 ? paymentsAction : undefined;
   /* Actual completion of the checklist items (starts at 0 of 5). */
-  const completeCount = completedSteps;
   const stepCount = SETUP_STEPS.length;
+  const completeCount = SETUP_STEPS.filter( ( _, i ) => stepComplete( i ) ).length;
 
   type Todo = { title: string; meta?: string; onClick?: () => void };
-  const connectTodo: Todo = orderPending
-    ? {
-        title: 'Complete setting up PayPal Wallet to get paid',
-        meta: 'A customer placed an order and paid using PayPal Wallet. To receive the payment, connect PayPal Wallet to your store and complete the setup.',
-        onClick: onConnectPaypal,
-      }
-    : {
-        title: 'Connect PayPal to complete setup',
-        meta: 'PayPal Wallet is almost ready. To get started, connect your account with the Activate PayPal Wallet button.',
-        onClick: onConnectPaypal,
-      };
-  const baseTodos: Todo[] = [
+  /* "Things to do next" — the standard WooCommerce suggestions. */
+  const todos: Todo[] = [
     { title: 'Grow your business', meta: '2 minutes' },
     { title: 'Enhance your store with extensions' },
     { title: 'Get the free WooCommerce mobile app' },
-    { title: 'Enable required fraud protection for PayPal Payments', meta: 'Help protect your store and maintain compliance.' },
   ];
-  /* Once PayPal is connected the "Connect PayPal to complete setup" task is done,
-     so it drops off entirely; before that it sits at the top when an order is
-     pending, otherwise in its normal position. */
-  const todos: Todo[] = paymentsComplete
-    ? baseTodos
-    : orderPending
-      ? [ connectTodo, ...baseTodos ]
-      : [ baseTodos[ 0 ], baseTodos[ 1 ], baseTodos[ 2 ], connectTodo, baseTodos[ 3 ] ];
 
   if ( ! ready ) return <HomeSkeleton />;
 
@@ -206,17 +200,27 @@ export default function HomeTasklist( {
           <section className="hm-card">
             <div className="hm-setup-hero">
               <div className="hm-setup-hero__text">
-                <div className="hm-hero-top">
-                  <h2 className="hm-hero-title">{ hero.title }</h2>
-                  <p className="hm-hero-desc">{ hero.desc }</p>
+                <div className="hm-hero-lead">
+                  <div className="hm-hero-top">
+                    <div className="hm-hero-titlerow">
+                      <h2 className="hm-hero-title">{ hero.title }</h2>
+                      { isIconHero && <Badge intent="none">1 pending order</Badge> }
+                    </div>
+                    <p className="hm-hero-desc">{ hero.desc }</p>
+                  </div>
+                  { isIconHero && (
+                    <img className="hm-setup-hero__art hm-setup-hero__art--icon" src={ hero.art } alt="" aria-hidden />
+                  ) }
                 </div>
                 <Button className="hm-primary" variant="solid" tone="brand" onClick={ onHeroCta }>{ hero.cta }</Button>
               </div>
-              <img className="hm-setup-hero__art" src={ hero.art } alt="" aria-hidden />
+              { ! isIconHero && (
+                <img className="hm-setup-hero__art" src={ hero.art } alt="" aria-hidden />
+              ) }
             </div>
             <ol className="hm-steps">
               { SETUP_STEPS.map( ( label, i ) => {
-                const complete = i < activeIndex;
+                const complete = stepComplete( i );
                 const active = i === activeIndex;
                 const action = stepAction( i );
                 const cls = `hm-step${ active ? ' is-active' : '' }${ complete ? ' is-complete' : '' }${ action ? ' is-clickable' : '' }`;

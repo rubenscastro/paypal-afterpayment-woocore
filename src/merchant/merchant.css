@@ -563,12 +563,20 @@
   border-bottom: 1px solid #dddddd;
 }
 .hm-setup-hero__text { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
-.hm-hero-top { display: flex; flex-direction: column; gap: 8px; }
+/* Title/description block plus (icon hero) the badge icon, centered against each
+   other on the cross axis — the icon lines up with title+description, not the
+   CTA button that sits below in the text column. */
+.hm-hero-lead { display: flex; align-items: center; gap: 56px; }
+.hm-hero-top { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.hm-hero-titlerow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 /* Heading XL token: SF Pro Semibold 20/24, weight 500, Gray 70. */
 .hm-hero-title { font-size: 20px; line-height: 24px; font-weight: 500; color: #3c434a; margin: 0; }
 /* Body MD token: 13/20, Gray 700. */
 .hm-hero-desc { font-size: 13px; line-height: 20px; color: #757575; margin: 0; }
 .hm-setup-hero__art { width: 104px; height: 110px; flex: none; }
+/* The PayPal Wallet badge is an icon, not a full illustration — half size and
+   centered against the hero text. */
+.hm-setup-hero__art--icon { width: 52px; height: 52px; align-self: center; }
 /* Real @wordpress/ui Button; only its placement in the flex column is ours. */
 .hm-primary { align-self: flex-start; }
 .hm-steps { list-style: none; margin: 0; padding: 0; }
@@ -629,11 +637,7 @@
 .hm-sk-cardhead { padding: 16px 24px; border-bottom: 1px solid #dddddd; }
 .hm-sk--h3 { width: 160px; height: 20px; }
 
-.ps-sk-tabs { display: flex; flex-wrap: wrap; gap: 24px; }
-.hm-sk--tab { height: 16px; }
-.ps-sk-row { display: flex; align-items: flex-start; gap: 16px; padding: 20px 0; border-bottom: 1px solid #f0f0f1; }
-.ps-sk-row__main { flex: 1 0 0; display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
-.hm-sk--logo { width: 40px; height: 40px; border-radius: 6px; flex: none; }
+.hm-sk--logo { width: 40px; height: 40px; border-radius: 8px; flex: none; }
 .hm-sk--rowtitle { width: 180px; height: 16px; }
 .hm-sk--action { width: 90px; height: 36px; border-radius: 2px; flex: none; }
 
@@ -700,6 +704,8 @@
 .ww-subbar__title { font-size: 18px; font-weight: 600; }
 
 .ww-body { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+/* Pending-order notice sits above the hero with a clear gap. */
+.ww-body > .wc-notice { margin-bottom: 32px; }
 .ww-hero { text-align: center; display: flex; flex-direction: column; align-items: center; }
 .ww-hero__icon { border-radius: 12px; margin-bottom: 16px; }
 .ww-hero__title { font-size: 24px; font-weight: 400; margin: 0 0 10px; }

@@ -24,7 +24,7 @@ export default function Notice( {
   onAction,
   onDismiss,
 }: {
-  title: string;
+  title?: string;
   children: ReactNode;
   actionLabel?: string;
   onAction?: () => void;
@@ -35,7 +35,7 @@ export default function Notice( {
       <span className="wc-notice__icon" aria-hidden><WarningIcon /></span>
       <div className="wc-notice__content">
         <div className="wc-notice__text">
-          <p className="wc-notice__title">{ title }</p>
+          { title && <p className="wc-notice__title">{ title }</p> }
           <p className="wc-notice__desc">{ children }</p>
         </div>
         { actionLabel && (

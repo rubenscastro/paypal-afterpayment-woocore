@@ -6,6 +6,7 @@
 import { Icon } from '@wordpress/components';
 import { IconButton } from '@wordpress/ui';
 import { chevronLeft, chevronDown } from '@wordpress/icons';
+import Notice from '../Notice';
 
 const FEATURES = [
   { title: 'Pay with PayPal', logo: '/logos/paypal/paypal-black.svg', desc: 'Our brand recognition helps give customers the confidence to buy.', learn: true },
@@ -18,11 +19,14 @@ export default function WalletWizard( {
   onBack,
   onConnect,
   loading = false,
+  pendingOrder = false,
 }: {
   onBack: () => void;
   onConnect: () => void;
   /** After the connect popup closes, the CTA spins for a moment before redirect. */
   loading?: boolean;
+  /** A shopper has paid but PayPal isn't connected yet — show the amber notice. */
+  pendingOrder?: boolean;
 } ) {
   return (
     <div className="ww">
@@ -32,6 +36,12 @@ export default function WalletWizard( {
       </header>
 
       <div className="ww-body">
+        { pendingOrder && (
+          <Notice>
+            A customer placed an order and paid using PayPal Wallet. To receive
+            the payment, connect PayPal Wallet to your store and complete the setup.
+          </Notice>
+        ) }
         <div className="ww-hero">
           <img className="ww-hero__icon" src="/logos/paypal/paypalwallet.svg" alt="" width={ 64 } height={ 64 } />
           <h1 className="ww-hero__title">Welcome to PayPal Wallet</h1>
