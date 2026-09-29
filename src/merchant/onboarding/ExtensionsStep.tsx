@@ -15,12 +15,14 @@ interface Ext {
   logo: string;
   /** Installed extensions show a chip and no checkbox. */
   installed?: boolean;
+  /** Chip label for installed extensions (defaults to "Installed"). */
+  badge?: string;
 }
 
 const EXTENSIONS: Ext[] = [
-  { id: 'woopayments', title: 'Get paid with WooPayments', desc: 'Offer safe and convenient way to pay with WooPayments', logo: '/logos/woo/woo-square.svg', installed: true },
+  { id: 'woopayments', title: 'Get paid with WooPayments', desc: 'Offer safe and convenient way to pay with WooPayments', logo: '/logos/woo/woo-square.svg', installed: true, badge: 'Included' },
   { id: 'google', title: 'Drive sales with Google Listings & Ads', desc: 'Create ads for your products straight from your dashboard', logo: '/logos/woo/logo-google.svg' },
-  { id: 'paypal', title: 'Give shoppers a variety of ways to pay', desc: 'Offer additional payment options with PayPal Wallet', logo: '/logos/paypal.svg', installed: true },
+  { id: 'paypal', title: 'Give shoppers a variety of ways to pay', desc: 'Offer additional payment options with PayPal Wallet', logo: '/logos/paypal.svg', installed: true, badge: 'Included' },
   { id: 'pinterest', title: 'Showcase your products with Pinterest', desc: 'Get your products in front of a highly engaged audience', logo: '/logos/woo/logo-pinterest.svg' },
   { id: 'jetpack', title: 'Enhance security with Jetpack', desc: 'Keep your store online with full security and backups', logo: '/logos/woo/logo-jetpack.svg', installed: true },
   { id: 'shipping', title: 'Print shipping labels with WooCommerce Shipping', desc: 'Print discounted USPS and DHL labels', logo: '/logos/woo/woo-square.svg' },
@@ -64,7 +66,7 @@ export default function ExtensionsStep( {
               <div className="ob-ext__text">
                 <div className="ob-ext__title-row">
                   <span className="ob-ext__title">{ ext.title }</span>
-                  { ext.installed && <span className="ob-ext__chip">Installed</span> }
+                  { ext.installed && <span className="ob-ext__chip">{ ext.badge ?? 'Installed' }</span> }
                 </div>
                 <span className="ob-ext__desc">{ ext.desc }</span>
               </div>

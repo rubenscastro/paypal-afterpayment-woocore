@@ -100,14 +100,22 @@ function Sidebar( {
   );
 }
 
-function TopBar( { siteName }: { siteName: string } ) {
+function TopBar( { siteName, onViewStore }: { siteName: string; onViewStore?: () => void } ) {
   return (
     <header className="wp-topbar" role="banner">
       <div className="wp-topbar-left">
         <a className="wp-topbar-logo" aria-label="WordPress">
           <Icon icon={ wordpress } size={ 20 } />
         </a>
-        <a className="wp-topbar-node">
+        {/* The site-name node links to the storefront, like WP's admin bar. */}
+        <a
+          className="wp-topbar-node wp-topbar-node--link"
+          role="button"
+          tabIndex={ 0 }
+          aria-label={ `Visit ${ siteName }` }
+          onClick={ onViewStore }
+          onKeyDown={ ( e ) => { if ( e.key === 'Enter' || e.key === ' ' ) { e.preventDefault(); onViewStore?.(); } } }
+        >
           <Icon icon={ home } size={ 20 } />
           <span>{ siteName }</span>
         </a>
@@ -130,19 +138,22 @@ export default function WpAdminShell( {
   activeSub = 'Settings',
   siteName = 'WooTesting',
   onSelectSub,
+  onViewStore,
   homeBadge = 0,
   children,
 }: {
   activeSub?: WooSubItem;
   siteName?: string;
   onSelectSub?: ( screen: 'home' | 'payments' ) => void;
+  /** Clicking the site name in the top bar opens the storefront. */
+  onViewStore?: () => void;
   /** Blue count badge on the WooCommerce → Home submenu item. */
   homeBadge?: number;
   children: ReactNode;
 } ) {
   return (
     <div className="wp-admin">
-      <TopBar siteName={ siteName } />
+      <TopBar siteName={ siteName } onViewStore={ onViewStore } />
       <Sidebar activeSub={ activeSub } onSelectSub={ onSelectSub } homeBadge={ homeBadge } />
       <main className="wp-main">{ children }</main>
     </div>

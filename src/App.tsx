@@ -151,7 +151,7 @@ export default function App() {
   return (
     <>
       { track === 'merchant'
-        ? <MerchantApp state={ merchant } setState={ setMerchant } />
+        ? <MerchantApp state={ merchant } setState={ setMerchant } onViewStore={ () => setTrack( 'shopper' ) } />
         : <ShopperApp
             state={ shopper }
             setState={ setShopper }

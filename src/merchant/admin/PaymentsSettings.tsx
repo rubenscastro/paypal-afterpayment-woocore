@@ -70,7 +70,7 @@ export default function PaymentsSettings( {
             <WooPaymentsMethodsLogos />
           </div>
           <div className="ps-row__actions">
-            <Button variant="solid" tone="brand">Install</Button>
+            <Button variant="solid" tone="brand">Enable</Button>
             <IconButton icon={ moreVertical } label="More" variant="minimal" tone="neutral" />
           </div>
         </div>

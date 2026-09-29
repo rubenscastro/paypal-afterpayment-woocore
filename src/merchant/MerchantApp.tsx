@@ -27,9 +27,12 @@ import { track } from '../analytics';
 export default function MerchantApp( {
   state,
   setState,
+  onViewStore,
 }: {
   state: MerchantState;
   setState: ( updater: ( s: MerchantState ) => MerchantState ) => void;
+  /** Open the storefront (shopper track) — wired to the top bar's site name. */
+  onViewStore?: () => void;
 } ) {
   const go = ( screen: MerchantState['screen'] ) => setState( ( s ) => ( { ...s, screen } ) );
   const update = ( patch: Partial< MerchantState > ) => setState( ( s ) => ( { ...s, ...patch } ) );
@@ -111,7 +114,7 @@ export default function MerchantApp( {
 
     case 'home':
       return (
-        <WpAdminShell activeSub="Home" onSelectSub={ go } homeBadge={ pendingTasks }>
+        <WpAdminShell activeSub="Home" onSelectSub={ go } onViewStore={ onViewStore } homeBadge={ pendingTasks }>
           <HomeTasklist
             state={ state }
             onConnectPaypal={ () => go( 'wallet-welcome' ) }
@@ -123,7 +126,7 @@ export default function MerchantApp( {
 
     case 'payments':
       return (
-        <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
+        <WpAdminShell activeSub="Settings" onSelectSub={ go } onViewStore={ onViewStore } homeBadge={ pendingTasks }>
           <PaymentsSettings
             state={ state }
             onCompleteSetup={ () => go( 'wallet-welcome' ) }
@@ -134,7 +137,7 @@ export default function MerchantApp( {
 
     case 'wallet-welcome':
       return (
-        <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
+        <WpAdminShell activeSub="Settings" onSelectSub={ go } onViewStore={ onViewStore } homeBadge={ pendingTasks }>
           <WalletWizard
             onBack={ () => go( 'payments' ) }
             onConnect={ () => setConnectOpen( true ) }
@@ -147,7 +150,7 @@ export default function MerchantApp( {
 
     case 'wallet-connecting':
       return (
-        <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
+        <WpAdminShell activeSub="Settings" onSelectSub={ go } onViewStore={ onViewStore } homeBadge={ pendingTasks }>
           <FunLoader
             title="Connecting your account"
             image="/logos/woo/loader-openingthedoors.svg"
@@ -159,7 +162,7 @@ export default function MerchantApp( {
 
     case 'wallet-manage':
       return (
-        <WpAdminShell activeSub="Settings" onSelectSub={ go } homeBadge={ pendingTasks }>
+        <WpAdminShell activeSub="Settings" onSelectSub={ go } onViewStore={ onViewStore } homeBadge={ pendingTasks }>
           <WalletManage
             state={ state }
             onBack={ () => go( 'payments' ) }
