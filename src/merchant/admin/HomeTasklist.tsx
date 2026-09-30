@@ -137,28 +137,29 @@ export default function HomeTasklist( {
     return i < activeIndex;
   };
 
-  /* Once a shopper has paid but PayPal isn't connected yet, the tasklist pivots
-     to getting paid: the "Set up payments" step reads "Set up PayPal Wallet" and
-     opens the wallet setup wizard directly (rather than the Payments settings
-     list), and the connect task jumps to the top of "Things to do next". */
   const orderPending = state.pendingPayment && state.paypal !== 'active';
-  const stepLabel = ( i: number ): string =>
-    i === 1 && orderPending ? 'Set up PayPal Wallet' : SETUP_STEPS[ i ];
-  /* The payments step: wallet wizard when it's urging "Set up PayPal Wallet",
-     otherwise the Payments settings screen. */
-  const paymentsAction = orderPending ? onConnectPaypal : onGoPayments;
 
-  /* Hero follows the active step: products → payments → customize (once PayPal
-     is connected, the payments step is done so the hero advances to the next
-     task, "Start customizing your store"). */
+  /* PARKED (kept, not deleted): the earlier flow turned the main tasklist's
+     "Set up payments" step + hero into "Set up PayPal Wallet" when an order was
+     pending, opening the wallet wizard directly. That is disabled — the main
+     tasklist now always shows "Set up payments" and opens Payments settings; the
+     pending-order PayPal prompt lives in "Things to do next" instead. To revive:
+       const stepLabel = ( i ) => i === 1 && orderPending ? 'Set up PayPal Wallet' : SETUP_STEPS[ i ];
+       const paymentsAction = orderPending ? onConnectPaypal : onGoPayments;
+       hero = paymentsComplete ? customize : orderPending ? paypalWallet : productsComplete ? payments : products;
+     (SETUP_HERO.paypalWallet and the icon-hero markup below stay in place.) */
+  const stepLabel = ( i: number ): string => SETUP_STEPS[ i ];
+  /* The payments step always opens the Payments settings screen. */
+  const paymentsAction = onGoPayments;
+
+  /* Hero follows the active step: products → payments → customize. */
   const hero = paymentsComplete
     ? SETUP_HERO.customize
-    : orderPending
-      ? SETUP_HERO.paypalWallet
-      : productsComplete ? SETUP_HERO.payments : SETUP_HERO.products;
-  /* The PayPal Wallet hero shows a small square icon (not a full illustration);
-     it renders beside the title+description and is centered against them only. */
-  const isIconHero = hero === SETUP_HERO.paypalWallet;
+    : productsComplete ? SETUP_HERO.payments : SETUP_HERO.products;
+  /* Parked with the "Set up PayPal Wallet" hero: currently always off, so the
+     icon-hero markup (badge + wallet icon) never renders. To revive, restore the
+     paypalWallet hero branch above and set: hero === SETUP_HERO.paypalWallet. */
+  const isIconHero: boolean = false;
   const onHeroCta = paymentsComplete
     ? () => {}
     : productsComplete ? paymentsAction : onCompleteProducts;
@@ -218,12 +219,24 @@ export default function HomeTasklist( {
   }, [ showTip, ready, onDismissHomeTip ] );
 
   type Todo = { title: string; meta?: string; onClick?: () => void };
-  /* "Things to do next" — the standard WooCommerce suggestions. */
-  const todos: Todo[] = [
+  /* "Things to do next" — the standard WooCommerce suggestions. When an order is
+     pending, "Set up PayPal Wallet" leads the list (the pending-order PayPal
+     prompt now lives here rather than on the main setup checklist). */
+  const baseTodos: Todo[] = [
     { title: 'Grow your business', meta: '2 minutes' },
     { title: 'Enhance your store with extensions' },
     { title: 'Get the free WooCommerce mobile app' },
   ];
+  const todos: Todo[] = orderPending
+    ? [
+        {
+          title: 'Set up PayPal Wallet',
+          meta: 'You received an order paid with PayPal Wallet. Connect PayPal Wallet to receive the payment.',
+          onClick: onConnectPaypal,
+        },
+        ...baseTodos,
+      ]
+    : baseTodos;
 
   if ( ! ready ) return <HomeSkeleton />;
 
