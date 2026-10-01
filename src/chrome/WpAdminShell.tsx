@@ -11,7 +11,7 @@ import { Icon } from '@wordpress/ui';
 import { home, plus, update, wordpress } from '@wordpress/icons';
 import {
   DashboardIcon, PostsIcon, MediaIcon, PagesIcon, CommentsIcon,
-  WooCommerceIcon, ProductsIcon, AnalyticsIcon, MarketingIcon,
+  WooCommerceIcon, ProductsIcon, PaymentsIcon, AnalyticsIcon, MarketingIcon,
   AppearanceIcon, PluginsIcon, UsersIcon,
   ToolsIcon, SettingsIcon, CollapseIcon,
 } from '../SidebarIcons';
@@ -87,7 +87,7 @@ function Sidebar( {
           } ) }
         </NavItem>
         <NavItem icon={ <ProductsIcon /> } label="Products" />
-        <NavItem icon={ <AnalyticsIcon /> } label="Payments" />
+        <NavItem icon={ <PaymentsIcon /> } label="Payments" />
         <NavItem icon={ <AnalyticsIcon /> } label="Analytics" />
         <NavItem icon={ <MarketingIcon /> } label="Marketing" />
         <NavItem icon={ <AppearanceIcon /> } label="Appearance" />
