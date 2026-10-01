@@ -69,6 +69,9 @@ export default function App() {
   /* Matching coaching popover on the storefront ("make a purchase to continue"),
      shown under a random Add-to-cart button until dismissed or a purchase lands. */
   const [ storeTipDismissed, setStoreTipDismissed ] = useState( false );
+  /* After "Back to WooCommerce" from the order snackbar lands on order details,
+     a one-time coaching popover points at the Settings (Payment Settings) menu. */
+  const [ paymentsTipActive, setPaymentsTipActive ] = useState( false );
   /* Whether a shopper order has been placed lives on the merchant state
      (`orderReceived`) — set by a real checkout (onPurchase) or the prototype
      switcher — and doubles as the signal that the "go to Shopper view" nudge has
@@ -163,6 +166,8 @@ export default function App() {
             onViewStore={ () => setTrack( 'shopper' ) }
             homeTipDismissed={ homeTipDismissed }
             onDismissHomeTip={ () => setHomeTipDismissed( true ) }
+            paymentsTipActive={ paymentsTipActive }
+            onDismissPaymentsTip={ () => setPaymentsTipActive( false ) }
           />
         : <ShopperApp
             state={ shopper }
@@ -196,7 +201,13 @@ export default function App() {
           desc="The merchant has been notified."
           cta="Back to WooCommerce"
           narrow
-          onGo={ () => setTrack( 'merchant' ) }
+          onGo={ () => {
+            /* Land on the new order's details page, not the Home tasklist, and
+               arm the coaching popover pointing at the Settings menu item. */
+            setMerchant( ( s ) => ( { ...s, screen: 'order-details' } ) );
+            setPaymentsTipActive( true );
+            setTrack( 'merchant' );
+          } }
           onDismiss={ () => setOrderNudgeDismissed( true ) }
         />
       ) }
@@ -217,6 +228,7 @@ export default function App() {
           setOrderNudgeDismissed( false );
           setHomeTipDismissed( false );
           setStoreTipDismissed( false );
+          setPaymentsTipActive( false );
         } }
       />
     </>

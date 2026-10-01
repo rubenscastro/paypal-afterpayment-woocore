@@ -45,8 +45,9 @@ function NavItem( {
 }
 
 /** WooCommerce submenu items wired to a merchant screen. */
-const SUB_TARGET: Partial< Record< WooSubItem, 'home' | 'payments' > > = {
+const SUB_TARGET: Partial< Record< WooSubItem, 'home' | 'payments' | 'orders' > > = {
   Home: 'home',
+  Orders: 'orders',
   Settings: 'payments',
 };
 
@@ -56,7 +57,7 @@ function Sidebar( {
   homeBadge = 0,
 }: {
   activeSub: WooSubItem;
-  onSelectSub?: ( screen: 'home' | 'payments' ) => void;
+  onSelectSub?: ( screen: 'home' | 'payments' | 'orders' ) => void;
   homeBadge?: number;
 } ) {
   return (
@@ -77,7 +78,7 @@ function Sidebar( {
             return (
               <li key={ item }>
                 { target && onSelectSub ? (
-                  <button type="button" className={ cls } onClick={ () => onSelectSub( target ) }>{ item }{ badge }</button>
+                  <button type="button" className={ cls } data-target={ target } onClick={ () => onSelectSub( target ) }>{ item }{ badge }</button>
                 ) : (
                   <a className={ cls }>{ item }{ badge }</a>
                 ) }
@@ -144,7 +145,7 @@ export default function WpAdminShell( {
 }: {
   activeSub?: WooSubItem;
   siteName?: string;
-  onSelectSub?: ( screen: 'home' | 'payments' ) => void;
+  onSelectSub?: ( screen: 'home' | 'payments' | 'orders' ) => void;
   /** Clicking the site name in the top bar opens the storefront. */
   onViewStore?: () => void;
   /** Blue count badge on the WooCommerce → Home submenu item. */

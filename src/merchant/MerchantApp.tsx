@@ -7,7 +7,8 @@
  * any screen and preset the states (PayPal connected? payment pending?) that make
  * the screens differ.
  */
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import WpAdminShell from '../chrome/WpAdminShell';
 import { type MerchantState, type WalletTab } from './flow';
 import WelcomeStep from './onboarding/WelcomeStep';
@@ -18,11 +19,62 @@ import FunLoader from './onboarding/FunLoader';
 import JetpackConnectStep from './onboarding/JetpackConnectStep';
 import BusinessLocationStep from './onboarding/BusinessLocationStep';
 import HomeTasklist from './admin/HomeTasklist';
+import OrdersPage from './admin/OrdersPage';
+import OrderDetails from './admin/OrderDetails';
 import PaymentsSettings from './admin/PaymentsSettings';
 import WalletWizard from './admin/wallet/WalletWizard';
 import WalletManage from './admin/wallet/WalletManage';
 import PayPalConnectFlow from './admin/wallet/PayPalConnectFlow';
 import { track } from '../analytics';
+
+/** Coaching popover pointing at the Settings (Payment Settings) sidebar item,
+ *  shown on the order-details screen after returning from the storefront.
+ *  Portal + fixed positioning so it overlays the content; dismisses on any click. */
+function PaymentsMenuTip( { onDismiss }: { onDismiss: () => void } ) {
+  /* Appear 4s after landing on the order details page. */
+  const [ shown, setShown ] = useState( false );
+  const [ pos, setPos ] = useState< { top: number; left: number } | null >( null );
+  useEffect( () => {
+    const t = window.setTimeout( () => setShown( true ), 4000 );
+    return () => window.clearTimeout( t );
+  }, [] );
+  useLayoutEffect( () => {
+    if ( ! shown ) return;
+    const measure = () => {
+      const el = document.querySelector( '.wp-sub-item[data-target="payments"]' );
+      if ( ! el ) return;
+      const r = el.getBoundingClientRect();
+      /* Sit close to the "Settings" label (arrow just past the text); overlapping
+         the sidebar is fine. */
+      setPos( { top: r.top + r.height / 2, left: r.left + 92 } );
+    };
+    measure();
+    window.addEventListener( 'resize', measure );
+    window.addEventListener( 'scroll', measure, true );
+    return () => {
+      window.removeEventListener( 'resize', measure );
+      window.removeEventListener( 'scroll', measure, true );
+    };
+  }, [ shown ] );
+  useEffect( () => {
+    if ( ! shown ) return;
+    const dismiss = () => onDismiss();
+    const t = window.setTimeout( () => document.addEventListener( 'mousedown', dismiss ), 0 );
+    return () => { window.clearTimeout( t ); document.removeEventListener( 'mousedown', dismiss ); };
+  }, [ shown, onDismiss ] );
+  if ( ! shown || ! pos ) return null;
+  return createPortal(
+    <div className="hm-tip hm-tip--right" role="status" style={ { top: pos.top, left: pos.left, width: 236 } }>
+      <span className="hm-tip__arrow" aria-hidden />
+      <div className="hm-tip__body">
+        <span className="hm-tip__title"><span aria-hidden>👉</span> Prototype control</span>
+        <span className="hm-tip__text">Open Settings to connect PayPal Wallet</span>
+      </div>
+      <button type="button" className="hm-tip__close" aria-label="Dismiss" onClick={ onDismiss }>×</button>
+    </div>,
+    document.body
+  );
+}
 
 export default function MerchantApp( {
   state,
@@ -30,6 +82,8 @@ export default function MerchantApp( {
   onViewStore,
   homeTipDismissed = false,
   onDismissHomeTip,
+  paymentsTipActive = false,
+  onDismissPaymentsTip,
 }: {
   state: MerchantState;
   setState: ( updater: ( s: MerchantState ) => MerchantState ) => void;
@@ -38,6 +92,9 @@ export default function MerchantApp( {
   /** First-visit "click Add products" popover: whether it's been dismissed. */
   homeTipDismissed?: boolean;
   onDismissHomeTip?: () => void;
+  /** Coaching popover on order details pointing at the Settings menu item. */
+  paymentsTipActive?: boolean;
+  onDismissPaymentsTip?: () => void;
 } ) {
   const go = ( screen: MerchantState['screen'] ) => setState( ( s ) => ( { ...s, screen } ) );
   const update = ( patch: Partial< MerchantState > ) => setState( ( s ) => ( { ...s, ...patch } ) );
@@ -129,6 +186,26 @@ export default function MerchantApp( {
             onDismissHomeTip={ onDismissHomeTip }
           />
         </WpAdminShell>
+      );
+
+    case 'orders':
+      return (
+        <WpAdminShell activeSub="Orders" onSelectSub={ go } onViewStore={ onViewStore } homeBadge={ pendingTasks }>
+          <OrdersPage state={ state } onViewOrder={ () => go( 'order-details' ) } />
+        </WpAdminShell>
+      );
+
+    case 'order-details':
+      return (
+        <>
+          <WpAdminShell activeSub="Orders" onSelectSub={ go } onViewStore={ onViewStore } homeBadge={ pendingTasks }>
+            <OrderDetails
+              state={ state }
+              onConnectPaypal={ () => go( 'wallet-welcome' ) }
+            />
+          </WpAdminShell>
+          { paymentsTipActive && <PaymentsMenuTip onDismiss={ () => onDismissPaymentsTip?.() } /> }
+        </>
       );
 
     case 'payments':

@@ -26,6 +26,8 @@ export const ONBOARDING_SCREENS = [
 /** wp-admin screens (rendered inside the admin shell). */
 export const ADMIN_SCREENS = [
   'home',
+  'orders',
+  'order-details',
   'payments',
   'wallet-welcome',
   'wallet-connecting',
@@ -143,6 +145,8 @@ export const SCREEN_LABEL: Record< MerchantScreen, string > = {
   'skip-location': 'Onboarding · Business location (skip)',
   'skip-loader': 'Onboarding · Turning on the lights',
   home: 'Admin · Home / tasklist',
+  orders: 'Admin · Orders',
+  'order-details': 'Admin · Order details',
   payments: 'Admin · Payments settings',
   'wallet-welcome': 'PayPal · Setup wizard',
   'wallet-connecting': 'PayPal · Connecting',
