@@ -68,7 +68,7 @@ function PaymentsMenuTip( { onDismiss }: { onDismiss: () => void } ) {
       <span className="hm-tip__arrow" aria-hidden />
       <div className="hm-tip__body">
         <span className="hm-tip__title"><span aria-hidden>👉</span> Prototype control</span>
-        <span className="hm-tip__text">Open Settings to connect PayPal Wallet</span>
+        <span className="hm-tip__text">Open Settings for another way to connect PayPal Wallet</span>
       </div>
       <button type="button" className="hm-tip__close" aria-label="Dismiss" onClick={ onDismiss }>×</button>
     </div>,
